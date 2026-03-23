@@ -3,5 +3,12 @@
     "welcome": "Greenify",
     "description": "Let's build green habits together every day.",
     "camera_btn": "Open Camera to Check-in"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "cta": "Log in",
+    "slide_1": "Work greener,\nLive lighter",
+    "slide_2": "Turn every task\ninto a green action",
+    "slide_3": "Today's work,\na greener tomorrow"
   }
 }

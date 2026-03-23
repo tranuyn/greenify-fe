@@ -3,5 +3,12 @@
     "welcome": "Greenify",
     "description": "Cùng nhau xây dựng thói quen xanh mỗi ngày.",
     "camera_btn": "Mở Camera Check-in"
+  },
+  "onboarding": {
+    "skip": "Bỏ qua",
+    "cta": "Đăng nhập",
+    "slide_1": "Làm việc xanh\nSống nhẹ nhàng hơn",
+    "slide_2": "Biến mọi công việc\nthành một hành động xanh",
+    "slide_3": "Công việc hôm nay,\ntương lai xanh mai sau"
   }
 }
