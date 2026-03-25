@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Leaf } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -23,7 +23,7 @@ function BrandSplash({ withLoader }: { withLoader: boolean }) {
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-white">
       <View className="h-16 w-16 items-center justify-center rounded-2xl bg-primary-700">
-        <Leaf size={30} color="#dcfce7" />
+        <Ionicons name="leaf" size={30} color="#dcfce7" />
       </View>
       <Text className="mt-4 text-4xl font-inter-black text-foreground">Greenify</Text>
       {withLoader ? <ActivityIndicator className="mt-5" size="small" color="#15803d" /> : null}

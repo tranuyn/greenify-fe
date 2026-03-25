@@ -1,5 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Check, ChevronDown, UserRound } from 'lucide-react-native';
+import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
 import { Pressable, View } from 'react-native';
 import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
 import { AuthInput } from 'components/shared/auth/AuthInput';
@@ -28,7 +31,7 @@ export default function CompleteProfileScreen() {
 
       <View className="mb-5 items-center">
         <View className="h-16 w-16 items-center justify-center rounded-full bg-primary-100">
-          <UserRound size={32} color="#166534" />
+          <FontAwesome5 name="user" size={32} color="#166534" />
         </View>
       </View>
 
@@ -56,13 +59,12 @@ export default function CompleteProfileScreen() {
         />
 
         <View>
-          <Text className="mb-1 text-sm font-inter-medium text-foreground/80">Tỉnh/Thành phố</Text>
+          <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">Tỉnh/Thành phố</Text>
           <Pressable
             className="flex-row items-center justify-between rounded-xl border border-primary-100 bg-primary-50 px-3 py-3"
-            onPress={() => setShowCityOptions((prev) => !prev)}
-          >
+            onPress={() => setShowCityOptions((prev) => !prev)}>
             <Text className="text-base text-foreground">{city}</Text>
-            <ChevronDown size={18} color="#4b5563" />
+            <Entypo name="chevron-down" size={18} color="text-foreground" />
           </Pressable>
 
           {showCityOptions ? (
@@ -74,9 +76,8 @@ export default function CompleteProfileScreen() {
                   onPress={() => {
                     setCity(option);
                     setShowCityOptions(false);
-                  }}
-                >
-                  <Text className="text-sm text-foreground/80">{option}</Text>
+                  }}>
+                  <Text className="text-foreground/80 text-sm">{option}</Text>
                 </Pressable>
               ))}
             </View>
@@ -95,16 +96,14 @@ export default function CompleteProfileScreen() {
         className="mt-5 flex-row items-start"
         onPress={() => setAcceptedTerms((prev) => !prev)}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: acceptedTerms }}
-      >
+        accessibilityState={{ checked: acceptedTerms }}>
         <View
           className={`mr-2 mt-0.5 h-4 w-4 items-center justify-center rounded border ${
             acceptedTerms ? 'border-primary-700 bg-primary-700' : 'border-primary-300 bg-white'
-          }`}
-        >
-          {acceptedTerms ? <Check size={12} color="#ffffff" /> : null}
+          }`}>
+          {acceptedTerms ? <FontAwesome name="check-square" size={12} color="white" /> : null}
         </View>
-        <Text className="flex-1 text-xs leading-5 text-foreground/70">
+        <Text className="text-foreground/70 flex-1 text-xs leading-5">
           Tôi đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Greenify.
         </Text>
       </Pressable>
@@ -112,9 +111,9 @@ export default function CompleteProfileScreen() {
       <Button title="Tạo tài khoản" className="mt-5" onPress={() => router.replace('/(tabs)')} />
 
       <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-sm text-foreground/70">Đã có tài khoản?</Text>
+        <Text className="text-foreground/70 text-sm">Đã có tài khoản?</Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
-          <Text className="text-sm font-inter-semibold text-primary-700">Đăng nhập</Text>
+          <Text className="font-inter-semibold text-sm text-primary-700">Đăng nhập</Text>
         </Pressable>
       </View>
     </AuthScaffold>

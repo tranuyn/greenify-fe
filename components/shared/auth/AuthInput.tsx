@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import { Pressable, TextInput, type TextInputProps, View } from 'react-native';
 import { Text } from 'components/ui/Text';
 
@@ -38,9 +38,9 @@ export function AuthInput({
         {secureToggle ? (
           <Pressable onPress={secureToggle.onToggle} hitSlop={8}>
             {secureToggle.visible ? (
-              <EyeOff size={18} color="#4b5563" />
+              <Feather name="eye-off" size={18} color="#4b5563" />
             ) : (
-              <Eye size={18} color="#4b5563" />
+              <Feather name="eye" size={18} color="#4b5563" />
             )}
           </Pressable>
         ) : null}

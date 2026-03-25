@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Chrome, Facebook } from 'lucide-react-native';
+import { FontAwesome } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 import { Text } from 'components/ui/Text';
 
@@ -37,12 +37,12 @@ export function SocialAuthButtons({ onGooglePress, onFacebookPress }: SocialAuth
         <SocialCircleButton
           label="Đăng nhập với Google"
           onPress={onGooglePress}
-          icon={<Chrome size={20} color="#111827" />}
+          icon={<FontAwesome name="google" size={20} color="#111827" />}
         />
         <SocialCircleButton
           label="Đăng nhập với Facebook"
           onPress={onFacebookPress}
-          icon={<Facebook size={20} color="#1d4ed8" />}
+          icon={<FontAwesome name="facebook" size={20} color="#1d4ed8" />}
         />
       </View>
     </View>

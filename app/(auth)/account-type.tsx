@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Building2, Leaf } from 'lucide-react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
@@ -36,14 +36,14 @@ export default function AccountTypeScreen() {
         <RoleCard
           title={ACCOUNT_ROLE_OPTIONS[0].title}
           description={ACCOUNT_ROLE_OPTIONS[0].description}
-          icon={<Building2 size={22} color="#166534" />}
+          icon={<MaterialCommunityIcons name="office-building-outline" size={22} color="#166534" />}
           onPress={() => router.push({ pathname: '/(auth)/signup-email', params: { role: 'organization' } })}
         />
 
         <RoleCard
           title={ACCOUNT_ROLE_OPTIONS[1].title}
           description={ACCOUNT_ROLE_OPTIONS[1].description}
-          icon={<Leaf size={22} color="#166534" />}
+          icon={<Ionicons name="leaf-outline" size={22} color="#166534" />}
           onPress={() => router.push({ pathname: '/(auth)/signup-email', params: { role: 'citizen' } })}
         />
       </View>

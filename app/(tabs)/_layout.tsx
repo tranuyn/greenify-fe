@@ -1,51 +1,62 @@
 import { Tabs } from 'expo-router';
-import { CalendarDays, Crosshair, Globe2, Home, UserRound } from 'lucide-react-native';
-import { View } from 'react-native';
+import { View, useColorScheme } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import Feather from '@expo/vector-icons/Feather';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#16a34a',
-        tabBarInactiveTintColor: '#171717',
+        // Đổi màu sắc động theo Theme Sáng/Tối
+        tabBarActiveTintColor: isDark ? '#4ade80' : '#16a34a', // primary-400 cho Tối, primary-600 cho Sáng
+        tabBarInactiveTintColor: isDark ? '#a3a3a3' : '#737373', // Màu xám trung tính
         tabBarLabelStyle: {
           fontSize: 12,
           marginTop: -2,
+          fontFamily: 'Inter_400Regular', // Ép font Inter vào chữ của thanh Tab
+          fontWeight: 'normal',
         },
         tabBarStyle: {
-          height: 86,
+          height: 90,
           paddingTop: 8,
           paddingBottom: 8,
           borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
-          backgroundColor: '#ffffff',
+          // Đổi màu nền thanh Tab và đường viền theo Theme
+          borderTopColor: isDark ? '#262626' : '#e5e7eb',
+          backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          title: t('tabs.home', 'Trang chủ'), // Fallback tiếng Việt nếu file JSON chưa có
+          tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
-          title: 'Cộng đồng',
-          tabBarIcon: ({ color }) => <Globe2 size={24} color={color} />,
+          title: t('tabs.community', 'Cộng đồng'),
+          tabBarIcon: ({ color }) => <SimpleLineIcons name="globe" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="map"
+        name="map" // Màn hình này mình sẽ biến thành Màn hình Camera Check-in nhé
         options={{
           title: '',
           tabBarLabel: () => null,
           tabBarIconStyle: { marginTop: -20 },
           tabBarIcon: () => (
-            <View className="h-16 w-16 items-center justify-center rounded-full border border-primary-800 bg-primary-600 shadow-md">
-              <Crosshair size={30} color="#ffffff" />
+            // Dùng class bg-primary để nó tự lấy màu xanh chuẩn trong cấu hình Tailwind
+            <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
+              <Feather name="camera" size={28} color="#ffffff" />
             </View>
           ),
         }}
@@ -53,15 +64,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="events"
         options={{
-          title: 'Sự kiện',
-          tabBarIcon: ({ color }) => <CalendarDays size={24} color={color} />,
+          title: t('tabs.events', 'Sự kiện'),
+          tabBarIcon: ({ color }) => <Feather name="calendar" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Tài khoản',
-          tabBarIcon: ({ color }) => <UserRound size={24} color={color} />,
+          title: t('tabs.profile', 'Tài khoản'),
+          tabBarIcon: ({ color }) => <Feather name="user" size={24} color={color} />,
         }}
       />
     </Tabs>
