@@ -43,7 +43,7 @@ export default function OnboardingScreen() {
     const checkCompletedState = async () => {
       const completed = await getOnboardingCompleted();
       if (completed && mounted) {
-        router.replace('/(tabs)');
+        router.replace('/(auth)/login');
       }
     };
 
@@ -101,7 +101,7 @@ export default function OnboardingScreen() {
 
     setIsSubmitting(true);
     await setOnboardingCompleted(true);
-    router.replace('/(tabs)');
+    router.replace('/(auth)/login');
   };
 
   if (phase === 'logo-static') {
