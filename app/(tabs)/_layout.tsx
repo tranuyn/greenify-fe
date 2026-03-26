@@ -31,8 +31,7 @@ export default function TabLayout() {
           borderTopColor: isDark ? '#262626' : '#e5e7eb',
           backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
         },
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -53,6 +52,7 @@ export default function TabLayout() {
           title: '',
           tabBarLabel: () => null,
           tabBarIconStyle: { marginTop: -20 },
+          tabBarStyle: { display: 'none' },
           tabBarIcon: () => (
             // Dùng class bg-primary để nó tự lấy màu xanh chuẩn trong cấu hình Tailwind
             <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
