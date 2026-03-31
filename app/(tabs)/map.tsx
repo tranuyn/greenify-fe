@@ -13,6 +13,8 @@ export default function MapScreen() {
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [hasCheckedInToday, setHasCheckedInToday] = useState<boolean>(true);
   const [flashMode, setFlashMode] = useState<'off' | 'on' | 'auto'>('off');
+  const cameraRef = useRef<CameraView>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   // tính năng Zoom
   const [cameraZoom, setCameraZoom] = useState(0);
@@ -62,10 +64,27 @@ export default function MapScreen() {
 
   const displayZoomText = `${(1 + cameraZoom * 10).toFixed(1)}x`;
 
-  function handleTakePicture() {
-    Alert.alert('Thành công!', `Đã chụp ảnh check-in! (Flash: ${flashMode})`);
-  }
+  async function handleTakePicture() {
+    if (cameraRef.current) {
+      try {
+        // Chụp ảnh với cấu hình cơ bản để tăng tốc độ phản hồi
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.8, // Giảm nhẹ chất lượng để truyền params nhanh hơn
+          skipProcessing: true,
+        });
 
+        if (photo) {
+          router.push({
+            // Thử dùng đường dẫn trực tiếp này nếu /(photograph)/preview không chạy
+            pathname: '/preview',
+            params: { imageUri: photo.uri },
+          });
+        }
+      } catch (error) {
+        console.error('Lỗi khi chụp ảnh:', error);
+      }
+    }
+  }
   // --- KIỂM TRA QUYỀN CAMERA ---
   if (!permission) {
     return <View className="flex-1 bg-black" />;
@@ -115,7 +134,13 @@ export default function MapScreen() {
         {/* --- CỤM 2: CAMERA BOX (VUÔNG VỨC 1:1) --- */}
         <GestureDetector gesture={pinchGesture}>
           <View className="relative mx-4 aspect-square w-[calc(100%-32px)] overflow-hidden rounded-[40px] border border-neutral-500">
-            <CameraView style={{ flex: 1 }} facing={facing} zoom={cameraZoom} flash={flashMode} />
+            <CameraView
+              ref={cameraRef}
+              style={{ flex: 1 }}
+              facing={facing}
+              zoom={cameraZoom}
+              flash={flashMode}
+            />
 
             <View className="absolute bottom-4 w-full flex-row items-center justify-between px-6">
               <TouchableOpacity
