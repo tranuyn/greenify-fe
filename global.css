@@ -7,6 +7,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #22c55e;
+  --card: #f3f4f6; /* Tương đương neutral-100 của Tailwind */
 
   /* Font */
   --font-inter: 'Inter_400Regular';
@@ -19,6 +20,8 @@
     --background: #0a0a0a;
     --foreground: #ededed;
     --primary: #22c55e;
+
+    --card: #171717; /* Tương đương neutral-900 của Tailwind */
   }
 }
 

@@ -10,5 +10,19 @@
     "slide_1": "Làm việc xanh\nSống nhẹ nhàng hơn",
     "slide_2": "Biến mọi công việc\nthành một hành động xanh",
     "slide_3": "Công việc hôm nay,\ntương lai xanh mai sau"
+  },
+  "community": {
+    "title": "Cộng đồng",
+    "search": "Tìm kiếm",
+    "tags": {
+      "location": "Vị trí",
+      "time": "Thời gian:",
+      "greenDaily": "Green Daily",
+      "seed": "Gieo hạt"
+    },
+    "post": {
+      "feeling": "Hôm nay thật tuyệt",
+      "caption": "Hôm nay đang chạy bộ thì bắt gặp bãi rác như trên, mong sẽ sớm có người đến dọn ạ"
+    }
   }
 }

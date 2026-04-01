@@ -54,7 +54,6 @@ export default function TabLayout() {
           tabBarIconStyle: { marginTop: -20 },
           tabBarStyle: { display: 'none' },
           tabBarIcon: () => (
-            // Dùng class bg-primary để nó tự lấy màu xanh chuẩn trong cấu hình Tailwind
             <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
               <Feather name="camera" size={28} color="#ffffff" />
             </View>
