@@ -1,0 +1,222 @@
+import {
+  Streak,
+  Seed,
+  PlantProgress,
+  GardenArchive,
+  VoucherTemplate,
+  UserVoucher,
+  LeaderboardEntry,
+} from 'types/gamification.types';
+
+// ---- Streak ----
+
+export const MOCK_STREAK: Streak = {
+  id: 'streak-001',
+  user_id: 'usr-001',
+  current_streak: 7,
+  longest_streak: 14,
+  last_valid_date: '2026-03-30',
+  status: 'ACTIVE',
+  restore_used_this_month: 1,
+  restore_month: '2026-03-01',
+  last_break_date: '2026-03-10',
+  broken_streak: 5,
+  updated_at: '2026-03-30T09:20:00Z',
+};
+
+// ---- Seeds & Garden ----
+
+export const MOCK_SEEDS: Seed[] = [
+  {
+    id: 'seed-001',
+    name: 'Cây Xương Rồng',
+    image_url: 'https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=200',
+    days_to_mature: 7,
+    reward_voucher_template_id: 'vt-002',
+    is_active: true,
+  },
+  {
+    id: 'seed-002',
+    name: 'Cây Bạc Hà',
+    image_url: 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=200',
+    days_to_mature: 14,
+    reward_voucher_template_id: 'vt-003',
+    is_active: true,
+  },
+  {
+    id: 'seed-003',
+    name: 'Cây Tre',
+    image_url: 'https://images.unsplash.com/photo-1594818379496-da1e345b0ded?w=200',
+    days_to_mature: 30,
+    reward_voucher_template_id: 'vt-001',
+    is_active: true,
+  },
+];
+
+export const MOCK_PLANT_PROGRESS: PlantProgress = {
+  id: 'plant-001',
+  user_id: 'usr-001',
+  seed_id: 'seed-001',
+  progress_days: 7,
+  status: 'GROWING',
+  started_at: '2026-03-24T00:00:00Z',
+  matured_at: null,
+  seed: MOCK_SEEDS[0],
+};
+
+export const MOCK_GARDEN_ARCHIVES: GardenArchive[] = [
+  {
+    id: 'garden-001',
+    user_id: 'usr-001',
+    seed_id: 'seed-003',
+    plant_progress_id: 'plant-000',
+    days_taken: 30,
+    reward_status: 'REWARDED',
+    user_voucher_id: 'uvoucher-001',
+    archived_at: '2026-02-28T00:00:00Z',
+    seed: MOCK_SEEDS[2],
+  },
+];
+
+// ---- Vouchers ----
+
+export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
+  {
+    id: 'vt-001',
+    name: 'Giảm 20% Xanh SM',
+    partner_name: 'Xanh SM',
+    description: 'Giảm 20% cho chuyến đi xe điện Xanh SM. Áp dụng toàn quốc.',
+    required_points: 100,
+    total_stock: 500,
+    remaining_stock: 247,
+    usage_conditions: 'Áp dụng cho chuyến đi từ 20.000đ trở lên. Không áp dụng cùng CTKM khác.',
+    valid_until: '2026-06-30T23:59:59Z',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'vt-002',
+    name: 'Voucher Cocoon 50.000đ',
+    partner_name: 'Cocoon Vietnam',
+    description: 'Voucher mua sản phẩm Cocoon trị giá 50.000đ.',
+    required_points: 50,
+    total_stock: 200,
+    remaining_stock: 89,
+    usage_conditions: 'Đơn hàng tối thiểu 200.000đ. Chỉ áp dụng trên website cocoonvietnam.com.',
+    valid_until: '2026-05-31T23:59:59Z',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'vt-003',
+    name: 'Đồ uống miễn phí – The Coffee House',
+    partner_name: 'The Coffee House',
+    description: 'Đổi voucher lấy 1 ly đồ uống size M khi mang ly cá nhân.',
+    required_points: 75,
+    total_stock: 1000,
+    remaining_stock: 412,
+    usage_conditions: 'Áp dụng tại tất cả cơ sở The Coffee House. Mang ly cá nhân để nhận.',
+    valid_until: '2026-12-31T23:59:59Z',
+    status: 'ACTIVE',
+  },
+];
+
+export const MOCK_USER_VOUCHERS: UserVoucher[] = [
+  {
+    id: 'uvoucher-001',
+    user_id: 'usr-001',
+    voucher_template_id: 'vt-001',
+    voucher_code: 'GREEN-XSM-A7K2',
+    source: 'REDEEM',
+    status: 'AVAILABLE',
+    expires_at: '2026-06-30T23:59:59Z',
+    used_at: null,
+    created_at: '2026-03-25T14:00:00Z',
+    template: MOCK_VOUCHER_TEMPLATES[0],
+  },
+  {
+    id: 'uvoucher-002',
+    user_id: 'usr-001',
+    voucher_template_id: 'vt-003',
+    voucher_code: 'GREEN-TCH-B3M9',
+    source: 'GARDEN_REWARD',
+    status: 'USED',
+    expires_at: '2026-12-31T23:59:59Z',
+    used_at: '2026-03-20T10:00:00Z',
+    created_at: '2026-02-28T00:05:00Z',
+    template: MOCK_VOUCHER_TEMPLATES[2],
+  },
+];
+
+// ---- Leaderboard ----
+
+export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
+  {
+    id: 'lb-001',
+    period_id: 'per-001',
+    user_id: 'usr-010',
+    scope: 'NATIONAL',
+    province: null,
+    rank: 1,
+    weekly_points: 420,
+    is_winner: true,
+    reward_status: 'REWARDED',
+    status: 'PUBLISHED',
+    display_name: 'Hoàng Minh',
+    avatar_url: 'https://i.pravatar.cc/150?img=3',
+  },
+  {
+    id: 'lb-002',
+    period_id: 'per-001',
+    user_id: 'usr-011',
+    scope: 'NATIONAL',
+    province: null,
+    rank: 2,
+    weekly_points: 380,
+    is_winner: true,
+    reward_status: 'REWARDED',
+    status: 'PUBLISHED',
+    display_name: 'Thu Hà',
+    avatar_url: 'https://i.pravatar.cc/150?img=25',
+  },
+  {
+    id: 'lb-003',
+    period_id: 'per-001',
+    user_id: 'usr-012',
+    scope: 'NATIONAL',
+    province: null,
+    rank: 3,
+    weekly_points: 310,
+    is_winner: true,
+    reward_status: 'REWARDED',
+    status: 'PUBLISHED',
+    display_name: 'Bảo Châu',
+    avatar_url: 'https://i.pravatar.cc/150?img=32',
+  },
+  {
+    id: 'lb-004',
+    period_id: 'per-001',
+    user_id: 'usr-001',
+    scope: 'NATIONAL',
+    province: null,
+    rank: 4,
+    weekly_points: 290,
+    is_winner: false,
+    reward_status: 'PENDING_REWARD',
+    status: 'PUBLISHED',
+    display_name: 'Nhã Uyên',
+    avatar_url: 'https://i.pravatar.cc/150?img=47',
+  },
+  {
+    id: 'lb-005',
+    period_id: 'per-001',
+    user_id: 'usr-013',
+    scope: 'NATIONAL',
+    province: null,
+    rank: 5,
+    weekly_points: 275,
+    is_winner: false,
+    reward_status: 'PENDING_REWARD',
+    status: 'PUBLISHED',
+    display_name: 'Thanh Long',
+    avatar_url: 'https://i.pravatar.cc/150?img=8',
+  },
+];
