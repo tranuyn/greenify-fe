@@ -1,40 +1,79 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
-import { userApi } from '../../api/userApi';
-import { QUERY_KEYS } from '../../constants/queryKeys';
+import { useMutation } from '@tanstack/react-query';
+import { router } from 'expo-router';
+import { queryClient } from 'lib/queryClient';
+import { authService } from 'services/auth.service';
+import {
+  CompleteProfileRequest,
+  LoginRequest,
+  RegisterEmailRequest,
+  VerifyOtpRequest,
+  SetPasswordRequest,
+} from 'types/user.type';
 
-export const useCreateUser = () => {
-  const queryClient = useQueryClient();
+/**
+ * Gửi OTP về email.
+ *
+ * Cách dùng trong component:
+ *   const { mutate: requestOtp, isPending } = useRequestOtp();
+ *   requestOtp({ email }, {
+ *     onSuccess: () => router.push('/(auth)/verify-email'),
+ *     onError: (err) => setError(parseApiError(err)),
+ *   });
+ *
+ * Lý do onSuccess/onError để ở component thay vì hook:
+ * - Navigation logic thuộc về UI layer
+ * - Mỗi màn hình có thể handle error khác nhau (show toast, show inline error...)
+ * - Hook chỉ lo phần gọi API
+ */
+export const useRequestOtp = () => {
   return useMutation({
-    mutationFn: userApi.createUser,
-    onSuccess: (data) => {
-      // Xóa cache của danh sách user cũ.
-      // Tự động gọi lại API để hiện user mới trong danh sách.
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      Alert.alert('Thành công', 'Đã thêm người dùng mới!');
-    },
+    mutationFn: (payload: RegisterEmailRequest) => authService.requestOtp(payload),
+  });
+};
 
-    // khi API thất bại
-    onError: (error) => {
-      console.error(error);
-      Alert.alert('Lỗi', 'Không thể tạo người dùng. Vui lòng thử lại!');
+export const useVerifyOtp = () => {
+  return useMutation({
+    mutationFn: (payload: VerifyOtpRequest) => authService.verifyOtp(payload),
+  });
+};
+
+export const useSetPassword = () => {
+  return useMutation({
+    mutationFn: (payload: SetPasswordRequest) => authService.setPassword(payload),
+  });
+};
+
+export const useLogin = () => {
+  return useMutation({
+    mutationFn: (payload: LoginRequest) => authService.login(payload),
+    onSuccess: (response) => {
+      // Sau login thành công → pre-populate cache với user data từ response
+      // Không cần gọi thêm /me nữa
+      queryClient.setQueryData(['auth', 'me'], {
+        user: response.data.user,
+        profile: response.data.profile,
+      });
     },
   });
 };
 
-export const useDeleteUser = () => {
-  const queryClient = useQueryClient();
+export const useCompleteProfile = () => {
   return useMutation({
-    mutationFn: userApi.deleteUser,
-    onSuccess: (data) => {
-      // Xóa cache của danh sách user cũ.
-      // Tự động gọi lại API để hiện danh sách đã xóa user.
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USERS] });
-      Alert.alert('Thành công', 'Đã xóa người dùng!');
+    mutationFn: (payload: CompleteProfileRequest) => authService.completeProfile(payload),
+    onSuccess: () => {
+      // Profile đã thay đổi → invalidate cache /me để refetch
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
-    onError: (error) => {
-      console.error(error);
-      Alert.alert('Lỗi', 'Không thể xóa người dùng. Vui lòng thử lại!');
+  });
+};
+
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: () => authService.logout(),
+    onSuccess: () => {
+      // Xóa toàn bộ cache khi logout — tránh data của user cũ còn sót
+      queryClient.clear();
+      router.replace('/(auth)');
     },
   });
 };

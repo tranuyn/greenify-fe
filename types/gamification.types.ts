@@ -1,0 +1,144 @@
+// ============================================================
+// VOUCHER TYPES
+// Mapped from: voucher_templates, user_vouchers
+// ============================================================
+
+export type VoucherTemplateStatus =
+  | 'DRAFT'
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'EXPIRED'
+  | 'DEPLETED';
+
+export type UserVoucherStatus = 'AVAILABLE' | 'USED' | 'EXPIRED' | 'CANCELLED';
+
+export type VoucherSource = 'REDEEM' | 'LEADERBOARD_REWARD' | 'GARDEN_REWARD';
+
+export interface VoucherTemplate {
+  id: string;
+  name: string;
+  partner_name: string;
+  description: string;
+  required_points: number;
+  total_stock: number;
+  remaining_stock: number;
+  usage_conditions: string;
+  valid_until: string;
+  status: VoucherTemplateStatus;
+}
+
+export interface UserVoucher {
+  id: string;
+  user_id: string;
+  voucher_template_id: string;
+  voucher_code: string;
+  source: VoucherSource;
+  status: UserVoucherStatus;
+  expires_at: string;
+  used_at: string | null;
+  created_at: string;
+  // Joined
+  template?: VoucherTemplate;
+}
+
+export interface RedeemVoucherRequest {
+  voucher_template_id: string;
+}
+
+// ============================================================
+// STREAK & GARDEN TYPES
+// Mapped from: streaks, seeds, plant_progresses, garden_archives
+// ============================================================
+
+export type StreakStatus = 'NOT_STARTED' | 'ACTIVE' | 'BROKEN';
+
+export type PlantStatus = 'GROWING' | 'MATURED';
+
+export type GardenRewardStatus = 'MATURED' | 'REWARDED';
+
+export interface Streak {
+  id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_valid_date: string | null; // "YYYY-MM-DD"
+  status: StreakStatus;
+  restore_used_this_month: number;
+  restore_month: string | null;
+  last_break_date: string | null;
+  broken_streak: number;
+  updated_at: string;
+}
+
+export interface Seed {
+  id: string;
+  name: string;
+  image_url: string;
+  days_to_mature: number;
+  reward_voucher_template_id: string | null;
+  is_active: boolean;
+}
+
+export interface PlantProgress {
+  id: string;
+  user_id: string;
+  seed_id: string;
+  progress_days: number;
+  status: PlantStatus;
+  started_at: string;
+  matured_at: string | null;
+  // Joined
+  seed?: Seed;
+}
+
+export interface GardenArchive {
+  id: string;
+  user_id: string;
+  seed_id: string;
+  plant_progress_id: string;
+  days_taken: number;
+  reward_status: GardenRewardStatus;
+  user_voucher_id: string | null;
+  archived_at: string;
+  // Joined
+  seed?: Seed;
+}
+
+// ============================================================
+// LEADERBOARD TYPES
+// Mapped from: leaderboard_periods, leaderboard_snapshots
+// ============================================================
+
+export type LeaderboardScope = 'NATIONAL' | 'PROVINCIAL';
+
+export type LeaderboardPeriodStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED';
+
+export type SnapshotStatus = 'COMPUTING' | 'PUBLISHED' | 'REVISED';
+
+export type RewardStatus = 'PENDING_REWARD' | 'REWARDED' | 'FAILED';
+
+export interface LeaderboardPeriod {
+  id: string;
+  week_start: string; // "YYYY-MM-DD"
+  week_end: string;
+  lock_at: string;
+  national_reward_config: Record<number, string>; // rank → voucher_template_id
+  provincial_reward_config: Record<number, string>;
+  status: LeaderboardPeriodStatus;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  period_id: string;
+  user_id: string;
+  scope: LeaderboardScope;
+  province: string | null;
+  rank: number;
+  weekly_points: number;
+  is_winner: boolean;
+  reward_status: RewardStatus;
+  status: SnapshotStatus;
+  // Joined
+  display_name?: string;
+  avatar_url?: string | null;
+}
