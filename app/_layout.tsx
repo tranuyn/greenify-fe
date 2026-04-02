@@ -15,6 +15,7 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 import '../global.css';
+import { StatusBar } from 'expo-status-bar';
 
 // Ngăn không cho Splash Screen tự động ẩn trước khi font load xong
 SplashScreen.preventAutoHideAsync();

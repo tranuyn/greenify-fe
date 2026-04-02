@@ -10,7 +10,7 @@ const ExpandingInput = memo(({ description, setDescription }: any) => {
   return (
     <View className="absolute bottom-6 w-full items-center">
       <Animated.View
-        className="flex-row items-center rounded-2xl bg-black/50 px-5 py-2 shadow-md"
+        className="flex-row items-center rounded-3xl bg-black/50 px-5 py-2 shadow-md"
         style={{
           alignSelf: 'center',
           width: animWidth,
