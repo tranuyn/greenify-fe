@@ -200,7 +200,7 @@ export default function LocketScreen() {
           </TouchableOpacity>
         </View>
 
-        <View className=" px-6">
+        <View className="mx-10 px-6">
           <BottomNavBar activeTab={getActiveTab()} />
         </View>
       </SafeAreaView>

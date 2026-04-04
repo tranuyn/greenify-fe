@@ -12,7 +12,7 @@ interface Props {
 const BottomNavBar: React.FC<Props> = ({ activeTab }) => {
   const getButtonClass = (tab: TabType) => {
     const isActive = activeTab === tab;
-    const bg = isActive ? 'bg-neutral-800' : '';
+    const bg = isActive ? 'bg-neutral-800/50' : '';
     return `p-5 rounded-full items-center justify-center ${bg}`;
   };
 
@@ -24,7 +24,7 @@ const BottomNavBar: React.FC<Props> = ({ activeTab }) => {
 
   return (
     <View className="w-full items-center">
-      <View className="w-full flex-row items-center justify-between rounded-full border border-neutral-500 bg-neutral-900/50 px-6 py-3 shadow-xl">
+      <View className="w-full flex-row items-center justify-between rounded-full border border-neutral-500 bg-neutral-900/50 px-2 py-1 shadow-xl">
         <TouchableOpacity
           onPress={() => handlePress('schedule')}
           className={getButtonClass('schedule')}>
