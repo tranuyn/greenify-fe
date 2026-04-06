@@ -3,6 +3,7 @@ import { Slot, useFocusEffect, usePathname } from 'expo-router';
 import BottomNavBar from './components/BottomNavBar';
 import { useCallback } from 'react';
 import { setStatusBarStyle } from 'expo-status-bar';
+import { BlurView } from 'expo-blur';
 
 export default function PhotographLayout() {
   const pathname = usePathname();
@@ -25,14 +26,18 @@ export default function PhotographLayout() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#171717' }}>
-      {/* Vùng chứa nội dung các trang con */}
+      {/* Vùng chứa nội dung các trang con (Chiếm trọn màn hình) */}
       <View style={{ flex: 1 }}>
         <Slot />
       </View>
 
-      {/* Đưa BottomNavBar ra một lớp riêng biệt nằm dưới Slot */}
-      <View className="px-6 pb-20">
-        <BottomNavBar activeTab={getActiveTab()} />
+      {/* 2. Đưa BottomNavBar nổi lên trên (absolute) và bọc bằng BlurView */}
+      <View className="absolute bottom-16 left-20 right-20 z-50 overflow-hidden rounded-full">
+        <BlurView
+          intensity={20} // Độ mờ (từ 1 đến 100)
+          tint="light">
+          <BottomNavBar activeTab={getActiveTab()} />
+        </BlurView>
       </View>
     </View>
   );
