@@ -8,6 +8,7 @@ import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomNavBar from '../(photograph)/components/BottomNavBar';
+import TopBar from './components/TopBar';
 
 export default function LocketScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -128,27 +129,11 @@ export default function LocketScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 justify-between bg-neutral-900 py-10">
-        {/* --- CỤM 1: TOP BAR --- */}
-        <View className="flex-row items-center justify-between px-6">
-          <TouchableOpacity className="rounded-full bg-white/10 p-3">
-            <Ionicons name="grid" size={24} color="white" />
-          </TouchableOpacity>
-
-          <View className="flex-row items-center justify-center rounded-full bg-white/10 px-4 py-2">
-            <MaterialCommunityIcons
-              name="fire"
-              size={22}
-              color={hasCheckedInToday ? '#f97316' : '#9ca3af'}
-            />
-            <Text className="ml-1 text-lg font-extrabold text-white">23</Text>
-          </View>
-
-          <TouchableOpacity
-            className="rounded-full bg-white/10 p-3"
-            onPress={() => router.replace('/(tabs)/')}>
-            <Ionicons name="home" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+        <TopBar
+          streakCount={20}
+          hasCheckedInToday={true}
+          onGridPress={() => console.log('Mở grid')}
+        />
 
         {/* --- CỤM 2: CAMERA BOX (VUÔNG VỨC 1:1) --- */}
         <GestureDetector gesture={pinchGesture}>
