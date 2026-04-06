@@ -11,6 +11,69 @@
     "slide_2": "Turn every task\ninto a green action",
     "slide_3": "Today's work,\na greener tomorrow"
   },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "subtitle": "Welcome back to Greenify.",
+      "email_label": "Email",
+      "email_placeholder": "Enter your email",
+      "password_label": "Password",
+      "password_placeholder": "Enter your password",
+      "forgot_password": "Forgot password?",
+      "login_btn": "Log in",
+      "no_account": "Don't have an account?",
+      "register": "Sign up",
+      "error_fallback": "Login failed, please try again."
+    },
+    "signup_email": {
+      "title": "Create an account",
+      "subtitle": "Enter your email to receive a verification code.",
+      "email_label": "Email",
+      "email_placeholder": "example@email.com",
+      "submit_btn": "Send verification code",
+      "has_account": "Already have an account?"
+    },
+    "verify_email": {
+      "title": "Verify Email",
+      "subtitle": "We have sent a verification code to",
+      "resend": "Resend code",
+      "submit_btn": "Verify"
+    },
+    "signup_password": {
+      "title": "Password",
+      "subtitle": "Create a strong password to protect your account.",
+      "password_label": "Password",
+      "password_placeholder": "Enter password",
+      "confirm_label": "Confirm password",
+      "confirm_placeholder": "Confirm password",
+      "submit_btn": "Confirm"
+    },
+    "account_type": {
+      "title": "Choose Account Type",
+      "subtitle": "Start with the role that suits you best.",
+      "role_org_title": "Organization / NGO",
+      "role_org_desc": "Represent an organization, launch campaigns and manage events.",
+      "role_citizen_title": "Green Citizen",
+      "role_citizen_desc": "Join green activities, earn points and claim rewards."
+    },
+    "complete_profile": {
+      "title": "Complete Profile",
+      "subtitle_org": "Account Type: Organization / NGO",
+      "subtitle_citizen": "Account Type: Green Citizen",
+      "email_label": "Email",
+      "name_label": "Full Name",
+      "name_placeholder": "Enter full name",
+      "province_label": "Province/City",
+      "ward_label": "Ward/Commune",
+      "terms_agree": "I agree to the",
+      "terms_use": "Terms of Use",
+      "terms_and": "and",
+      "terms_privacy": "Privacy Policy",
+      "terms_of": "of Greenify.",
+      "terms_error": "Please agree to the terms to continue.",
+      "submit_btn": "Create Account"
+    }
+  },
   "community": {
     "title": "Community",
     "search": "Search",

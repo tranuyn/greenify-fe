@@ -4,8 +4,19 @@
     "strict": true,
     "paths": {
       "@/*": ["./*"],
+      "api/*": ["./api/*"],
+      "app/*": ["./app/*"],
+      "assets/*": ["./assets/*"],
+      "components/*": ["./components/*"],
+      "constants/*": ["./constants/*"],
       "hooks/*": ["./hooks/*"],
-      "components/*": ["./components/*"]
+      "lib/*": ["./lib/*"],
+      "locales/*": ["./locales/*"],
+      "services/*": ["./services/*"],
+      "store/*": ["./store/*"],
+      "types/*": ["./types/*"],
+      "utils/*": ["./utils/*"],
+      "validations/*": ["./validations/*"]
     }
   }
 }

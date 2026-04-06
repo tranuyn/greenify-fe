@@ -1,40 +1,39 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, TextInput, View } from 'react-native';
-import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
-import { AuthScaffold } from 'components/shared/auth/AuthScaffold';
-import { Button } from 'components/ui/Button';
-import { Text } from 'components/ui/Text';
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const OTP_LENGTH = 4;
+import { AuthBrandHeader } from '@/components/shared/auth/AuthBrandHeader';
+import { AuthScaffold } from '@/components/shared/auth/AuthScaffold';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+
+import { useVerifyOtp } from '@/hooks/mutations/useAuth';
+
+const OTP_LENGTH = 6;
 
 function maskEmail(email: string) {
-  if (!email.includes('@')) {
-    return email;
-  }
-
+  if (!email.includes('@')) return email;
   const [local, domain] = email.split('@');
-  if (local.length <= 2) {
-    return `${local[0] ?? ''}***@${domain}`;
-  }
-
+  if (local.length <= 2) return `${local[0] ?? ''}***@${domain}`;
   return `${local.slice(0, 2)}***@${domain}`;
 }
 
 export default function VerifyEmailScreen() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ role?: string; email?: string }>();
   const [otp, setOtp] = useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ''));
+  const [errorMsg, setErrorMsg] = useState('');
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  const destination = useMemo(() => {
-    if (!params.email) {
-      return 'địa chỉ bạn vừa nhập';
-    }
+  const { mutate: verifyOtp, isPending } = useVerifyOtp();
 
-    return maskEmail(params.email);
+  const destination = useMemo(() => {
+    return params.email ? maskEmail(params.email) : 'địa chỉ của bạn';
   }, [params.email]);
 
   const updateOtpValue = (index: number, value: string) => {
+    setErrorMsg(''); // Xóa lỗi khi gõ lại
     const cleanValue = value.replace(/[^0-9]/g, '').slice(-1);
     const nextOtp = [...otp];
     nextOtp[index] = cleanValue;
@@ -46,62 +45,73 @@ export default function VerifyEmailScreen() {
   };
 
   const moveBackIfEmpty = (index: number) => {
-    if (otp[index] || index === 0) {
+    if (otp[index] || index === 0) return;
+    inputRefs.current[index - 1]?.focus();
+  };
+
+  const onVerify = () => {
+    const code = otp.join('');
+    if (code.length < OTP_LENGTH) {
+      setErrorMsg('Vui lòng nhập đủ mã xác nhận.');
       return;
     }
 
-    inputRefs.current[index - 1]?.focus();
+    verifyOtp(
+      { email: params.email ?? '', otp_code: code },
+      {
+        onSuccess: () => {
+          router.push({
+            pathname: '/(auth)/signup-password',
+            params: { role: params.role ?? 'citizen', email: params.email ?? '', otp_code: code },
+          });
+        },
+        onError: (err: any) => {
+          setErrorMsg(err?.response?.data?.message || 'Mã xác nhận không đúng.');
+        },
+      }
+    );
   };
 
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title="Xác nhận Email"
-        subtitle={`Chúng tôi đã gửi mã xác thực đến ${destination}.`}
+        title={t('auth.verify_email.title')}
+        subtitle={`${t('auth.verify_email.subtitle')} ${destination}.`}
       />
 
-      <View className="mb-2 flex-row justify-center gap-3">
+      <View className="mb-2 mt-6 flex-row justify-center gap-3">
         {otp.map((value, index) => (
           <TextInput
             key={`otp-${index}`}
             ref={(ref) => {
               inputRefs.current[index] = ref;
             }}
-            className="h-12 w-12 rounded-xl border border-primary-200 bg-primary-50 text-center text-lg font-inter-bold text-foreground"
+            className={`h-14 w-14 rounded-xl border bg-primary-50 text-center font-inter-bold text-xl text-foreground transition-colors ${errorMsg ? 'border-red-400' : 'border-primary-200 focus:border-primary-500'}`}
             keyboardType="number-pad"
             maxLength={1}
             value={value}
             onChangeText={(text) => updateOtpValue(index, text)}
             onKeyPress={({ nativeEvent }) => {
-              if (nativeEvent.key === 'Backspace') {
-                moveBackIfEmpty(index);
-              }
+              if (nativeEvent.key === 'Backspace') moveBackIfEmpty(index);
             }}
           />
         ))}
       </View>
 
-      <Pressable className="self-center" hitSlop={8}>
-        <Text className="text-sm font-inter-medium text-primary-700">Gửi lại mã</Text>
+      {errorMsg ? <Text className="mt-2 text-center text-sm text-red-500">{errorMsg}</Text> : null}
+
+      <Pressable className="mt-4 self-center" hitSlop={8}>
+        <Text className="font-inter-medium text-sm text-primary-700">
+          {t('auth.verify_email.resend')}
+        </Text>
       </Pressable>
 
       <Button
-        title="Xác nhận"
-        className="mt-5"
-        onPress={() =>
-          router.push({
-            pathname: '/(auth)/signup-password',
-            params: { role: params.role ?? 'citizen', email: params.email ?? '' },
-          })
-        }
+        title={t('auth.verify_email.submit_btn')}
+        className="mt-6"
+        disabled={isPending}
+        onPress={onVerify}
       />
-
-      <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-sm text-foreground/70">Đã có tài khoản?</Text>
-        <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
-          <Text className="text-sm font-inter-semibold text-primary-700">Đăng nhập</Text>
-        </Pressable>
-      </View>
     </AuthScaffold>
   );
 }

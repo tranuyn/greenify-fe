@@ -1,35 +1,78 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Pressable, View } from 'react-native';
-import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
-import { AuthInput } from 'components/shared/auth/AuthInput';
-import { AuthScaffold } from 'components/shared/auth/AuthScaffold';
-import { Button } from 'components/ui/Button';
-import { Text } from 'components/ui/Text';
-import { CITY_OPTIONS } from '../../constants/auth.constant';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { AuthBrandHeader } from '@/components/shared/auth/AuthBrandHeader';
+import { AuthInput } from '@/components/shared/auth/AuthInput';
+import { AuthScaffold } from '@/components/shared/auth/AuthScaffold';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+import { DropdownPicker } from '@/components/ui/DropdownPicker';
+
+import { useCompleteProfile } from '@/hooks/mutations/useAuth';
+import { useProvinces, useWards } from '@/hooks/queries/useLocation';
+import { completeProfileSchema, type CompleteProfileFormData } from '@/validations/auth.schema';
 
 export default function CompleteProfileScreen() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ role?: string; email?: string }>();
-  const [phone, setPhone] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [city, setCity] = useState<string>(CITY_OPTIONS[0]);
-  const [showCityOptions, setShowCityOptions] = useState(false);
-  const [address, setAddress] = useState('');
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  const roleTitle = useMemo(() => {
-    return params.role === 'organization' ? 'Tổ chức' : 'Công dân xanh';
-  }, [params.role]);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState(false);
+
+  const { mutate: completeProfile, isPending } = useCompleteProfile();
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<CompleteProfileFormData>({
+    resolver: zodResolver(completeProfileSchema),
+    defaultValues: {
+      display_name: '',
+      province: '',
+    },
+  });
+
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState('');
+  const [showProvince, setShowProvince] = useState(false);
+  const [showWard, setShowWard] = useState(false);
+
+  const { data: provinces = [], isLoading: loadingProvinces } = useProvinces();
+  const { data: wards = [] } = useWards(selectedProvinceCode);
+
+  const onSubmit = (data: CompleteProfileFormData) => {
+    if (!acceptedTerms) {
+      setTermsError(true);
+      return;
+    }
+
+    completeProfile(data, {
+      onSuccess: () => {
+        router.replace('/(tabs)');
+      },
+      onError: (err: any) => {
+        console.error('Complete profile error:', err);
+      },
+    });
+  };
+
+  const roleSubtitle =
+    params.role === 'organization'
+      ? t('auth.complete_profile.subtitle_org')
+      : t('auth.complete_profile.subtitle_citizen');
 
   return (
     <AuthScaffold>
-      <AuthBrandHeader title="Hoàn thiện thông tin" subtitle={`Loại tài khoản: ${roleTitle}`} />
+      <AuthBrandHeader title={t('auth.complete_profile.title')} subtitle={roleSubtitle} />
 
-      <View className="mb-5 items-center">
+      <View className="mb-5 mt-4 items-center">
         <View className="h-16 w-16 items-center justify-center rounded-full bg-primary-100">
           <FontAwesome5 name="user" size={32} color="#166534" />
         </View>
@@ -37,83 +80,123 @@ export default function CompleteProfileScreen() {
 
       <View className="gap-4">
         <AuthInput
-          label="Email"
+          label={t('auth.complete_profile.email_label')}
           value={params.email ?? ''}
           editable={false}
           placeholder="email@greenify.app"
         />
 
-        <AuthInput
-          label="Số điện thoại"
-          placeholder="Nhập số điện thoại"
-          keyboardType="phone-pad"
-          value={phone}
-          onChangeText={setPhone}
+        <Controller
+          control={control}
+          name="display_name"
+          render={({ field: { onChange, onBlur, value, ref } }) => (
+            <AuthInput
+              ref={ref}
+              label={t('auth.complete_profile.name_label')}
+              placeholder={t('auth.complete_profile.name_placeholder')}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              errorText={errors.display_name?.message}
+            />
+          )}
         />
 
-        <AuthInput
-          label="Họ và tên"
-          placeholder="Nhập họ và tên"
-          value={fullName}
-          onChangeText={setFullName}
-        />
+        <View className="z-10">
+          <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">
+            {t('auth.complete_profile.province_label')}
+          </Text>
+          <DropdownPicker
+            label={t('auth.complete_profile.province_label')}
+            value={watch('province')}
+            options={provinces}
+            isLoading={loadingProvinces}
+            isOpen={showProvince}
+            onToggle={() => {
+              setShowProvince((p) => !p);
+              setShowWard(false);
+            }}
+            onSelect={(opt) => {
+              setValue('province', opt.name, { shouldValidate: true });
+              setSelectedProvinceCode(opt.code);
+              setValue('ward', '');
+              setShowProvince(false);
+            }}
+            errorText={errors.province?.message}
+          />
 
-        <View>
-          <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">Tỉnh/Thành phố</Text>
-          <Pressable
-            className="flex-row items-center justify-between rounded-xl border border-primary-100 bg-primary-50 px-3 py-3"
-            onPress={() => setShowCityOptions((prev) => !prev)}>
-            <Text className="text-base text-foreground">{city}</Text>
-            <Entypo name="chevron-down" size={18} color="text-foreground" />
-          </Pressable>
-
-          {showCityOptions ? (
-            <View className="mt-2 rounded-xl border border-primary-100 bg-white p-2">
-              {CITY_OPTIONS.map((option) => (
-                <Pressable
-                  key={option}
-                  className="rounded-lg px-3 py-2 active:bg-primary-50"
-                  onPress={() => {
-                    setCity(option);
-                    setShowCityOptions(false);
-                  }}>
-                  <Text className="text-foreground/80 text-sm">{option}</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : null}
+          <View className="mt-4">
+            <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">
+              {t('auth.complete_profile.ward_label')}
+            </Text>
+            <DropdownPicker
+              label={t('auth.complete_profile.ward_label')}
+              value={watch('ward') ?? ''}
+              options={wards}
+              disabled={!selectedProvinceCode}
+              isOpen={showWard}
+              onToggle={() => {
+                setShowWard((p) => !p);
+                setShowProvince(false);
+              }}
+              onSelect={(opt) => {
+                setValue('ward', opt.name);
+                setShowWard(false);
+              }}
+              errorText={errors.ward?.message}
+            />
+          </View>
         </View>
-
-        <AuthInput
-          label="Địa chỉ"
-          placeholder="Nhập địa chỉ"
-          value={address}
-          onChangeText={setAddress}
-        />
       </View>
 
       <Pressable
-        className="mt-5 flex-row items-start"
-        onPress={() => setAcceptedTerms((prev) => !prev)}
+        className="z-0 mt-6 flex-row items-start"
+        onPress={() => {
+          setAcceptedTerms((prev) => !prev);
+          setTermsError(false);
+        }}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: acceptedTerms }}>
         <View
-          className={`mr-2 mt-0.5 h-4 w-4 items-center justify-center rounded border ${
-            acceptedTerms ? 'border-primary-700 bg-primary-700' : 'border-primary-300 bg-white'
+          className={`mr-2 mt-0.5 h-5 w-5 items-center justify-center rounded border ${
+            acceptedTerms
+              ? 'border-primary-700 bg-primary-700'
+              : termsError
+                ? 'border-rose-400 bg-white'
+                : 'border-primary-300 bg-white'
           }`}>
-          {acceptedTerms ? <FontAwesome name="check-square" size={12} color="white" /> : null}
+          {acceptedTerms && <Ionicons name="checkmark" size={13} color="white" />}
         </View>
         <Text className="text-foreground/70 flex-1 text-xs leading-5">
-          Tôi đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Greenify.
+          {t('auth.complete_profile.terms_agree')}{' '}
+          <Text className="font-inter-medium text-primary-700">
+            {t('auth.complete_profile.terms_use')}
+          </Text>{' '}
+          {t('auth.complete_profile.terms_and')}{' '}
+          <Text className="font-inter-medium text-primary-700">
+            {t('auth.complete_profile.terms_privacy')}
+          </Text>{' '}
+          {t('auth.complete_profile.terms_of')}
         </Text>
       </Pressable>
 
-      <Button title="Tạo tài khoản" className="mt-5" onPress={() => router.replace('/(tabs)')} />
+      {termsError && (
+        <Text className="mt-1 text-xs text-rose-600">{t('auth.complete_profile.terms_error')}</Text>
+      )}
 
-      <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-foreground/70 text-sm">Đã có tài khoản?</Text>
+      <Button
+        title={t('auth.complete_profile.submit_btn')}
+        className="z-0 mt-6"
+        isLoading={isPending}
+        onPress={handleSubmit(onSubmit)}
+      />
+
+      <View className="z-0 mt-6 flex-row items-center justify-center gap-1">
+        <Text className="text-foreground/70 text-sm">{t('auth.login.no_account')}</Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
-          <Text className="font-inter-semibold text-sm text-primary-700">Đăng nhập</Text>
+          <Text className="font-inter-semibold text-sm text-primary-700">
+            {t('auth.login.title')}
+          </Text>
         </Pressable>
       </View>
     </AuthScaffold>

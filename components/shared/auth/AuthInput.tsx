@@ -13,7 +13,6 @@ export type AuthInputProps = TextInputProps & {
   };
 };
 
-// Bọc forwardRef để react-hook-form có thể điều khiển được input
 export const AuthInput = forwardRef<TextInput, AuthInputProps>(
   (
     {
@@ -35,7 +34,7 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(
     const borderColor = hasError
       ? 'border-rose-400'
       : isFocused
-        ? 'border-primary-500' // Đổi sang màu primary đậm hơn của bạn (VD: primary-500)
+        ? 'border-primary-500'
         : 'border-primary-100';
 
     return (
@@ -45,9 +44,9 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(
         <View
           className={`flex-row items-center rounded-xl border bg-primary-50 px-3 transition-colors ${borderColor}`}>
           <TextInput
-            ref={ref} // Truyền ref vào đây
+            ref={ref}
             placeholderTextColor="#9ca3af"
-            className={`flex-1 py-3 font-inter text-base text-foreground ${className}`}
+            className={`flex-1 py-3 font-inter text-base text-black ${className}`}
             // Bắt sự kiện focus/blur để đổi màu, đồng thời vẫn gọi hàm từ bên ngoài truyền vào
             onFocus={(e) => {
               setIsFocused(true);

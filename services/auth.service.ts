@@ -98,7 +98,6 @@ export const authService = {
         ...MOCK_USER_PROFILE,
         display_name: payload.display_name,
         province: payload.province,
-        district: payload.district ?? null,
         ward: payload.ward ?? null,
         avatar_url: payload.avatar_url ?? null,
       };

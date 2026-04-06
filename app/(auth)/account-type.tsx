@@ -2,10 +2,17 @@ import { router } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
-import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
-import { AuthScaffold } from 'components/shared/auth/AuthScaffold';
-import { ACCOUNT_ROLE_OPTIONS } from '../../constants/auth.constant';
-import { Text } from 'components/ui/Text';
+import { useTranslation } from 'react-i18next';
+
+import { AuthBrandHeader } from '@/components/shared/auth/AuthBrandHeader';
+import { AuthScaffold } from '@/components/shared/auth/AuthScaffold';
+import { Text } from '@/components/ui/Text';
+import { ACCOUNT_ROLE_OPTIONS, type AccountRole } from '@/constants/auth.constant';
+
+const ROLE_ICONS: Record<AccountRole, ReactNode> = {
+  organization: <MaterialCommunityIcons name="office-building-outline" size={22} color="#166534" />,
+  citizen: <Ionicons name="leaf-outline" size={22} color="#166534" />,
+};
 
 type RoleCardProps = {
   title: string;
@@ -18,40 +25,57 @@ function RoleCard({ title, description, icon, onPress }: RoleCardProps) {
   return (
     <Pressable
       className="rounded-2xl border border-primary-200 bg-primary-50 px-4 py-5 active:opacity-90"
-      onPress={onPress}
-    >
-      <View className="mb-3 h-12 w-12 items-center justify-center rounded-xl bg-primary-100">{icon}</View>
-      <Text className="text-lg font-inter-bold text-primary-900">{title}</Text>
-      <Text className="mt-1 text-sm leading-5 text-foreground/70">{description}</Text>
+      onPress={onPress}>
+      <View className="mb-3 h-12 w-12 items-center justify-center rounded-xl bg-primary-100">
+        {icon}
+      </View>
+      <Text className="font-inter-bold text-lg text-primary-900">{title}</Text>
+      <Text className="text-foreground/70 mt-1 text-sm leading-5">{description}</Text>
     </Pressable>
   );
 }
 
 export default function AccountTypeScreen() {
+  const { t } = useTranslation();
+
   return (
     <AuthScaffold>
-      <AuthBrandHeader title="Chọn loại tài khoản" subtitle="Bắt đầu với vai trò phù hợp với bạn." />
+      <AuthBrandHeader
+        title={t('auth.account_type.title')}
+        subtitle={t('auth.account_type.subtitle')}
+      />
 
-      <View className="gap-3">
-        <RoleCard
-          title={ACCOUNT_ROLE_OPTIONS[0].title}
-          description={ACCOUNT_ROLE_OPTIONS[0].description}
-          icon={<MaterialCommunityIcons name="office-building-outline" size={22} color="#166534" />}
-          onPress={() => router.push({ pathname: '/(auth)/signup-email', params: { role: 'organization' } })}
-        />
-
-        <RoleCard
-          title={ACCOUNT_ROLE_OPTIONS[1].title}
-          description={ACCOUNT_ROLE_OPTIONS[1].description}
-          icon={<Ionicons name="leaf-outline" size={22} color="#166534" />}
-          onPress={() => router.push({ pathname: '/(auth)/signup-email', params: { role: 'citizen' } })}
-        />
+      <View className="mt-6 gap-3">
+        {ACCOUNT_ROLE_OPTIONS.map((option) => (
+          <RoleCard
+            key={option.role}
+            title={
+              option.role === 'organization'
+                ? t('auth.account_type.role_org_title')
+                : t('auth.account_type.role_citizen_title')
+            }
+            description={
+              option.role === 'organization'
+                ? t('auth.account_type.role_org_desc')
+                : t('auth.account_type.role_citizen_desc')
+            }
+            icon={ROLE_ICONS[option.role]}
+            onPress={() =>
+              router.push({
+                pathname: '/(auth)/signup-email',
+                params: { role: option.role },
+              })
+            }
+          />
+        ))}
       </View>
 
-      <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-sm text-foreground/70">Đã có tài khoản?</Text>
+      <View className="mt-8 flex-row items-center justify-center gap-1">
+        <Text className="text-foreground/70 text-sm">{t('auth.login.no_account')}</Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
-          <Text className="text-sm font-inter-semibold text-primary-700">Đăng nhập</Text>
+          <Text className="font-inter-semibold text-sm text-primary-700">
+            {t('auth.login.title')}
+          </Text>
         </Pressable>
       </View>
     </AuthScaffold>

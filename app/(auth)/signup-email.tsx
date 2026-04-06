@@ -1,23 +1,42 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
-import { AuthInput } from 'components/shared/auth/AuthInput';
-import { AuthScaffold } from 'components/shared/auth/AuthScaffold';
-import { SocialAuthButtons } from 'components/shared/auth/SocialAuthButtons';
-import { Button } from 'components/ui/Button';
-import { Text } from 'components/ui/Text';
-import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
+
+import { AuthBrandHeader } from '@/components/shared/auth/AuthBrandHeader';
+import { AuthInput } from '@/components/shared/auth/AuthInput';
+import { AuthScaffold } from '@/components/shared/auth/AuthScaffold';
+import { SocialAuthButtons } from '@/components/shared/auth/SocialAuthButtons';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+
+import { useRequestOtp } from '@/hooks/mutations/useAuth';
+import { SignupEmailFormData, signupEmailSchema } from '@/validations/auth.schema';
 
 export default function SignupEmailScreen() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ role?: string }>();
-  const [email, setEmail] = useState('');
+  const { mutate: requestOtp, isPending } = useRequestOtp();
 
-  const onContinue = () => {
-    router.push({
-      pathname: '/(auth)/verify-email',
-      params: {
-        role: params.role ?? 'citizen',
-        email,
+  const { control, handleSubmit, setError } = useForm<SignupEmailFormData>({
+    resolver: zodResolver(signupEmailSchema),
+    defaultValues: { email: '' },
+  });
+
+  const onSubmit = (data: SignupEmailFormData) => {
+    requestOtp(data, {
+      onSuccess: () => {
+        router.push({
+          pathname: '/(auth)/verify-email',
+          params: { role: params.role ?? 'citizen', email: data.email },
+        });
+      },
+      onError: (error: any) => {
+        setError('email', {
+          type: 'manual',
+          message: error?.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.',
+        });
       },
     });
   };
@@ -25,30 +44,48 @@ export default function SignupEmailScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title="Đăng ký tài khoản"
-        subtitle="Nhập email hoặc số điện thoại để nhận mã xác thực."
+        title={t('auth.signup_email.title')}
+        subtitle={t('auth.signup_email.subtitle')}
       />
 
-      <AuthInput
-        label="Email hoặc số điện thoại"
-        placeholder="example@email.com"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={email}
-        onChangeText={setEmail}
-      />
+      <View className="gap-4">
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
+            <AuthInput
+              ref={ref}
+              label={t('auth.signup_email.email_label')}
+              placeholder={t('auth.signup_email.email_placeholder')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              errorText={error?.message}
+            />
+          )}
+        />
+      </View>
 
-      <Button title="Xác thực" className="mt-5" onPress={onContinue} />
+      <Button
+        title={t('auth.signup_email.submit_btn')}
+        className="mt-5"
+        disabled={isPending}
+        onPress={handleSubmit(onSubmit)}
+      />
 
       <View className="mt-5">
         <SocialAuthButtons />
       </View>
 
       <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-sm text-foreground/70">Đã có tài khoản?</Text>
+        <Text className="text-foreground/70 text-sm">{t('auth.signup_email.has_account')}</Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
-          <Text className="text-sm font-inter-semibold text-primary-700">Đăng nhập</Text>
+          <Text className="font-inter-semibold text-sm text-primary-700">
+            {t('auth.login.title')}
+          </Text>
         </Pressable>
       </View>
     </AuthScaffold>

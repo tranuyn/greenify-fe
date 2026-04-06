@@ -3,8 +3,8 @@ import { Pressable, View } from 'react-native';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
-// Components
 import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
 import { AuthInput } from 'components/shared/auth/AuthInput';
 import { AuthScaffold } from 'components/shared/auth/AuthScaffold';
@@ -12,17 +12,15 @@ import { SocialAuthButtons } from 'components/shared/auth/SocialAuthButtons';
 import { Button } from 'components/ui/Button';
 import { Text } from 'components/ui/Text';
 
-// Hooks
 import { useLogin } from 'hooks/mutations/useAuth';
 import { LoginFormData, loginSchema } from 'validations/auth.schema';
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
 
-  // Gọi hàm mutation từ TanStack Query
   const { mutate: loginMutation, isPending } = useLogin();
 
-  // Khởi tạo form với React Hook Form & Zod
   const {
     control,
     handleSubmit,
@@ -32,7 +30,7 @@ export default function LoginScreen() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
-  console.log('🛑 Lỗi từ Zod/Form:', errors);
+  // console.log('🛑 Lỗi từ Zod/Form:', errors);
 
   // Hàm xử lý khi user bấm nút Đăng nhập (Chỉ chạy khi đã qua ải Zod)
   const onSubmit = (data: LoginFormData) => {
@@ -44,7 +42,7 @@ export default function LoginScreen() {
       onError: (error: any) => {
         // Xử lý lỗi trả về từ Backend (Ví dụ: Sai pass, email chưa đăng ký)
         const errorCode = error?.response?.data?.error_code;
-        const message = error?.response?.data?.message || 'Đăng nhập thất bại, vui lòng thử lại.';
+        const message = error?.response?.data?.message || t('auth.login.error_fallback');
 
         if (errorCode === 'INVALID_CREDENTIALS' || error?.response?.status === 401) {
           // Highlight ô email bị lỗi nhưng không hiện text (cho đỡ rối)
@@ -61,18 +59,17 @@ export default function LoginScreen() {
 
   return (
     <AuthScaffold>
-      <AuthBrandHeader title="Đăng nhập" subtitle="Chào mừng bạn quay lại Greenify." />
+      <AuthBrandHeader title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
 
       <View className="mt-6 gap-4">
-        {/* Bọc Input bằng Controller của React Hook Form */}
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label="Email"
-              placeholder="Nhập email của bạn"
+              label={t('auth.login.email_label')}
+              placeholder={t('auth.login.email_placeholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -90,8 +87,8 @@ export default function LoginScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label="Mật khẩu"
-              placeholder="Nhập mật khẩu"
+              label={t('auth.login.password_label')}
+              placeholder={t('auth.login.password_placeholder')}
               secureTextEntry={!showPassword}
               value={value}
               onChangeText={onChange}
@@ -107,21 +104,25 @@ export default function LoginScreen() {
       </View>
 
       <Pressable className="mt-3 self-end" hitSlop={6}>
-        <Text className="font-inter-medium text-sm text-primary-700">Quên mật khẩu?</Text>
+        <Text className="font-inter-medium text-sm text-primary-700">
+          {t('auth.login.forgot_password')}
+        </Text>
       </Pressable>
 
       <Button
-        title="Đăng nhập"
+        title={t('auth.login.login_btn')}
         className="mt-6"
-        // isLoading={isPending} // Bật cái này nếu Component Button của bạn có hỗ trợ xoay xoay
+        // isLoading={isPending} // Bật nếu Component Button có hỗ trợ xoay xoay
         disabled={isPending}
         onPress={handleSubmit(onSubmit)}
       />
 
       <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-foreground/70 text-sm">Chưa có tài khoản?</Text>
+        <Text className="text-foreground/70 text-sm">{t('auth.login.no_account')}</Text>
         <Pressable onPress={() => router.push('/(auth)/account-type')} hitSlop={6}>
-          <Text className="font-inter-semibold text-sm text-primary-700">Đăng ký</Text>
+          <Text className="font-inter-semibold text-sm text-primary-700">
+            {t('auth.login.register')}
+          </Text>
         </Pressable>
       </View>
 

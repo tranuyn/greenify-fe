@@ -63,24 +63,18 @@ export interface OtpRequest {
 
 // ---- API Request/Response shapes ----
 
-export interface RegisterEmailRequest {
-  email: string;
-}
+export type RegisterEmailRequest = Pick<User, 'email'>;
 
-export interface VerifyOtpRequest {
-  email: string;
+export interface VerifyOtpRequest extends RegisterEmailRequest {
   otp_code: string;
 }
 
-export interface SetPasswordRequest {
-  email: string;
+export interface LoginRequest extends RegisterEmailRequest {
   password: string;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+// Kế thừa CẢ 2 hàm => Sẽ tự động gộp thành { email, otp_code, password }
+export interface SetPasswordRequest extends VerifyOtpRequest, LoginRequest {}
 
 export interface LoginResponse {
   access_token: string;

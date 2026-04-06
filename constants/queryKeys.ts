@@ -81,4 +81,10 @@ export const QUERY_KEYS = {
     all: ['trash-reports'] as const,
     list: (params?: object) => ['trash-reports', 'list', params] as const,
   },
+
+  // Location
+  location: {
+    provinces: () => ['location', 'provinces'] as const,
+    wards: (provinceCode: string) => ['location', 'wards', provinceCode] as const,
+  },
 } as const;

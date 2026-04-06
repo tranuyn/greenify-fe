@@ -1,28 +1,16 @@
-export type AccountRole = 'organization' | 'citizen';
-
-export const ACCOUNT_ROLE_OPTIONS: {
-  role: AccountRole;
-  title: string;
-  description: string;
-}[] = [
+export const ACCOUNT_ROLE_OPTIONS = [
   {
     role: 'organization',
-    title: 'Tổ chức',
-    description: 'Dành cho doanh nghiệp, CLB và đơn vị vận hành sự kiện xanh.',
+    title: 'Tổ chức / NGO',
+    description: 'Dành cho các tổ chức môi trường, câu lạc bộ muốn tạo và quản lý sự kiện xanh.',
+    // description: 'Dành cho doanh nghiệp, CLB và đơn vị vận hành sự kiện xanh.',
   },
   {
     role: 'citizen',
     title: 'Công dân xanh',
-    description: 'Dành cho cá nhân tham gia thử thách và hoạt động cộng đồng.',
+    description: 'Dành cho cá nhân muốn ghi nhận hành động xanh và tham gia cộng đồng.',
+    // description: 'Dành cho cá nhân tham gia thử thách và hoạt động cộng đồng.',
   },
-];
-
-export const CITY_OPTIONS = [
-  'Hà Nội',
-  'TP. Hồ Chí Minh',
-  'Đà Nẵng',
-  'Hải Phòng',
-  'Cần Thơ',
-  'Huế',
-  'Nha Trang',
 ] as const;
+
+export type AccountRole = (typeof ACCOUNT_ROLE_OPTIONS)[number]['role'];
