@@ -1,0 +1,42 @@
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+
+interface TopBarProps {
+  streakCount?: number | string;
+  hasCheckedInToday?: boolean;
+  onGridPress?: () => void;
+}
+
+const TopBar = ({ streakCount = 0, hasCheckedInToday = false, onGridPress }: TopBarProps) => {
+  const router = useRouter();
+
+  return (
+    <View className="flex-row items-center justify-between px-6">
+      {/* Nút Grid bên trái */}
+      <TouchableOpacity className="rounded-full bg-white/10 p-3" onPress={onGridPress}>
+        <Ionicons name="grid" size={24} color="white" />
+      </TouchableOpacity>
+
+      {/* Cụm Streak ở giữa */}
+      <View className="flex-row items-center justify-center rounded-full bg-white/10 px-4 py-2">
+        <MaterialCommunityIcons
+          name="fire"
+          size={22}
+          color={hasCheckedInToday ? '#f97316' : '#9ca3af'}
+        />
+        <Text className="ml-1 text-lg font-extrabold text-white">{streakCount}</Text>
+      </View>
+
+      {/* Nút Home bên phải */}
+      <TouchableOpacity
+        className="rounded-full bg-white/10 p-3"
+        onPress={() => router.replace('/(tabs)/')}>
+        <Ionicons name="home" size={24} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default TopBar;

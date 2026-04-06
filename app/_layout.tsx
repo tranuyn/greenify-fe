@@ -17,7 +17,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '../lib/queryClient';
 import '../global.css';
-import { StatusBar } from 'expo-status-bar';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,12 +48,14 @@ export default function RootLayout() {
     // GestureHandlerRootView bắt buộc phải wrap toàn bộ app khi dùng gesture-handler
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
-          <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <BottomSheetModalProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
+            <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </BottomSheetModalProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
