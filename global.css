@@ -8,6 +8,10 @@
   --foreground: #171717;
   --primary: #22c55e;
   --card: #f3f4f6; /* Tương đương neutral-100 của Tailwind */
+  --border: #e5e7eb;
+  --muted-foreground: #71717a;
+  --accent: #ffd700;
+  --on-primary: #ffffff;
 
   /* Font */
   --font-inter: 'Inter_400Regular';
@@ -22,6 +26,10 @@
     --primary: #22c55e;
 
     --card: #171717; /* Tương đương neutral-900 của Tailwind */
+    --border: #262626;
+    --muted-foreground: #a1a1aa;
+    --accent: #facc15; /* Vàng sáng hơn chút cho Dark mode */
+    --on-primary: #000000;
   }
 }
 
@@ -30,6 +38,10 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-on-primary: var(--on-primary);
 
   --color-primary: var(--primary); /* Màu Main Primary */
   --color-primary-500: var(--primary-500);
