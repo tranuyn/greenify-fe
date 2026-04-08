@@ -9,6 +9,11 @@ module.exports = {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        'on-primary': 'var(--on-primary)',
+        card: 'var(--card)',
+        border: 'var(--border)',
+        'muted-foreground': 'var(--muted-foreground)',
+        accent: 'var(--accent)',
         primary: {
           DEFAULT: 'var(--primary)', // Màu mặc định khi gọi bg-primary
           50: '#f0fdf4',
