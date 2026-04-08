@@ -1,165 +1,163 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  Image, 
-  FlatList, 
-  RefreshControl, 
-  ActivityIndicator 
+import React, { useState, useRef, useCallback, useMemo } from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'components/ui/Text';
-import { useThemeColor } from 'hooks/useThemeColor.hook';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
-// Icons
+// UI Components
+import { Text } from '@/components/ui/Text';
+import { Button } from '@/components/ui/Button';
+import { PostCard } from '@/components/features/community/PostCard'; // Import từ file mới
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { useThemeColor } from '@/hooks/useThemeColor.hook';
 
 // Hooks & Types
-import { useFeedPosts } from 'hooks/queries/usePosts';
-import { GreenActionPost } from 'types/action.types'; // Lấy đúng Type từ DB của BE trả về
+import { useFeedPosts, useActionTypes } from '@/hooks/queries/usePosts';
 
-// -----------------------------------------------------------------
-// UTILS: HÀM TÍNH THỜI GIAN "X NGÀY TRƯỚC" CỰC XỊN
-// -----------------------------------------------------------------
-const getTimeAgo = (dateString?: string) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) return 'Vừa xong';
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} giờ trước`;
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) return `${diffInDays} ngày trước`;
-  
-  return date.toLocaleDateString('vi-VN'); // Quá 30 ngày thì hiện ngày tháng
-};
-
-// -----------------------------------------------------------------
-// COMPONENTS PHỤ
-// -----------------------------------------------------------------
-const Tag = ({ label }: { label: string }) => (
-  <View className="border border-primary-900 px-4 py-1.5 rounded-full mr-3 mb-2 self-start">
-    <Text numberOfLines={1} className="text-foreground font-inter-medium text-sm">{label}</Text>
-  </View>
+// Component phụ cho bộ lọc (Viết gọn tại đây vì nó phụ thuộc state của màn hình này)
+const FilterChip = ({
+  label,
+  isSelected,
+  onPress,
+}: {
+  label: string;
+  isSelected: boolean;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    className={`mb-3 mr-3 rounded-full border px-4 py-2 ${
+      isSelected ? 'border-primary-700 bg-primary-700' : 'border-primary-200 bg-transparent'
+    }`}>
+    <Text className={`font-inter-medium ${isSelected ? 'text-white' : 'text-foreground/70'}`}>
+      {label}
+    </Text>
+  </TouchableOpacity>
 );
 
-// Sửa lại PostCard để nhận dữ liệu chuẩn từ API: GreenActionPost
-const PostCard = ({ post }: { post: GreenActionPost }) => {
-  const { t } = useTranslation();
-  const colors = useThemeColor();
-  
-  return (
-    <View className="mt-6 mb-8">
-      <View className="flex-row items-center mb-4">
-        {post.user_avatar_url ? (
-          <Image 
-            source={{ uri: post.user_avatar_url }} 
-            className="w-14 h-14 rounded-full border border-primary mr-3"
-          />
-        ) : (
-          <View className="w-14 h-14 rounded-full border border-primary bg-primary-50 items-center justify-center mr-3">
-            <FontAwesome6 name="tree" size={24} color={colors.primary} />
-          </View>
-        )}
-        
-        <View>
-          <Text className="text-foreground font-inter-medium text-lg">
-            {post.user_display_name || 'Người dùng ẩn danh'}
-          </Text>
-          <Text className="text-foreground/60 font-inter text-sm mt-0.5">
-            {getTimeAgo(post.created_at)}
-          </Text>
-        </View>
-      </View>
-
-      <View className="relative w-full h-[320px] rounded-[32px] overflow-hidden border-2 border-primary">
-        <Image 
-          source={{ uri: post.media_url }}
-          className="w-full h-full"
-          resizeMode="cover"
-        />
-
-        <View className="absolute bottom-4 left-4 flex-row items-center">
-          <TouchableOpacity className="w-10 h-10 rounded-full bg-primary-100 items-center justify-center mr-2 shadow-sm">
-            <FontAwesome6 name="leaf" size={20} color={colors.primary800} />
-          </TouchableOpacity>
-          <View className="bg-primary-100 px-4 py-2 rounded-full shadow-sm">
-            <Text className="text-primary-800 font-inter-medium">
-              {post.approve_count} Lượt thích
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View className="mt-4 flex-row flex-wrap">
-        {/* {post.longitude && <Tag label={toString(post.longitude)} />} */}
-        <Tag label={t('community.tags.greenDaily', 'Sống xanh mỗi ngày')} />
-        {post.action_type && <Tag label={post.action_type.action_name} />}
-      </View>
-
-      <View className="bg-primary-50 p-4 rounded-2xl mt-2">
-        <Text className="text-primary-800 font-inter text-base leading-relaxed">
-          {post.caption}
-        </Text>
-      </View>
-    </View>
-  );
-};
-
-// -----------------------------------------------------------------
-// MÀN HÌNH CHÍNH (Đã tích hợp API & Tối ưu hiệu năng)
-// -----------------------------------------------------------------
 export default function CommunityScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
 
-  // Gọi API lấy bài viết
-  const { data, isLoading, isError, refetch, isRefetching } = useFeedPosts({ page: 1, page_size: 10 });
+  // --- 1. STATE BỘ LỌC ---
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    actionTypeId: 'all',
+    timeRange: 'all',
+    sortBy: 'newest',
+  });
+  const [tempFilters, setTempFilters] = useState(filters);
+
+  // --- 2. API CALLS ---
+  const { data, isLoading, isError, refetch, isRefetching } = useFeedPosts({
+    page: 1,
+    page_size: 10,
+    search: searchQuery,
+    action_type_id: filters.actionTypeId !== 'all' ? filters.actionTypeId : undefined,
+    sort: filters.sortBy,
+    time: filters.timeRange,
+  });
   const posts = data?.items || [];
 
+  const { data: actionTypesData } = useActionTypes();
+  const actionTypes = actionTypesData || []; // Đã FIX lỗi mảng items
+
+  // --- 3. BOTTOM SHEET LOGIC ---
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ['65%'], []);
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.4} />
+    ),
+    []
+  );
+
+  const openFilter = () => {
+    Keyboard.dismiss();
+    setTempFilters(filters);
+    bottomSheetModalRef.current?.present();
+  };
+
+  const applyFilter = () => {
+    setFilters(tempFilters);
+    bottomSheetModalRef.current?.dismiss();
+  };
+
+  const clearFilter = () => {
+    const defaultFilters = { actionTypeId: 'all', timeRange: 'all', sortBy: 'newest' };
+    setTempFilters(defaultFilters);
+    setFilters(defaultFilters);
+    bottomSheetModalRef.current?.dismiss();
+  };
+
+  // --- 4. RENDER UI ---
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top + 16 }}>
-      <Text className="text-foreground font-inter-bold text-2xl px-6 mb-2">
+      <Text className="mb-2 px-6 font-inter-bold text-2xl text-foreground">
         {t('community.title', 'Cộng đồng')}
       </Text>
 
       <View className="flex-1 px-6 pt-4">
-        {/* Bộ lọc tìm kiếm (Giữ nguyên UI của bạn) */}
-        <View className="flex-row items-center mb-4">
-          <View className="flex-1 flex-row items-center bg-primary-50 rounded-full px-5 mr-3">
-            <TextInput 
+        {/* HEADER: THANH TÌM KIẾM */}
+        <View className="mb-4 flex-row items-center">
+          <View className="mr-3 flex-1 flex-row items-center rounded-full bg-primary-50 px-5">
+            <TextInput
               placeholder={t('community.search', 'Tìm kiếm bài viết...')}
               placeholderTextColor={colors.primary800}
-              className="flex-1 font-inter text-base text-primary-800 mr-2 h-12"
+              className="mr-2 h-12 flex-1 font-inter text-base text-primary-800"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              onSubmitEditing={() => refetch()}
             />
-            <Feather name="search" size={24} color={colors.primary800} />
+            {searchQuery.length > 0 ? (
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchQuery('');
+                  setTimeout(refetch, 100);
+                }}>
+                <Feather name="x-circle" size={20} color={colors.primary800} />
+              </TouchableOpacity>
+            ) : (
+              <Feather name="search" size={24} color={colors.primary800} />
+            )}
           </View>
-          <TouchableOpacity className="w-[48px] h-[48px] bg-primary-50 rounded-full items-center justify-center">
+
+          <TouchableOpacity
+            onPress={openFilter}
+            className="relative h-[48px] w-[48px] items-center justify-center rounded-full bg-primary-50">
             <Feather name="filter" size={22} color={colors.primary800} />
+            {(filters.actionTypeId !== 'all' ||
+              filters.timeRange !== 'all' ||
+              filters.sortBy !== 'newest') && (
+              <View className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full border border-white bg-rose-500" />
+            )}
           </TouchableOpacity>
         </View>
 
-        {/* Quản lý các trạng thái: Loading, Error, và FlatList (Siêu mượt) */}
+        {/* DANH SÁCH BÀI VIẾT */}
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text className="mt-4 text-foreground/60 font-inter text-sm">Đang tải bảng tin...</Text>
           </View>
         ) : isError ? (
           <View className="flex-1 items-center justify-center">
             <Feather name="alert-circle" size={40} color="#f87171" />
-            <Text className="mt-4 text-foreground/80 font-inter text-center">Đã có lỗi xảy ra khi tải dữ liệu.</Text>
-            <TouchableOpacity onPress={() => refetch()} className="mt-4 bg-primary px-6 py-2 rounded-full">
-              <Text className="text-white font-inter-medium">Thử lại</Text>
-            </TouchableOpacity>
+            <Text className="text-foreground/80 mt-4 text-center font-inter">
+              Đã có lỗi xảy ra.
+            </Text>
+            <Button title="Thử lại" onPress={() => refetch()} className="mt-4 px-8" />
           </View>
         ) : (
           <FlatList
@@ -168,25 +166,95 @@ export default function CommunityScreen() {
             renderItem={({ item }) => <PostCard post={item} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 100 }}
-            // Tính năng Kéo xuống để làm mới cực xịn
             refreshControl={
-              <RefreshControl 
-                refreshing={isRefetching} 
-                onRefresh={refetch} 
-                tintColor={colors.primary} 
-                colors={[colors.primary]} 
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={colors.primary}
               />
             }
-            // Màn hình trống nếu không có bài nào
             ListEmptyComponent={
               <View className="items-center justify-center py-20">
                 <FontAwesome6 name="seedling" size={48} color={colors.primary} />
-                <Text className="mt-4 text-foreground/60 font-inter text-center">Chưa có hoạt động nào.{"\n"}Hãy là người đầu tiên gieo hạt!</Text>
+                <Text className="text-foreground/60 mt-4 text-center font-inter">
+                  Không tìm thấy bài viết nào.
+                </Text>
               </View>
             }
           />
         )}
       </View>
+
+      {/* BOTTOM SHEET FILTER */}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        backdropComponent={renderBackdrop}
+        backgroundStyle={{ backgroundColor: colors.background, borderRadius: 24 }}
+        handleIndicatorStyle={{ backgroundColor: colors.primary300, width: 40 }}>
+        <BottomSheetView className="flex-1 px-6 pb-8 pt-2">
+          <View className="mb-6 flex-row items-center justify-between">
+            <Text className="font-inter-bold text-xl text-foreground">Bộ lọc tìm kiếm</Text>
+            <TouchableOpacity onPress={clearFilter}>
+              <Text className="font-inter-medium text-sm text-rose-500">Xóa bộ lọc</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">Sắp xếp theo</Text>
+          <View className="mb-6 flex-row flex-wrap">
+            <FilterChip
+              label="Mới nhất"
+              isSelected={tempFilters.sortBy === 'newest'}
+              onPress={() => setTempFilters({ ...tempFilters, sortBy: 'newest' })}
+            />
+            <FilterChip
+              label="Nổi bật (Nhiều lượt thích)"
+              isSelected={tempFilters.sortBy === 'popular'}
+              onPress={() => setTempFilters({ ...tempFilters, sortBy: 'popular' })}
+            />
+          </View>
+
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">Thời gian</Text>
+          <View className="mb-6 flex-row flex-wrap">
+            <FilterChip
+              label="Tất cả"
+              isSelected={tempFilters.timeRange === 'all'}
+              onPress={() => setTempFilters({ ...tempFilters, timeRange: 'all' })}
+            />
+            <FilterChip
+              label="Tuần này"
+              isSelected={tempFilters.timeRange === 'week'}
+              onPress={() => setTempFilters({ ...tempFilters, timeRange: 'week' })}
+            />
+            <FilterChip
+              label="Tháng này"
+              isSelected={tempFilters.timeRange === 'month'}
+              onPress={() => setTempFilters({ ...tempFilters, timeRange: 'month' })}
+            />
+          </View>
+
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">Hoạt động xanh</Text>
+          <View className="mb-6 flex-row flex-wrap">
+            <FilterChip
+              label="Tất cả"
+              isSelected={tempFilters.actionTypeId === 'all'}
+              onPress={() => setTempFilters({ ...tempFilters, actionTypeId: 'all' })}
+            />
+            {actionTypes.slice(0, 5).map((type) => (
+              <FilterChip
+                key={type.id}
+                label={type.action_name}
+                isSelected={tempFilters.actionTypeId === type.id}
+                onPress={() => setTempFilters({ ...tempFilters, actionTypeId: type.id })}
+              />
+            ))}
+          </View>
+
+          <View className="flex-1" />
+          <Button title="Áp dụng" onPress={applyFilter} />
+        </BottomSheetView>
+      </BottomSheetModal>
     </View>
   );
 }

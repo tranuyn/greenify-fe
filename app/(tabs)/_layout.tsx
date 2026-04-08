@@ -36,14 +36,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('tabs.home', 'Trang chủ'), // Fallback tiếng Việt nếu file JSON chưa có
-          tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="home" size={20} color={color} />,
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
           title: t('tabs.community', 'Cộng đồng'),
-          tabBarIcon: ({ color }) => <SimpleLineIcons name="globe" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <SimpleLineIcons name="globe" size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -64,14 +64,14 @@ export default function TabLayout() {
         name="events"
         options={{
           title: t('tabs.events', 'Sự kiện'),
-          tabBarIcon: ({ color }) => <Feather name="calendar" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="calendar" size={20} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.profile', 'Tài khoản'),
-          tabBarIcon: ({ color }) => <Feather name="user" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="user" size={20} color={color} />,
         }}
       />
     </Tabs>

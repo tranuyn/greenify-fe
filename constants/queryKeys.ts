@@ -18,6 +18,13 @@ export const QUERY_KEYS = {
     me: () => ['auth', 'me'] as const,
   },
 
+  // Users
+  users: {
+    all: ['users'] as const,
+    list: (params?: object) => ['users', 'list', params] as const,
+    detail: (userId: string) => ['users', userId] as const,
+  },
+
   // Posts
   posts: {
     all: ['posts'] as const,

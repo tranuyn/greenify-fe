@@ -8,7 +8,12 @@ import type {
 } from 'types/action.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import { MOCK_ACTION_TYPES, MOCK_POSTS, MOCK_POINT_WALLET, MOCK_LEDGER } from './mock/action.mock';
-import { ApiResponse, PaginatedResponse, PaginationParams } from 'types/common.types';
+import {
+  ApiResponse,
+  FeedQueryParams,
+  PaginatedResponse,
+  PaginationParams,
+} from 'types/common.types';
 
 // ============================================================
 // GREEN ACTION SERVICE
@@ -22,29 +27,81 @@ export const actionService = {
     const { data } = await apiClient.get<ApiResponse<GreenActionType[]>>('/action-types');
     return data;
   },
-
   async getFeedPosts(
-    params?: PaginationParams,
+    params?: FeedQueryParams
   ): Promise<ApiResponse<PaginatedResponse<GreenActionPost>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
+
+      // 1. Lấy toàn bộ data gốc
+      let filteredPosts = [...MOCK_POSTS];
+
+      // 2. Xử lý Lọc theo Từ khóa (Search)
+      if (params?.search) {
+        const lowerSearch = params.search.toLowerCase();
+        filteredPosts = filteredPosts.filter(
+          (post) =>
+            post.caption.toLowerCase().includes(lowerSearch) ||
+            (post.user_display_name && post.user_display_name.toLowerCase().includes(lowerSearch))
+        );
+      }
+
+      // 3. Xử lý Lọc theo Loại hành động
+      if (params?.action_type_id && params.action_type_id !== 'all') {
+        filteredPosts = filteredPosts.filter(
+          (post) => post.action_type_id === params.action_type_id
+        );
+      }
+
+      // 4. Xử lý Lọc theo Thời gian
+      if (params?.time && params.time !== 'all') {
+        const now = new Date();
+        filteredPosts = filteredPosts.filter((post) => {
+          const postDate = new Date(post.created_at);
+          const diffTime = Math.abs(now.getTime() - postDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (params.time === 'week') return diffDays <= 7;
+          if (params.time === 'month') return diffDays <= 30;
+          return true;
+        });
+      }
+
+      // 5. Xử lý Sắp xếp (Sort)
+      if (params?.sort === 'popular') {
+        // Nổi bật: Nhiều like nhất xếp trên
+        filteredPosts.sort((a, b) => b.approve_count - a.approve_count);
+      } else {
+        // Mặc định (newest): Mới nhất xếp trên
+        filteredPosts.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      }
+
+      // 6. Xử lý Phân trang (Pagination)
+      const page = params?.page ?? 1;
+      const pageSize = params?.page_size ?? 10;
+      const start = (page - 1) * pageSize;
+      const paginatedPosts = filteredPosts.slice(start, start + pageSize);
+
       return mockSuccess({
-        items: MOCK_POSTS,
-        total: MOCK_POSTS.length,
-        page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
+        items: paginatedPosts,
+        total: filteredPosts.length,
+        page: page,
+        page_size: pageSize,
+        has_next: start + pageSize < filteredPosts.length,
       });
     }
+
     const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPost>>>(
       '/posts/feed',
-      { params },
+      { params }
     );
     return data;
   },
 
   async getMyPosts(
-    params?: PaginationParams,
+    params?: PaginationParams
   ): Promise<ApiResponse<PaginatedResponse<GreenActionPost>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
@@ -59,7 +116,7 @@ export const actionService = {
     }
     const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPost>>>(
       '/posts/me',
-      { params },
+      { params }
     );
     return data;
   },
@@ -77,7 +134,7 @@ export const actionService = {
         created_at: new Date().toISOString(),
         action_type: actionType,
         user_display_name: 'Nhã Uyên',
-        user_avatar_url: 'https://i.pravatar.cc/150?img=47',
+        user_avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
         latitude: payload.latitude ?? null,
         longitude: payload.longitude ?? null,
         ...payload,
@@ -103,7 +160,7 @@ export const walletService = {
   },
 
   async getLedger(
-    params?: PaginationParams,
+    params?: PaginationParams
   ): Promise<ApiResponse<PaginatedResponse<PointLedgerEntry>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
@@ -117,7 +174,7 @@ export const walletService = {
     }
     const { data } = await apiClient.get<ApiResponse<PaginatedResponse<PointLedgerEntry>>>(
       '/wallet/ledger',
-      { params },
+      { params }
     );
     return data;
   },

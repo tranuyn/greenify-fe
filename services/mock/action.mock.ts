@@ -72,7 +72,7 @@ export const MOCK_POSTS: GreenActionPost[] = [
     created_at: '2026-03-30T09:15:00Z',
     action_type: MOCK_ACTION_TYPES[0],
     user_display_name: 'Nhã Uyên',
-    user_avatar_url: 'https://i.pravatar.cc/150?img=47',
+    user_avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
   },
   {
     id: 'post-002',
@@ -106,7 +106,7 @@ export const MOCK_POSTS: GreenActionPost[] = [
     created_at: '2026-03-28T18:00:00Z',
     action_type: MOCK_ACTION_TYPES[3],
     user_display_name: 'Nhã Uyên',
-    user_avatar_url: 'https://i.pravatar.cc/150?img=47',
+    user_avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
   },
 ];
 

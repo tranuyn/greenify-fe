@@ -38,3 +38,10 @@ export interface PaginationParams {
   page?: number;
   page_size?: number;
 }
+
+export interface FeedQueryParams extends PaginationParams {
+  search?: string;
+  action_type_id?: string;
+  sort?: string;
+  time?: string;
+}

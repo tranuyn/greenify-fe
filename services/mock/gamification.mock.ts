@@ -203,7 +203,7 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     reward_status: 'PENDING_REWARD',
     status: 'PUBLISHED',
     display_name: 'Nhã Uyên',
-    avatar_url: 'https://i.pravatar.cc/150?img=47',
+    avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
   },
   {
     id: 'lb-005',

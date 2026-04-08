@@ -1,94 +1,129 @@
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
-// Dùng thẻ Text xịn xò của nhóm mình tự làm
-
+import { View, ScrollView, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-// Lấy khoảng cách an toàn (tránh tai thỏ/đảo động của điện thoại)
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// Bộ icon xịn từ Expo
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Text } from 'components/ui/Text';
-import { useThemeColor } from 'hooks/useThemeColor.hook';
+// ---- Feature components ----
+import { HomeHeader } from '@/components/features/home/HomeHeader';
+import { HomeActionMenu } from '@/components/features/home/HomeActionMenu';
+import { SectionHeader } from '@/components/features/home/SectionHeader';
+import { EventCard } from '@/components/features/home/EventCard';
+import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
+import { StreakPlantCard } from '@/components/features/home/StreakPlantCard';
+import { CommunityFeedPreview } from '@/components/features/home/CommunityFeedPreview';
 
-// -----------------------------------------------------------------
-// COMPONENT PHỤ: Tránh lặp code cho 4 cái nút ở dưới
-// -----------------------------------------------------------------
-type MenuItemProps = {
-  icon: React.ReactNode;
-  title: string;
-  onPress?: () => void;
-};
+// ---- Hooks ----
+import { useGetMe } from '@/hooks/queries/useAuth';
+import { usePublishedEvents } from '@/hooks/queries/useEvents';
+import { useAvailableVouchers } from '@/hooks/queries/useGamification';
+import { useMyWallet } from '@/hooks/queries/useWallet';
+import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { Text } from '@/components/ui/Text';
 
-const MenuItem = ({ icon, title, onPress }: MenuItemProps) => (
-  <TouchableOpacity onPress={onPress} className="w-[22%] items-center active:opacity-70">
-    <View className="mb-1 h-12 w-12 items-center justify-center">{icon}</View>
-    {/* Chữ sẽ tự đổi Trắng/Đen nhờ text-foreground */}
-    <Text className="text-center font-inter text-xs leading-tight text-foreground">{title}</Text>
-  </TouchableOpacity>
-);
+// ============================================================
+// HOME SCREEN
+// Orchestrator: Chỉ import + xếp chồng các sections.
+// Mỗi section tự quản lý data fetching & loading state.
+// ============================================================
 
-// -----------------------------------------------------------------
-// MÀN HÌNH CHÍNH
-// -----------------------------------------------------------------
 export default function HomeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
 
-  // Dữ liệu giả lập (Sau này lấy từ API)
-  const userName = 'User name';
-  const userPoints = '10';
+  // ---- Data fetching ----
+  const { data: authData, isLoading: isLoadingMe } = useGetMe(true);
+  const { data: wallet } = useMyWallet();
+  const { data: eventsData, isLoading: isLoadingEvents } = usePublishedEvents({
+    page: 1,
+    page_size: 5,
+  });
+  const { data: vouchers, isLoading: isLoadingVouchers } = useAvailableVouchers();
+
+  const userName = authData?.profile?.display_name || t('home.welcome_guest', 'Công dân xanh');
+  const events = eventsData?.items ?? [];
+  const allVouchers = vouchers ?? [];
+
+  const rowVouchers = allVouchers;
 
   return (
-    // Padding top giúp nội dung không bị vướng vào thanh trạng thái (cục pin, wifi...)
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top + 16 }}>
-      {/* 1. THẺ XANH (HEADER CARD) */}
-      <View className="mx-4 flex-row items-center rounded-3xl bg-primary p-5 shadow-sm">
-        {/* Avatar Hình cái cây */}
-        <View className="mr-3 h-14 w-14 items-center justify-center rounded-full border border-white/50 bg-white/30">
-          <FontAwesome6 name="tree" size={26} color="#ffffff" />
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 100 }}
+      showsVerticalScrollIndicator={false}>
+      {/* ============================================= */}
+      {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
+      {/* ============================================= */}
+      <HomeHeader
+        userName={userName}
+        avatarUrl={authData?.profile?.avatar_url}
+        points={wallet?.available_points ?? 0}
+      />
+
+      {/* ============================================= */}
+      {/* 2. QUICK MENU — Bản đồ, Voucher, Leaderboard  */}
+      {/* ============================================= */}
+      <HomeActionMenu />
+
+      {/* ============================================= */}
+      {/* 3. SỰ KIỆN XANH — Carousel ngang              */}
+      {/* ============================================= */}
+      <SectionHeader title={t('home.section_events')} />
+
+      {isLoadingEvents ? (
+        <View className="h-[200px] items-center justify-center">
+          <ActivityIndicator size="small" color={colors.primary} />
         </View>
+      ) : (
+        <FlatList
+          className="pb-1 pt-1"
+          data={events}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <EventCard item={item} />}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
+          snapToInterval={316}
+          decelerationRate="fast"
+          ListEmptyComponent={
+            <View className="h-[120px] w-full items-center justify-center">
+              <Text className="text-foreground/50 font-inter text-sm">
+                Hiện chưa có sự kiện nào.
+              </Text>
+            </View>
+          }
+        />
+      )}
 
-        {/* Thông tin User */}
-        <View className="flex-1">
-          <Text className="mb-0.5 font-inter text-xs text-white/90">{t('home.welcome')}</Text>
-          <Text className="line-clamp-1 font-inter-bold text-base text-foreground">{userName}</Text>
+      {/* ============================================= */}
+      {/* 4. ĐỔI VOUCHER — Row list + Carousel          */}
+      {/* ============================================= */}
+      <SectionHeader title={t('home.section_vouchers')} />
+
+      {/* Row voucher list */}
+      {isLoadingVouchers ? (
+        <View className="h-[80px] items-center justify-center">
+          <ActivityIndicator size="small" color={colors.primary} />
         </View>
-
-        {/* Điểm tích lũy */}
-        <View className="items-end">
-          <Text className="mb-0.5 font-inter text-xs text-white/90">{t('home.points')}</Text>
-          <Text className="font-inter-bold text-2xl text-white">
-            {userPoints} <Text className="font-inter-bold text-base text-white">GP</Text>
-          </Text>
+      ) : (
+        <View className="px-5">
+          {rowVouchers.map((item) => (
+            <VoucherRowCard key={item.id} item={item} />
+          ))}
         </View>
-      </View>
+      )}
 
-      {/* 2. DANH SÁCH CHỨC NĂNG (GRID MENU) */}
-      <View className="mt-8 flex-row justify-between px-6">
-        <MenuItem
-          icon={<FontAwesome6 name="store" size={28} color={colors.foreground} />}
-          title={t('home.voucher', 'Chợ Voucher')}
-          onPress={() => console.log('Mở chợ Voucher')}
-        />
+      {/* ============================================= */}
+      {/* 5. STREAK + CÂY ĐANG TRỒNG                    */}
+      {/* ============================================= */}
+      <SectionHeader title={t('home.section_streak_plant')} />
+      <StreakPlantCard />
 
-        <MenuItem
-          icon={<Ionicons name="grid" size={32} color={colors.foreground} />}
-          title={t('home.feature', 'Danh mục\nchức năng')}
-        />
-
-        <MenuItem
-          icon={<Ionicons name="grid" size={32} color={colors.foreground} />}
-          title={t('home.feature', 'Danh mục\nchức năng')}
-        />
-
-        <MenuItem
-          icon={<Ionicons name="grid" size={32} color={colors.foreground} />}
-          title={t('home.feature', 'Danh mục\nchức năng')}
-        />
-      </View>
-    </View>
+      {/* ============================================= */}
+      {/* 6. FEED CỘNG ĐỒNG XANH — 3 bài post mới nhất */}
+      {/* ============================================= */}
+      <SectionHeader title={t('home.section_community')} />
+      <CommunityFeedPreview />
+    </ScrollView>
   );
 }
