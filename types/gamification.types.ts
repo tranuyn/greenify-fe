@@ -18,6 +18,8 @@ export interface VoucherTemplate {
   id: string;
   name: string;
   partner_name: string;
+  partner_logo_url: string | null;
+  thumbnail_url: string | null;
   description: string;
   required_points: number;
   total_stock: number;

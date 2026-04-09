@@ -23,22 +23,25 @@ function formatDate(isoString: string): string {
 export function VoucherRowCard({ item, onCollect }: Props) {
   const { t } = useTranslation();
 
-  const brandLogo = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.partner_name)}&background=dcfce7&color=166534&bold=true&size=64`;
-  const thumbnail =
-    'https://cafefcdn.com/zoom/700_438/203337114487263232/2023/12/6/xanh-sm-emag-cover-mobi-08-1701855466110670966778.jpg';
-
   return (
-    <View className="dark:bg-card mb-3 flex-row items-center rounded-2xl bg-background px-3 shadow-sm shadow-black/70">
-      {/* Brand Logo */}
+    <View className="mb-3 flex-row items-center rounded-2xl bg-background px-3 shadow-sm shadow-black/70 dark:bg-card">
       <View className="mr-3.5 h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-primary-50">
-        <Image source={{ uri: thumbnail }} className="h-full w-full" resizeMode="cover" />
+        <Image
+          source={{ uri: item.thumbnail_url ?? undefined }}
+          className="h-full w-full"
+          resizeMode="cover"
+        />
       </View>
 
       {/* Content */}
       <View className="flex-1 py-3">
         <View className="mb-0.5 flex-row items-center">
           <View className="mr-1 h-5 w-5 items-center justify-center overflow-hidden rounded-2xl bg-primary-50">
-            <Image source={{ uri: brandLogo }} className="h-full w-full" resizeMode="cover" />
+            <Image
+              source={{ uri: item.partner_logo_url ?? undefined }}
+              className="h-full w-full"
+              resizeMode="cover"
+            />
           </View>
           <Text className="text-foreground/50 line-clamp-1 font-inter text-[11px]">
             {item.partner_name}
