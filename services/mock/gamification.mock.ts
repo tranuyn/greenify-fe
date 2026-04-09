@@ -85,6 +85,10 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     id: 'vt-001',
     name: 'Giảm 20% Xanh SM',
     partner_name: 'Xanh SM',
+    partner_logo_url:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Xanh_SM_logo.svg/1280px-Xanh_SM_logo.svg.png',
+    thumbnail_url:
+      'https://cafefcdn.com/zoom/700_438/203337114487263232/2023/12/6/xanh-sm-emag-cover-mobi-08-1701855466110670966778.jpg',
     description: 'Giảm 20% cho chuyến đi xe điện Xanh SM. Áp dụng toàn quốc.',
     required_points: 100,
     total_stock: 500,
@@ -97,6 +101,8 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     id: 'vt-002',
     name: 'Voucher Cocoon 50.000đ',
     partner_name: 'Cocoon Vietnam',
+    partner_logo_url: 'https://moonchicorder.com.vn/wp-content/uploads/2024/09/Cocoon.png',
+    thumbnail_url: 'https://channel.mediacdn.vn/2020/1/7/photo-1-15783942747491282238021.jpg',
     description: 'Voucher mua sản phẩm Cocoon trị giá 50.000đ.',
     required_points: 50,
     total_stock: 200,
@@ -109,6 +115,8 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     id: 'vt-003',
     name: 'Đồ uống miễn phí – The Coffee House',
     partner_name: 'The Coffee House',
+    partner_logo_url: 'https://play-lh.googleusercontent.com/qWEv8qR8KmXHh9JHwOeWl0aqV50co9Wqw1gVZXJ2Fqrd0oIRM199Enbcc7McoZo_7w4qYPcRzaFi_IQ8rDVC',
+    thumbnail_url: 'https://upload.urbox.vn/strapi/Gallery_The_Coffee_House_2_46dac27aac.jpg',
     description: 'Đổi voucher lấy 1 ly đồ uống size M khi mang ly cá nhân.',
     required_points: 75,
     total_stock: 1000,
