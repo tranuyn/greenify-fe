@@ -3,12 +3,10 @@
 // Mapped from: voucher_templates, user_vouchers
 // ============================================================
 
-export type VoucherTemplateStatus =
-  | 'DRAFT'
-  | 'ACTIVE'
-  | 'INACTIVE'
-  | 'EXPIRED'
-  | 'DEPLETED';
+import { Use } from 'react-native-svg';
+import { UserProfile } from './user.type';
+
+export type VoucherTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DEPLETED';
 
 export type UserVoucherStatus = 'AVAILABLE' | 'USED' | 'EXPIRED' | 'CANCELLED';
 
@@ -111,7 +109,10 @@ export interface GardenArchive {
 // Mapped from: leaderboard_periods, leaderboard_snapshots
 // ============================================================
 
-export type LeaderboardScope = 'NATIONAL' | 'PROVINCIAL';
+export enum LeaderboardScope {
+  NATIONAL = 'NATIONAL',
+  PROVINCIAL = 'PROVINCIAL',
+}
 
 export type LeaderboardPeriodStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED';
 
@@ -132,7 +133,9 @@ export interface LeaderboardPeriod {
 export interface LeaderboardEntry {
   id: string;
   period_id: string;
+  // period: LeaderboardPeriod;
   user_id: string;
+  user_profiles: UserProfile;
   scope: LeaderboardScope;
   province: string | null;
   rank: number;

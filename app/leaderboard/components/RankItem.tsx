@@ -1,14 +1,10 @@
 import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { IMAGES } from '@/constants/linkMedia';
+import { LeaderboardEntry } from '@/types/gamification.types';
 
 interface RankItemProps {
-  item: {
-    id: string;
-    rank: number;
-    name: string;
-    points: number;
-  };
+  item: LeaderboardEntry;
 }
 
 const RankItem = ({ item }: RankItemProps) => {
@@ -31,6 +27,8 @@ const RankItem = ({ item }: RankItemProps) => {
   };
 
   const frameSource = getFrameSource(item.rank);
+  const displayName = item.display_name || item.user_profiles.display_name;
+  const avatarUrl = item.avatar_url || item.user_profiles.avatar_url || IMAGES.treeAvatar;
 
   return (
     <View className="flex-row items-center justify-between py-3">
@@ -52,7 +50,7 @@ const RankItem = ({ item }: RankItemProps) => {
           {/* Nếu CÓ frame thì avatar nhỏ lại (h-8 w-8) để lọt vào giữa vòng tròn */}
           {/* Nếu KHÔNG frame (Rank 4+) thì to hơn chút (h-10 w-10) và tự thêm viền nhạt */}
           <Image
-            source={{ uri: IMAGES.treeAvatar }}
+            source={{ uri: avatarUrl }}
             className={
               frameSource
                 ? 'h-8 w-8 rounded-full'
@@ -62,11 +60,11 @@ const RankItem = ({ item }: RankItemProps) => {
           />
         </View>
 
-        <Text className="text-base font-medium text-gray-800">{item.name}</Text>
+        <Text className="text-base font-medium text-gray-800">{displayName}</Text>
       </View>
 
       <Text className="text-base font-bold text-gray-800">
-        {item.points} <Text className="text-[#359B63]">GP</Text>
+        {item.weekly_points} <Text className="text-[#359B63]">GP</Text>
       </Text>
     </View>
   );

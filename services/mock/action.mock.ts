@@ -3,6 +3,7 @@ import {
   GreenActionPost,
   PointWallet,
   PointLedgerEntry,
+  PointSourceType,
 } from 'types/action.types';
 
 export const MOCK_ACTION_TYPES: GreenActionType[] = [
@@ -125,27 +126,34 @@ export const MOCK_LEDGER: PointLedgerEntry[] = [
     id: 'led-001',
     user_id: 'usr-001',
     amount: 10,
-    source_type: 'GREEN_ACTION',
+    source_type: PointSourceType.EVENT_ATTEND,
     source_id: 'post-001',
     status: 'REWARDED',
     created_at: '2026-03-30T09:20:00Z',
+    source_name: 'Phân loại rác tại nhà',
+    source_display_url:
+      'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/07/anh-bien-dep-1.jpg',
   },
   {
     id: 'led-002',
     user_id: 'usr-001',
     amount: 25,
-    source_type: 'GREEN_ACTION',
+    source_type: PointSourceType.GREEN_ACTION,
     source_id: 'post-002',
     status: 'REWARDED',
     created_at: '2026-03-29T07:35:00Z',
+    source_name: 'Bài xanh',
+    source_display_url: '',
   },
   {
     id: 'led-003',
     user_id: 'usr-001',
     amount: -50,
-    source_type: 'VOUCHER_REDEEM',
+    source_type: PointSourceType.VOUCHER_REDEEM,
     source_id: 'uvoucher-001',
     status: 'REWARDED',
     created_at: '2026-03-25T14:00:00Z',
+    source_name: 'Đổi voucher giảm giá 50 điểm',
+    source_display_url: '',
   },
 ];

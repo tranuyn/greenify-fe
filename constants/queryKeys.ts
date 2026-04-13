@@ -1,3 +1,5 @@
+import { LeaderboardScope } from 'types/gamification.types';
+
 /**
  * Query Key Factory — dùng factory pattern thay vì string constants.
  *
@@ -67,7 +69,7 @@ export const QUERY_KEYS = {
   // Leaderboard
   leaderboard: {
     all: ['leaderboard'] as const,
-    scope: (scope: string, province?: string) => ['leaderboard', scope, province] as const,
+    scope: (scope: LeaderboardScope, province?: string) => ['leaderboard', scope, province] as const,
   },
 
   // Events

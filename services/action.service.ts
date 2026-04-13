@@ -160,7 +160,7 @@ export const walletService = {
   },
 
   async getLedger(
-    params?: PaginationParams
+    params?: PaginationParams & { time?: string[]; source_type?: string[] }
   ): Promise<ApiResponse<PaginatedResponse<PointLedgerEntry>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);

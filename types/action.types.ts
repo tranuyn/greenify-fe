@@ -98,13 +98,14 @@ export interface AppealPostRequest {
 // Mapped from: point_rules, point_wallets, point_ledger
 // ============================================================
 
-export type PointSourceType =
-  | 'GREEN_ACTION'
-  | 'REVIEW_REWARD'
-  | 'EVENT_ATTEND'
-  | 'LEADERBOARD'
-  | 'VOUCHER_REDEEM'
-  | 'FRAUD_REVERSAL';
+export enum PointSourceType {
+  GREEN_ACTION = 'GREEN_ACTION',
+  REVIEW_REWARD = 'REVIEW_REWARD',
+  EVENT_ATTEND = 'EVENT_ATTEND',
+  LEADERBOARD = 'LEADERBOARD',
+  VOUCHER_REDEEM = 'VOUCHER_REDEEM',
+  LEADERBOARD_REWARD = 'LEADERBOARD_REWARD',
+}
 
 export type LedgerStatus = 'REWARDED' | 'REVERSED' | 'FROZEN';
 
@@ -128,6 +129,10 @@ export interface PointLedgerEntry {
   source_id: string;
   status: LedgerStatus;
   created_at: string;
+
+  /// extraction
+  source_name?: string;
+  source_display_url?: string | null;
 }
 
 export interface PointRule {

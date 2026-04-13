@@ -1,28 +1,40 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+
+const getCountdownToThisWeekSundayEnd = () => {
+  const now = new Date(Date.now());
+  const target = new Date(now);
+
+  const dayOfWeek = now.getDay(); // Sunday = 0, Monday = 1, ...
+  const daysUntilSunday = (7 - dayOfWeek) % 7;
+  target.setDate(now.getDate() + daysUntilSunday);
+  target.setHours(23, 59, 0, 0);
+
+  const diffMs = Math.max(0, target.getTime() - now.getTime());
+  const totalMinutes = Math.floor(diffMs / (1000 * 60));
+  const days = Math.floor(totalMinutes / (24 * 60));
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+  const minutes = totalMinutes % 60;
+
+  return { days, hours, minutes };
+};
 
 const TimeFilter = () => {
-  return (
-    <View className="mb-6 px-2">
-      {/* Nút chuyển Ngày/Tuần/Tháng */}
-      <View className="flex-row rounded-full bg-white p-1 shadow-sm">
-        <TouchableOpacity className="flex-1 items-center rounded-full bg-[#65D48D] py-2">
-          <Text className="font-bold text-gray-800">Ngày</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="flex-1 items-center py-2">
-          <Text className="font-medium text-gray-600">Tuần</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="flex-1 items-center py-2">
-          <Text className="font-medium text-gray-600">Tháng</Text>
-        </TouchableOpacity>
-      </View>
+  const [countdown, setCountdown] = React.useState(getCountdownToThisWeekSundayEnd());
 
-      {/* Đếm ngược */}
-      <View className="mt-4 flex-row justify-between px-4">
-        <Text className="font-bold text-white">5 ngày</Text>
-        <Text className="font-bold text-white">5 giờ</Text>
-        <Text className="font-bold text-white">54 phút</Text>
-      </View>
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCountdown(getCountdownToThisWeekSundayEnd());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <View className="my-6 mt-4 flex-row justify-between px-12">
+      <Text className="font-bold text-white">{countdown.days} ngày</Text>
+      <Text className="font-bold text-white">{countdown.hours} giờ</Text>
+      <Text className="font-bold text-white">{countdown.minutes} phút</Text>
     </View>
   );
 };

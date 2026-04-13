@@ -1,19 +1,96 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons, Feather, AntDesign, MaterialIcons } from '@expo/vector-icons';
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
-// Trong file chứa màn hình của bạn (ví dụ history.tsx)
+import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
+import { usePointLedger } from 'hooks/queries/useWallet';
+import { IMAGES } from 'constants/linkMedia';
+import { PointLedgerEntry, PointSourceType } from 'types/action.types';
 import HistoryItem from './_components/HistoryItem';
-import FilterModal from './_components/FilterModal';
+import FilterModal, { LedgerFilterValue } from './_components/FilterModal';
+import { SOURCE_TYPE_LABELS } from '@/constants/sourceTypeLabel';
 import { router } from 'expo-router';
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+const TIME_LABELS: Record<LedgerFilterValue['time'][number], string> = {
+  week: 'Tuần',
+  month: 'Tháng',
+};
+
+const isInSelectedTimeRange = (createdAt: string, selectedTime: LedgerFilterValue['time']) => {
+  if (selectedTime.length === 0) {
+    return true;
+  }
+
+  const entryDate = new Date(createdAt).getTime();
+  if (Number.isNaN(entryDate)) {
+    return false;
+  }
+
+  const diffDays = (Date.now() - entryDate) / DAY_IN_MS;
+  return selectedTime.some((time) => {
+    if (time === 'week') {
+      return diffDays <= 7;
+    }
+    return diffDays <= 30;
+  });
+};
+
+const getLedgerIconUrl = (entry: PointLedgerEntry) => {
+  if (entry.source_type === PointSourceType.EVENT_ATTEND && entry.source_display_url) {
+    return entry.source_display_url;
+  }
+
+  switch (entry.source_type) {
+    case PointSourceType.GREEN_ACTION:
+      return IMAGES.blog;
+    case PointSourceType.LEADERBOARD:
+      return IMAGES.crownSilver;
+    case PointSourceType.LEADERBOARD_REWARD:
+      return IMAGES.crownGold;
+    case PointSourceType.VOUCHER_REDEEM:
+      return IMAGES.voucher;
+    case PointSourceType.REVIEW_REWARD:
+    default:
+      return IMAGES.gift;
+  }
+};
 
 export default function WalletScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<LedgerFilterValue>({
+    time: [],
+    sourceTypes: [],
+  });
+
+  const { data: ledgerData, isLoading: isLedgerLoading } = usePointLedger({
+    page: 1,
+    page_size: 20,
+    time: appliedFilters.time.length > 0 ? appliedFilters.time : undefined,
+    source_type: appliedFilters.sourceTypes.length > 0 ? appliedFilters.sourceTypes : undefined,
+  });
+
+  const ledgerItems = (ledgerData?.items ?? []).filter((entry) => {
+    const matchSourceType =
+      appliedFilters.sourceTypes.length === 0 ||
+      appliedFilters.sourceTypes.includes(entry.source_type);
+    const matchTime = isInSelectedTimeRange(entry.created_at, appliedFilters.time);
+    return matchSourceType && matchTime;
+  });
+
+  const handleApplyFilter = (value: LedgerFilterValue) => {
+    setAppliedFilters(value);
+  };
+
+  const handleResetFilter = () => {
+    setAppliedFilters({ time: [], sourceTypes: [] });
+  };
+
+  const appliedFilterLabels = [
+    ...appliedFilters.time.map((item) => TIME_LABELS[item] ?? item),
+    ...appliedFilters.sourceTypes.map((item) => SOURCE_TYPE_LABELS[item] ?? item),
+  ];
+
   return (
     <SafeAreaView className="flex-1 ">
       {/* Header */}
@@ -33,6 +110,7 @@ export default function WalletScreen() {
 
       <ScrollView
         className="flex-1"
+        contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
         {/* Thẻ Điểm (PointsCard) */}
@@ -64,38 +142,56 @@ export default function WalletScreen() {
               <MaterialCommunityIcons name="filter-outline" size={22} color="#15803d" />
             </TouchableOpacity>
           </View>
+          {appliedFilters.sourceTypes.length > 0 || appliedFilters.time.length > 0 ? (
+            <View>
+              <Text className="text-xs text-gray-500">
+                Đang áp dụng {appliedFilters.time.length + appliedFilters.sourceTypes.length} bộ lọc
+              </Text>
+              <Text className="mt-1 text-xs text-gray-600">{appliedFilterLabels.join(' • ')}</Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Danh sách Lịch sử */}
-        <View className="px-4 pb-10">
-          <HistoryItem
-            title="SK: Chủ nhật"
-            subtitle="Bạn nhận được điểm từ hoạt động"
-            points={10}
-            iconType="event"
-          />
-          <HistoryItem
-            title="Bài xanh"
-            subtitle="Điểm thưởng bài viết"
-            points={10}
-            iconType="article"
-          />
-          <HistoryItem
-            title="Tuần lễ xanh"
-            subtitle="Điểm thưởng tuần lễ xanh"
-            points={10}
-            iconType="calendar"
-          />
-          <HistoryItem
-            title="Bài xanh"
-            subtitle="Hoạt động của bạn bị trừ điểm"
-            points={-10}
-            iconType="article"
-          />
+        <View className="flex-1 px-4 pb-10">
+          {isLedgerLoading ? (
+            <Text className="py-6 text-center text-sm text-gray-500">Đang tải lịch sử điểm...</Text>
+          ) : ledgerItems.length === 0 ? (
+            <View className="flex-1 items-center justify-center">
+              <Image
+                source={{ uri: IMAGES.germination }}
+                className="h-40 w-40"
+                resizeMode="contain"
+              />
+              <Text className="mt-4 text-center text-sm text-gray-500">
+                Không tìm thấy kết quả phù hợp
+              </Text>
+            </View>
+          ) : (
+            ledgerItems.map((entry) => (
+              <HistoryItem
+                key={entry.id}
+                title={entry.source_name || 'Hoạt động không xác định'}
+                subtitle={
+                  entry.amount >= 0
+                    ? 'Bạn nhận được điểm từ hoạt động'
+                    : 'Hoạt động của bạn bị trừ điểm'
+                }
+                points={entry.amount}
+                iconUrl={getLedgerIconUrl(entry)}
+              />
+            ))
+          )}
         </View>
       </ScrollView>
 
-      <FilterModal isVisible={filterVisible} onClose={() => setFilterVisible(false)} />
+      <FilterModal
+        isVisible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        value={appliedFilters}
+        onApply={handleApplyFilter}
+        onReset={handleResetFilter}
+      />
     </SafeAreaView>
   );
 }
