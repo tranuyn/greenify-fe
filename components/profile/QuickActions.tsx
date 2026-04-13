@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { resetOnboardingCompleted } from '@/services/onboarding.service';
+import { useGetMe } from '@/hooks/queries/useAuth';
 import { router } from 'expo-router';
 
 // Giả lập dữ liệu cho Quick Actions
@@ -13,11 +14,20 @@ const actions = [
   { id: 'settings', icon: 'settings', label: 'Tất cả\ncài đặt' },
 ] as const;
 
+const mapUserRoleToAccountRole = (role?: string) => {
+  if (role === 'NGO') {
+    return 'organization';
+  }
+
+  return 'citizen';
+};
+
 export const QuickActions = ({ navigation }: any) => {
   // Ref sử dụng BottomSheetModal thay vì BottomSheet
   const [isSigningOut, setIsSigningOut] = useState(false);
   const settingsModalRef = useRef<BottomSheetModal>(null);
   const securityModalRef = useRef<BottomSheetModal>(null);
+  const { data: meData } = useGetMe(true);
 
   // Điểm dừng
   const snapPoints = useMemo(() => ['60%'], []);
@@ -27,7 +37,13 @@ export const QuickActions = ({ navigation }: any) => {
   const handlePress = (id: string) => {
     switch (id) {
       case 'user':
-        navigation?.navigate('Profile');
+        router.push({
+          pathname: '/(auth)/edit-profile',
+          params: {
+            role: mapUserRoleToAccountRole(meData?.user?.role),
+            email: meData?.user?.email,
+          },
+        });
         break;
       case 'security':
         // Dùng .present() để mở Modal

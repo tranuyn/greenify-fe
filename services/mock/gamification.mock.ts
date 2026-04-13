@@ -6,7 +6,9 @@ import {
   VoucherTemplate,
   UserVoucher,
   LeaderboardEntry,
+  LeaderboardScope,
 } from 'types/gamification.types';
+import { MOCK_USER_PROFILE } from './user.mock';
 
 // ---- Streak ----
 
@@ -115,7 +117,8 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     id: 'vt-003',
     name: 'Đồ uống miễn phí – The Coffee House',
     partner_name: 'The Coffee House',
-    partner_logo_url: 'https://play-lh.googleusercontent.com/qWEv8qR8KmXHh9JHwOeWl0aqV50co9Wqw1gVZXJ2Fqrd0oIRM199Enbcc7McoZo_7w4qYPcRzaFi_IQ8rDVC',
+    partner_logo_url:
+      'https://play-lh.googleusercontent.com/qWEv8qR8KmXHh9JHwOeWl0aqV50co9Wqw1gVZXJ2Fqrd0oIRM199Enbcc7McoZo_7w4qYPcRzaFi_IQ8rDVC',
     thumbnail_url: 'https://upload.urbox.vn/strapi/Gallery_The_Coffee_House_2_46dac27aac.jpg',
     description: 'Đổi voucher lấy 1 ly đồ uống size M khi mang ly cá nhân.',
     required_points: 75,
@@ -123,6 +126,24 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     remaining_stock: 412,
     usage_conditions: 'Áp dụng tại tất cả cơ sở The Coffee House. Mang ly cá nhân để nhận.',
     valid_until: '2026-12-31T23:59:59Z',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'vt-004',
+    name: 'Giảm 70% giá trị hóa đơn',
+    partner_name: 'Highland',
+    partner_logo_url:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Highlands_Coffee_5G.svg/3840px-Highlands_Coffee_5G.svg.png', // Link mock logo
+    thumbnail_url:
+      'https://www.shutterstock.com/image-vector/elegant-gift-voucher-design-beauty-260nw-2628756281.jpg', // Link mock ảnh bìa
+    description:
+      'Giải thưởng dành cho Top 5: Giảm 70% giá trị hóa đơn khi mua hàng trực tiếp tại cửa hàng.',
+    required_points: 200,
+    total_stock: 5,
+    remaining_stock: 5,
+    usage_conditions:
+      '- Áp dụng cho hóa đơn từ 100.000đ trở lên\n- Mỗi voucher chỉ sử dụng 1 lần / 1 hóa đơn\n- Không áp dụng đồng thời với các chương trình khuyến mãi khác\n- Không quy đổi thành tiền mặt\n- Chỉ áp dụng khi mua hàng trực tiếp tại cửa hàng\n- Voucher không được chuyển nhượng\n- Trong trường hợp có tranh chấp, quyết định từ hệ thống là cuối cùng',
+    valid_until: '2026-01-01T23:59:59Z', // Lấy theo ngày ghi chú dưới dòng "Hết hạn sau"
     status: 'ACTIVE',
   },
 ];
@@ -161,7 +182,8 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     id: 'lb-001',
     period_id: 'per-001',
     user_id: 'usr-010',
-    scope: 'NATIONAL',
+    user_profiles: MOCK_USER_PROFILE,
+    scope: LeaderboardScope.NATIONAL,
     province: null,
     rank: 1,
     weekly_points: 420,
@@ -175,7 +197,8 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     id: 'lb-002',
     period_id: 'per-001',
     user_id: 'usr-011',
-    scope: 'NATIONAL',
+    user_profiles: MOCK_USER_PROFILE,
+    scope: LeaderboardScope.NATIONAL,
     province: null,
     rank: 2,
     weekly_points: 380,
@@ -189,7 +212,8 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     id: 'lb-003',
     period_id: 'per-001',
     user_id: 'usr-012',
-    scope: 'NATIONAL',
+    user_profiles: MOCK_USER_PROFILE,
+    scope: LeaderboardScope.NATIONAL,
     province: null,
     rank: 3,
     weekly_points: 310,
@@ -203,7 +227,8 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     id: 'lb-004',
     period_id: 'per-001',
     user_id: 'usr-001',
-    scope: 'NATIONAL',
+    user_profiles: MOCK_USER_PROFILE,
+    scope: LeaderboardScope.NATIONAL,
     province: null,
     rank: 4,
     weekly_points: 290,
@@ -217,7 +242,8 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     id: 'lb-005',
     period_id: 'per-001',
     user_id: 'usr-013',
-    scope: 'NATIONAL',
+    user_profiles: MOCK_USER_PROFILE,
+    scope: LeaderboardScope.NATIONAL,
     province: null,
     rank: 5,
     weekly_points: 275,

@@ -23,7 +23,6 @@ import {
   MOCK_LEADERBOARD_NATIONAL,
 } from './mock/gamification.mock';
 
-
 // ============================================================
 // GAMIFICATION SERVICE
 // ============================================================
@@ -104,14 +103,13 @@ export const gamificationService = {
     const { data } = await apiClient.post<ApiResponse<UserVoucher>>('/vouchers/redeem', payload);
     return data;
   },
-
 };
 
 // ============================================================
 // LEADERBOARD SERVICE
 // ============================================================
 export const leaderboardService = {
-  async getLeaderboard (
+  async getLeaderboard(
     scope: LeaderboardScope,
     province?: string
   ): Promise<ApiResponse<LeaderboardEntry[]>> {
@@ -124,4 +122,17 @@ export const leaderboardService = {
     });
     return data;
   },
-}
+
+  async claimLeaderboardReward(period_id: string): Promise<ApiResponse<VoucherTemplate>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      const rewardVoucher = MOCK_VOUCHER_TEMPLATES.find((voucher) => voucher.id === 'vt-004');
+      if (!rewardVoucher) throw new Error('Reward voucher template not found');
+      return mockSuccess(rewardVoucher);
+    }
+    const { data } = await apiClient.post<ApiResponse<VoucherTemplate>>('/leaderboard/claim', {
+      period_id,
+    });
+    return data;
+  },
+};
