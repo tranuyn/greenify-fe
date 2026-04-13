@@ -1,16 +1,20 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import Feather from '@expo/vector-icons/Feather';
+import { useTranslation } from 'react-i18next';
 
 import { MapView } from '@/components/features/map/MapView';
 import { useStations } from '@/hooks/queries/useMap';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { RecyclingStation } from '@/types/community.types';
-import { MapSearchBar } from '@/components/features/map/MapSearchBar';
+import { SearchBar } from '@/components/shared/SearchBar';
 import { WasteTypeFilter } from '@/components/features/map/WasteTypeFilter';
 import { StationBottomSheet } from '@/components/features/map/StationBottomSheet';
 
 export default function MapScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
 
@@ -65,15 +69,31 @@ export default function MapScreen() {
       )}
 
       {/* Search bar nổi phía trên map */}
-      <View className="absolute left-0 right-0" style={{ top: insets.top + 12 }}>
-        <MapSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+      <View className="absolute left-0 right-0 px-4" style={{ top: insets.top + 12 }}>
+        <View className="flex-row items-center">
+          <TouchableOpacity 
+             className="mr-3 h-[48px] w-[48px] items-center justify-center rounded-2xl bg-white shadow-sm shadow-black/10 dark:bg-card"
+             onPress={() => router.back()}
+          >
+             <Feather name="arrow-left" size={24} color={colors.neutral400} />
+          </TouchableOpacity>
+          <SearchBar 
+             value={searchQuery} 
+             onChangeText={setSearchQuery} 
+             placeholder={t('map.search_placeholder', 'Tìm điểm thu gom...')}
+             containerClassName="flex-1 bg-white shadow-sm shadow-black/10 dark:bg-card"
+             inputClassName="h-12"
+          />
+        </View>
 
         {/* Waste type filter chips */}
-        <WasteTypeFilter
-          types={allWasteTypes}
-          activeType={activeWasteType}
-          onSelect={(type: any) => setActiveWasteType((prev) => (prev === type ? null : type))}
-        />
+        <View className="-mx-4 mt-2">
+          <WasteTypeFilter
+            types={allWasteTypes}
+            activeType={activeWasteType}
+            onSelect={(type: any) => setActiveWasteType((prev) => (prev === type ? null : type))}
+          />
+        </View>
       </View>
 
       {/* Bottom sheet khi chọn station */}

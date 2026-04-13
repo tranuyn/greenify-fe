@@ -21,7 +21,7 @@ export function PostCard({ post }: { post: GreenActionPost }) {
   const colors = useThemeColor();
 
   return (
-    <View className="mb-8 mt-6">
+    <View className="mb-8 mt-6 rounded-xl bg-background p-2 shadow-sm shadow-black/50">
       <View className="mb-4 flex-row items-center">
         {post.user_avatar_url ? (
           <Image

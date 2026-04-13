@@ -16,6 +16,8 @@
     "voucher_entertainment": "Entertainment",
     "btn_register": "Register",
     "btn_registered": "Registered",
+    "btn_full": "Full",
+    "btn_processing": "Processing...",
     "btn_collect": "Collect",
     "btn_view_more": "View more",
     "streak_days": "day streak",
@@ -103,6 +105,26 @@
   "community": {
     "title": "Community",
     "search": "Search",
+    "error": "Something went wrong.",
+    "retry": "Try again",
+    "empty": "No posts found.",
+    "filters": {
+      "title": "Search filters",
+      "clear": "Clear filters",
+      "sortBy": "Sort by",
+      "sort": {
+        "newest": "Newest",
+        "popular": "Popular (Most likes)"
+      },
+      "timeTitle": "Time",
+      "time": {
+        "all": "All",
+        "week": "This week",
+        "month": "This month"
+      },
+      "actionTitle": "Green action",
+      "apply": "Apply"
+    },
     "tags": {
       "location": "Location",
       "time": "Time:",
@@ -112,6 +134,83 @@
     "post": {
       "feeling": "Today is great",
       "caption": "I was jogging today and came across the trash pile above, hope someone will come to clean it up soon"
+    }
+  },
+  "events": {
+    "search": "Search events...",
+    "card": {
+      "registered": "Registered",
+      "full": "Full",
+      "processing": "Processing...",
+      "register": "Register",
+      "people": "people"
+    },
+    "list": {
+      "titlePrefix": "Events",
+      "titleHighlight": "Green",
+      "subtitle": "Join and earn GP points",
+      "myEvents": "My events",
+      "cancel": "Cancel",
+      "pickDate": "Pick a date",
+      "done": "Done",
+      "empty": "No events found.",
+      "clearFilter": "Clear filters"
+    },
+    "detail": {
+      "reward_label": "Reward points",
+      "participants": "{{registered}}/{{total}} participants",
+      "description_title": "Event Description",
+      "conditions_title": "Participation Conditions",
+      "actions": {
+        "scan_qr": "Scan QR Code",
+        "cancel_registration": "Cancel Registration",
+        "full": "Full",
+        "processing": "Processing...",
+        "register": "Register"
+      },
+      "alert": {
+        "register_failed_title": "Registration Failed",
+        "register_failed_message": "Something went wrong, please try again.",
+        "cancel_title": "Do you want to cancel participation?",
+        "cancel_message": "The event is starting soon. We have prepared for you and hope you can join.",
+        "keep_registration": "Keep Registration",
+        "confirm_cancel_registration": "Cancel Registration",
+        "cancel_success": "Registration cancelled"
+      },
+      "qr": {
+        "title": "Check-in QR Code",
+        "empty": "No QR code available",
+        "back": "Back"
+      }
+    },
+    "my_events": {
+      "title": "My Events",
+      "subtitle": "Manage your registered events",
+      "tabs": {
+        "pending": "Pending",
+        "ongoing": "Ongoing",
+        "attended": "Attended"
+      },
+      "empty": {
+        "title": "No events yet",
+        "pending": "No pending events found.",
+        "ongoing": "You have not checked in to any event yet.",
+        "attended": "You have not attended any events yet."
+      }
+    }
+  },
+  "map": {
+    "search_placeholder": "Search collection points...",
+    "today_hours": "Today ({{day}}): {{open}} - {{close}}",
+    "today_closed": "Today ({{day}}): Closed",
+    "days": {
+      "MON": "Mon",
+      "TUE": "Tue",
+      "WED": "Wed",
+      "THU": "Thu",
+      "FRI": "Fri",
+      "SAT": "Sat",
+      "SUN": "Sun"
     }
   }
 }

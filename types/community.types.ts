@@ -13,23 +13,30 @@ export type EventStatus =
   | 'CLOSED'
   | 'CANCELLED';
 
+export const REGISTRATION_STATUS = {
+  REGISTERED: 'REGISTERED',
+  WAITLISTED: 'WAITLISTED',
+  CANCELLED: 'CANCELLED',
+  CHECKED_IN: 'CHECKED_IN',
+  CHECKED_OUT: 'CHECKED_OUT',
+  ATTENDED: 'ATTENDED',
+  NO_SHOW: 'NO_SHOW',
+} as const;
+
 export type RegistrationStatus =
-  | 'REGISTERED'
-  | 'WAITLISTED'
-  | 'CANCELLED'
-  | 'CHECKED_IN'
-  | 'CHECKED_OUT'
-  | 'ATTENDED'
-  | 'NO_SHOW';
+  (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
 
 export type RegistrationRewardStatus = 'PENDING_REWARD' | 'REWARDED' | 'REVERSED';
+
+export type KnownEventType = 'Dọn rác' | 'Trồng cây' | 'Workshop' | 'Thu gom/Tái chế' | 'Khác';
+export type EventType = KnownEventType | (string & {});
 
 export interface Event {
   id: string;
   ngo_id: string;
   title: string;
   description: string;
-  event_type: string;
+  event_type: EventType;
   cover_image_url: string;
   location_address: string;
   latitude: number;

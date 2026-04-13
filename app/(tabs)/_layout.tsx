@@ -47,7 +47,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="map" // Màn hình này mình sẽ biến thành Màn hình Camera Check-in nhé
+        name="greenlock"
         options={{
           title: '',
           tabBarLabel: () => null,

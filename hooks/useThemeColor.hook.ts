@@ -1,4 +1,5 @@
 import { useColorScheme } from 'nativewind';
+import { NEUTRAL_COLORS } from '../constants/color.constant';
 
 export function useThemeColor() {
   const { colorScheme } = useColorScheme();
@@ -23,9 +24,13 @@ export function useThemeColor() {
     primary900: '#14532d',
     primary950: '#052e16',
 
-    // Neutral xám (Dùng cho icon TabBar lúc không active)
-    neutral400: isDark ? '#a3a3a3' : '#9ca3af',
-    neutral500: isDark ? '#737373' : '#737373',
+    // Neutral tones aligned with Tailwind/NativeWind neutral palette
+    neutral400: NEUTRAL_COLORS[400],
+    neutral500: NEUTRAL_COLORS[500],
     border: isDark ? '#262626' : '#e5e7eb',
+
+    error: isDark ? '#f87171' : '#ef4444',   // (Tailwind red-400 / red-500)
+    warning: isDark ? '#fbbf24' : '#f59e0b', // (Tailwind amber-400 / amber-500)
+    success: isDark ? '#34d399' : '#10b981',
   };
 }

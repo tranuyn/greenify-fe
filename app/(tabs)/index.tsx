@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,13 +12,16 @@ import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
 import { StreakPlantCard } from '@/components/features/home/StreakPlantCard';
 import { CommunityFeedPreview } from '@/components/features/home/CommunityFeedPreview';
 
-// ---- Hooks ----
+import { router } from 'expo-router';
 import { useGetMe } from '@/hooks/queries/useAuth';
-import { usePublishedEvents } from '@/hooks/queries/useEvents';
-import { useAvailableVouchers } from '@/hooks/queries/useGamification';
+import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
+import { useRegisterEvent } from '@/hooks/mutations/useEvents';
+import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
+import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
 import { useMyWallet } from '@/hooks/queries/useWallet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { Text } from '@/components/ui/Text';
+import type { VoucherTemplate } from '@/types/gamification.types';
 
 // ============================================================
 // HOME SCREEN
@@ -38,11 +41,47 @@ export default function HomeScreen() {
     page: 1,
     page_size: 5,
   });
+  const { data: myRegistrations } = useMyRegistrations();
+  const { mutate: registerEvent } = useRegisterEvent();
+  const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
+
+  const registeredEventIds = new Set(
+    (myRegistrations ?? [])
+      .filter((r) => r.status !== 'CANCELLED')
+      .map((r) => r.event_id)
+  );
+
+  const handleRegisterEvent = (eventId: string) => {
+    setRegisteringEventId(eventId);
+    registerEvent(eventId, {
+      onSettled: () => setRegisteringEventId(null),
+    });
+  };
   const { data: vouchers, isLoading: isLoadingVouchers } = useAvailableVouchers();
+  const { data: myVouchers } = useMyVouchers();
+  const { mutate: redeemVoucher } = useRedeemVoucher();
+
+  const [redeemingId, setRedeemingId] = useState<string | null>(null);
 
   const userName = authData?.profile?.display_name || t('home.welcome_guest', 'Công dân xanh');
   const events = eventsData?.items ?? [];
   const allVouchers = vouchers ?? [];
+
+  const collectedVoucherIds = new Set(
+    (myVouchers ?? [])
+      .filter((v) => v.status === 'AVAILABLE' || v.status === 'USED')
+      .map((v) => v.voucher_template_id)
+  );
+
+  const handleCollect = (item: VoucherTemplate) => {
+    setRedeemingId(item.id);
+    redeemVoucher(
+      { voucher_template_id: item.id },
+      {
+        onSettled: () => setRedeemingId(null),
+      }
+    );
+  };
 
   return (
     <ScrollView
@@ -77,7 +116,15 @@ export default function HomeScreen() {
           className="pb-1 pt-1"
           data={events}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <EventCard item={item} />}
+          renderItem={({ item }) => (
+            <EventCard 
+              item={item} 
+              isRegistered={registeredEventIds.has(item.id)}
+              isRegistering={registeringEventId === item.id}
+              onPressCard={() => router.push(`/(events)/${item.id}`)}
+              onRegister={() => handleRegisterEvent(item.id)}
+            />
+          )}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 20 }}
@@ -106,7 +153,13 @@ export default function HomeScreen() {
       ) : (
         <View className="px-5">
           {allVouchers.map((item) => (
-            <VoucherRowCard key={item.id} item={item} />
+            <VoucherRowCard
+              key={item.id}
+              item={item}
+              isCollected={collectedVoucherIds.has(item.id)}
+              isCollecting={redeemingId === item.id}
+              onCollect={() => handleCollect(item)}
+            />
           ))}
         </View>
       )}

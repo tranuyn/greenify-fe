@@ -14,6 +14,8 @@
     "voucher_entertainment": "Giải trí thả ga",
     "btn_register": "Đăng ký",
     "btn_registered": "Đã đăng ký",
+    "btn_full": "Hết chỗ",
+    "btn_processing": "Đang xử lý...",
     "btn_collect": "Thu thập",
     "btn_view_more": "Xem thêm",
     "streak_days": "ngày liên tiếp",
@@ -101,6 +103,26 @@
   "community": {
     "title": "Cộng đồng",
     "search": "Tìm kiếm",
+    "error": "Đã có lỗi xảy ra.",
+    "retry": "Thử lại",
+    "empty": "Không tìm thấy bài viết nào.",
+    "filters": {
+      "title": "Bộ lọc tìm kiếm",
+      "clear": "Xóa bộ lọc",
+      "sortBy": "Sắp xếp theo",
+      "sort": {
+        "newest": "Mới nhất",
+        "popular": "Nổi bật (Nhiều lượt thích)"
+      },
+      "timeTitle": "Thời gian",
+      "time": {
+        "all": "Tất cả",
+        "week": "Tuần này",
+        "month": "Tháng này"
+      },
+      "actionTitle": "Hoạt động xanh",
+      "apply": "Áp dụng"
+    },
     "tags": {
       "location": "Vị trí",
       "time": "Thời gian:",
@@ -110,6 +132,83 @@
     "post": {
       "feeling": "Hôm nay thật tuyệt",
       "caption": "Hôm nay đang chạy bộ thì bắt gặp bãi rác như trên, mong sẽ sớm có người đến dọn ạ"
+    }
+  },
+  "events": {
+    "search": "Tìm kiếm sự kiện...",
+    "card": {
+      "registered": "Đã đăng ký",
+      "full": "Hết chỗ",
+      "processing": "Đang xử lý...",
+      "register": "Đăng ký",
+      "people": "người"
+    },
+    "list": {
+      "titlePrefix": "Sự kiện",
+      "titleHighlight": "Xanh",
+      "subtitle": "Tham gia và tích điểm GP",
+      "myEvents": "Của tôi",
+      "cancel": "Hủy",
+      "pickDate": "Chọn ngày",
+      "done": "Xong",
+      "empty": "Không tìm thấy sự kiện nào.",
+      "clearFilter": "Xóa bộ lọc"
+    },
+    "detail": {
+      "reward_label": "Điểm nhận",
+      "participants": "{{registered}}/{{total}} người đăng ký",
+      "description_title": "Mô tả sự kiện",
+      "conditions_title": "Điều kiện tham gia",
+      "actions": {
+        "scan_qr": "Quét mã QR",
+        "cancel_registration": "Hủy đăng ký",
+        "full": "Hết chỗ",
+        "processing": "Đang xử lý...",
+        "register": "Đăng ký tham gia"
+      },
+      "alert": {
+        "register_failed_title": "Đăng ký thất bại",
+        "register_failed_message": "Có lỗi xảy ra, vui lòng thử lại.",
+        "cancel_title": "Bạn muốn hủy tham gia?",
+        "cancel_message": "Sự kiện sắp bắt đầu rồi. Tụi mình đã chuẩn bị và rất mong có bạn tham gia.",
+        "keep_registration": "Giữ đăng ký",
+        "confirm_cancel_registration": "Hủy đăng ký",
+        "cancel_success": "Đã hủy đăng ký"
+      },
+      "qr": {
+        "title": "Mã QR check-in",
+        "empty": "Không có mã QR",
+        "back": "Quay lại"
+      }
+    },
+    "my_events": {
+      "title": "Sự kiện của tôi",
+      "subtitle": "Quản lý các sự kiện đã đăng ký",
+      "tabs": {
+        "pending": "Chờ duyệt",
+        "ongoing": "Đang tham gia",
+        "attended": "Đã tham gia"
+      },
+      "empty": {
+        "title": "Chưa có sự kiện nào",
+        "pending": "Không có sự kiện đang chờ duyệt.",
+        "ongoing": "Bạn chưa check-in sự kiện nào.",
+        "attended": "Bạn chưa tham gia sự kiện nào."
+      }
+    }
+  },
+  "map": {
+    "search_placeholder": "Tìm điểm thu gom...",
+    "today_hours": "Hôm nay ({{day}}): {{open}} - {{close}}",
+    "today_closed": "Hôm nay ({{day}}): Đóng cửa",
+    "days": {
+      "MON": "T2",
+      "TUE": "T3",
+      "WED": "T4",
+      "THU": "T5",
+      "FRI": "T6",
+      "SAT": "T7",
+      "SUN": "CN"
     }
   }
 }

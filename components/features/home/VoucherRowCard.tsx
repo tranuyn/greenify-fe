@@ -1,4 +1,4 @@
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Feather from '@expo/vector-icons/Feather';
 
@@ -7,6 +7,8 @@ import type { VoucherTemplate } from '@/types/gamification.types';
 
 type Props = {
   item: VoucherTemplate;
+  isCollected?: boolean;
+  isCollecting?: boolean;
   onCollect?: () => void;
 };
 
@@ -20,7 +22,7 @@ function formatDate(isoString: string): string {
  * VoucherRowCard — Card dạng hàng ngang cho danh sách voucher.
  * Dùng ở section "Ăn uống thả ga" (vertical list).
  */
-export function VoucherRowCard({ item, onCollect }: Props) {
+export function VoucherRowCard({ item, isCollected, isCollecting, onCollect }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -70,11 +72,19 @@ export function VoucherRowCard({ item, onCollect }: Props) {
           <Text className="!font-inter-semibold text-xs text-primary-800"> GP</Text>
         </Text>
         <TouchableOpacity
-          className="rounded-xl bg-primary-100 px-3.5 py-1.5 active:opacity-80"
+          className={`rounded-md px-3.5 py-1.5 active:opacity-80 ${isCollected || isCollecting ? 'bg-foreground/10' : 'bg-primary-100'}`}
+          disabled={isCollected || isCollecting}
           onPress={onCollect}>
-          <Text className="font-inter-semibold text-xs text-primary-800">
-            {t('home.btn_collect')}
-          </Text>
+          {isCollecting ? (
+            <ActivityIndicator size="small" color="#166534" />
+          ) : (
+            <Text
+              className={`!font-inter-semibold text-xs ${isCollected ? 'text-foreground/50' : 'text-primary-800'}`}>
+              {isCollected
+                ? t('home.btn_collected', 'Đã thu thập')
+                : t('home.btn_collect', 'Thu thập')}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>

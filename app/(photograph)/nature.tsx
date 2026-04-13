@@ -11,6 +11,7 @@ export default function NatureScreen() {
   // Tạo mảng 70 phần tử cho grid 7x10
   const [hasCheckedInToday, setHasCheckedInToday] = useState<boolean>(true);
   const totalItems = 70;
+  // Todo: Thay thế bằng dữ liệu thực tế về các vật phẩm đã thu thập được, hiện tại chỉ là ví dụ với 3 vật phẩm đầu tiên
   const collectedItems = [
     { icon: 'tree', color: '#4ade80' }, // Cây
     { icon: 'rose', color: '#f87171', type: 'entypo' }, // Hoa hồng

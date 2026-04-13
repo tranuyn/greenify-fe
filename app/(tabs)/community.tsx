@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
   FlatList,
   RefreshControl,
@@ -12,10 +11,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
-// UI Components
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { PostCard } from '@/components/features/community/PostCard'; // Import từ file mới
+import { SearchBar } from '@/components/shared/SearchBar';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
@@ -23,7 +22,6 @@ import { useThemeColor } from '@/hooks/useThemeColor.hook';
 // Hooks & Types
 import { useFeedPosts, useActionTypes } from '@/hooks/queries/usePosts';
 
-// Component phụ cho bộ lọc (Viết gọn tại đây vì nó phụ thuộc state của màn hình này)
 const FilterChip = ({
   label,
   isSelected,
@@ -109,30 +107,17 @@ export default function CommunityScreen() {
       </Text>
 
       <View className="flex-1 px-6 pt-4">
-        {/* HEADER: THANH TÌM KIẾM */}
         <View className="mb-4 flex-row items-center">
-          <View className="mr-3 flex-1 flex-row items-center rounded-full bg-primary-50 px-5">
-            <TextInput
-              placeholder={t('community.search', 'Tìm kiếm bài viết...')}
-              placeholderTextColor={colors.primary800}
-              className="mr-2 h-12 flex-1 font-inter text-base text-primary-800"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              returnKeyType="search"
-              onSubmitEditing={() => refetch()}
-            />
-            {searchQuery.length > 0 ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setSearchQuery('');
-                  setTimeout(refetch, 100);
-                }}>
-                <Feather name="x-circle" size={20} color={colors.primary800} />
-              </TouchableOpacity>
-            ) : (
-              <Feather name="search" size={24} color={colors.primary800} />
-            )}
-          </View>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('community.search', 'Tìm kiếm bài viết...')}
+            onSubmitEditing={() => refetch()}
+            onClear={() => setTimeout(refetch, 100)}
+            containerClassName="flex-1 mr-3 rounded-full bg-primary-50 px-5 dark:bg-card"
+            inputClassName="mr-2 h-12 font-inter text-base text-primary-800 dark:text-foreground"
+            iconColor={colors.neutral400}
+          />
 
           <TouchableOpacity
             onPress={openFilter}
@@ -146,18 +131,21 @@ export default function CommunityScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* DANH SÁCH BÀI VIẾT */}
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : isError ? (
           <View className="flex-1 items-center justify-center">
-            <Feather name="alert-circle" size={40} color="#f87171" />
+            <Feather name="alert-circle" size={40} color={colors.error} />
             <Text className="text-foreground/80 mt-4 text-center font-inter">
-              Đã có lỗi xảy ra.
+              {t('community.error', 'Đã có lỗi xảy ra.')}
             </Text>
-            <Button title="Thử lại" onPress={() => refetch()} className="mt-4 px-8" />
+            <Button
+              title={t('community.retry', 'Thử lại')}
+              onPress={() => refetch()}
+              className="mt-4 px-8"
+            />
           </View>
         ) : (
           <FlatList
@@ -177,7 +165,7 @@ export default function CommunityScreen() {
               <View className="items-center justify-center py-20">
                 <FontAwesome6 name="seedling" size={48} color={colors.primary} />
                 <Text className="text-foreground/60 mt-4 text-center font-inter">
-                  Không tìm thấy bài viết nào.
+                  {t('community.empty', 'Không tìm thấy bài viết nào.')}
                 </Text>
               </View>
             }
@@ -195,49 +183,59 @@ export default function CommunityScreen() {
         handleIndicatorStyle={{ backgroundColor: colors.primary300, width: 40 }}>
         <BottomSheetView className="flex-1 px-6 pb-8 pt-2">
           <View className="mb-6 flex-row items-center justify-between">
-            <Text className="font-inter-bold text-xl text-foreground">Bộ lọc tìm kiếm</Text>
+            <Text className="font-inter-bold text-xl text-foreground">
+              {t('community.filters.title', 'Bộ lọc tìm kiếm')}
+            </Text>
             <TouchableOpacity onPress={clearFilter}>
-              <Text className="font-inter-medium text-sm text-rose-500">Xóa bộ lọc</Text>
+              <Text className="font-inter-medium text-sm text-rose-500">
+                {t('community.filters.clear', 'Xóa bộ lọc')}
+              </Text>
             </TouchableOpacity>
           </View>
 
-          <Text className="mb-3 font-inter-semibold text-base text-foreground">Sắp xếp theo</Text>
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">
+            {t('community.filters.sortBy', 'Sắp xếp theo')}
+          </Text>
           <View className="mb-6 flex-row flex-wrap">
             <FilterChip
-              label="Mới nhất"
+              label={t('community.filters.sort.newest', 'Mới nhất')}
               isSelected={tempFilters.sortBy === 'newest'}
               onPress={() => setTempFilters({ ...tempFilters, sortBy: 'newest' })}
             />
             <FilterChip
-              label="Nổi bật (Nhiều lượt thích)"
+              label={t('community.filters.sort.popular', 'Nổi bật (Nhiều lượt thích)')}
               isSelected={tempFilters.sortBy === 'popular'}
               onPress={() => setTempFilters({ ...tempFilters, sortBy: 'popular' })}
             />
           </View>
 
-          <Text className="mb-3 font-inter-semibold text-base text-foreground">Thời gian</Text>
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">
+            {t('community.filters.timeTitle', 'Thời gian')}
+          </Text>
           <View className="mb-6 flex-row flex-wrap">
             <FilterChip
-              label="Tất cả"
+              label={t('community.filters.time.all', 'Tất cả')}
               isSelected={tempFilters.timeRange === 'all'}
               onPress={() => setTempFilters({ ...tempFilters, timeRange: 'all' })}
             />
             <FilterChip
-              label="Tuần này"
+              label={t('community.filters.time.week', 'Tuần này')}
               isSelected={tempFilters.timeRange === 'week'}
               onPress={() => setTempFilters({ ...tempFilters, timeRange: 'week' })}
             />
             <FilterChip
-              label="Tháng này"
+              label={t('community.filters.time.month', 'Tháng này')}
               isSelected={tempFilters.timeRange === 'month'}
               onPress={() => setTempFilters({ ...tempFilters, timeRange: 'month' })}
             />
           </View>
 
-          <Text className="mb-3 font-inter-semibold text-base text-foreground">Hoạt động xanh</Text>
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">
+            {t('community.filters.actionTitle', 'Hoạt động xanh')}
+          </Text>
           <View className="mb-6 flex-row flex-wrap">
             <FilterChip
-              label="Tất cả"
+              label={t('community.filters.time.all', 'Tất cả')}
               isSelected={tempFilters.actionTypeId === 'all'}
               onPress={() => setTempFilters({ ...tempFilters, actionTypeId: 'all' })}
             />
@@ -252,7 +250,7 @@ export default function CommunityScreen() {
           </View>
 
           <View className="flex-1" />
-          <Button title="Áp dụng" onPress={applyFilter} />
+          <Button title={t('community.filters.apply', 'Áp dụng')} onPress={applyFilter} />
         </BottomSheetView>
       </BottomSheetModal>
     </View>

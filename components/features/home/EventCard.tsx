@@ -9,7 +9,9 @@ import type { Event } from '@/types/community.types';
 type Props = {
   item: Event;
   isRegistered?: boolean;
-  onPress?: () => void; 
+  isRegistering?: boolean;
+  onPressCard?: () => void;
+  onRegister?: () => void;
 };
 
 /** Format ISO date string to short date */
@@ -23,12 +25,39 @@ function formatTime(isoString: string): string {
   return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
 }
 
-export function EventCard({ item, isRegistered = false, onPress }: Props) {
+export function EventCard({
+  item,
+  isRegistered = false,
+  isRegistering = false,
+  onPressCard,
+  onRegister,
+}: Props) {
   const { t } = useTranslation();
   const colors = useThemeColor();
+  const full = (item.registered_count ?? 0) >= item.max_participants;
+
+  const ctaDisabled = isRegistered || full || isRegistering;
+  const ctaLabel = isRegistered
+    ? t('home.btn_registered', 'Đã đăng ký')
+    : full
+      ? t('home.btn_full', 'Hết chỗ')
+      : isRegistering
+        ? t('home.btn_processing', 'Đang xử lý...')
+        : t('home.btn_register', 'Đăng ký');
+
+  const ctaBg = isRegistered
+    ? 'bg-primary-100'
+    : full
+      ? 'bg-gray-100 dark:bg-gray-800'
+      : 'bg-primary';
+
+  const ctaText = isRegistered ? 'text-primary-700' : full ? 'text-foreground/40' : 'text-white';
 
   return (
-    <View className="mr-4 w-[300px] overflow-hidden rounded-2xl bg-background shadow-sm shadow-black/70 dark:bg-card">
+    <TouchableOpacity 
+      activeOpacity={0.95}
+      onPress={onPressCard}
+      className="mr-4 w-[300px] overflow-hidden rounded-2xl bg-background shadow-sm shadow-black/70 dark:bg-card">
       {/* Cover Image */}
       <View className="relative h-28">
         <Image
@@ -83,26 +112,31 @@ export function EventCard({ item, isRegistered = false, onPress }: Props) {
             <Text className="ml-1 font-inter text-xs text-foreground/50">
               {item.registered_count || 0}/{item.max_participants}
             </Text>
+            {full && !isRegistered && (
+              <View className="ml-2 rounded-full bg-rose-50 px-2 py-0.5">
+                <Text className="font-inter-medium text-[10px] text-rose-500">{t('home.btn_full')}</Text>
+              </View>
+            )}
           </View>
         </View>
 
         {/* CTA Button */}
         <TouchableOpacity
-          className={`mt-3 items-center rounded-xl py-2.5 active:opacity-80 ${
-            isRegistered ? 'bg-primary-100' : 'bg-primary'
-          }`}
-          disabled={isRegistered}
-          onPress={onPress} 
+          className={`mt-3 items-center justify-center rounded-xl py-2.5 active:opacity-80 ${ctaBg}`}
+          disabled={ctaDisabled}
+          onPress={(e) => {
+            e.stopPropagation();
+            onRegister?.();
+          }}
         >
           <Text
-            className={`font-inter-semibold text-sm ${
-              isRegistered ? 'text-primary-700' : 'text-white'
-            }`}
+            className={`font-inter-semibold text-sm ${ctaText}`}
+            numberOfLines={1}
           >
-            {isRegistered ? t('home.btn_registered') : t('home.btn_register')}
+            {ctaLabel}
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
