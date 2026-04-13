@@ -44,8 +44,6 @@ export default function HomeScreen() {
   const events = eventsData?.items ?? [];
   const allVouchers = vouchers ?? [];
 
-  const rowVouchers = allVouchers;
-
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -107,7 +105,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <View className="px-5">
-          {rowVouchers.map((item) => (
+          {allVouchers.map((item) => (
             <VoucherRowCard key={item.id} item={item} />
           ))}
         </View>

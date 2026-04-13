@@ -19,7 +19,7 @@ const BottomNavBar: React.FC<Props> = ({ activeTab }) => {
   const handlePress = (tab: TabType) => {
     if (tab === 'schedule') router.replace('/(photograph)/schedule');
     if (tab === 'nature') router.replace('/(photograph)/nature');
-    if (tab === 'scan') router.replace('/map');
+    if (tab === 'scan') router.replace('/greenlock');
   };
 
   return (

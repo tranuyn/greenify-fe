@@ -9,6 +9,7 @@ import type { Event } from '@/types/community.types';
 type Props = {
   item: Event;
   isRegistered?: boolean;
+  onPress?: () => void; 
 };
 
 /** Format ISO date string to short date */
@@ -22,7 +23,7 @@ function formatTime(isoString: string): string {
   return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
 }
 
-export function EventCard({ item, isRegistered = false }: Props) {
+export function EventCard({ item, isRegistered = false, onPress }: Props) {
   const { t } = useTranslation();
   const colors = useThemeColor();
 
@@ -91,6 +92,7 @@ export function EventCard({ item, isRegistered = false }: Props) {
             isRegistered ? 'bg-primary-100' : 'bg-primary'
           }`}
           disabled={isRegistered}
+          onPress={onPress} 
         >
           <Text
             className={`font-inter-semibold text-sm ${
