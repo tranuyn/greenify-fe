@@ -70,6 +70,7 @@ export const QUERY_KEYS = {
   leaderboard: {
     all: ['leaderboard'] as const,
     scope: (scope: LeaderboardScope, province?: string) => ['leaderboard', scope, province] as const,
+    claim: (periodId: string) => ['leaderboard', 'claim', periodId] as const,
   },
 
   // Events

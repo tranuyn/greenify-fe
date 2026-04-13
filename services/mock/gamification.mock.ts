@@ -128,6 +128,24 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     valid_until: '2026-12-31T23:59:59Z',
     status: 'ACTIVE',
   },
+  {
+    id: 'vt-004',
+    name: 'Giảm 70% giá trị hóa đơn',
+    partner_name: 'Highland',
+    partner_logo_url:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Highlands_Coffee_5G.svg/3840px-Highlands_Coffee_5G.svg.png', // Link mock logo
+    thumbnail_url:
+      'https://www.shutterstock.com/image-vector/elegant-gift-voucher-design-beauty-260nw-2628756281.jpg', // Link mock ảnh bìa
+    description:
+      'Giải thưởng dành cho Top 5: Giảm 70% giá trị hóa đơn khi mua hàng trực tiếp tại cửa hàng.',
+    required_points: 200,
+    total_stock: 5,
+    remaining_stock: 5,
+    usage_conditions:
+      '- Áp dụng cho hóa đơn từ 100.000đ trở lên\n- Mỗi voucher chỉ sử dụng 1 lần / 1 hóa đơn\n- Không áp dụng đồng thời với các chương trình khuyến mãi khác\n- Không quy đổi thành tiền mặt\n- Chỉ áp dụng khi mua hàng trực tiếp tại cửa hàng\n- Voucher không được chuyển nhượng\n- Trong trường hợp có tranh chấp, quyết định từ hệ thống là cuối cùng',
+    valid_until: '2026-01-01T23:59:59Z', // Lấy theo ngày ghi chú dưới dòng "Hết hạn sau"
+    status: 'ACTIVE',
+  },
 ];
 
 export const MOCK_USER_VOUCHERS: UserVoucher[] = [

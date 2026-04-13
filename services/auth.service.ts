@@ -118,4 +118,20 @@ export const authService = {
     const { data } = await apiClient.get<ApiResponse<AuthenticatedUser>>('/users/me');
     return data;
   },
+
+  async updateProfile(payload: CompleteProfileRequest): Promise<ApiResponse<UserProfile>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(700);
+      const profile: UserProfile = {
+        ...MOCK_USER_PROFILE,
+        display_name: payload.display_name,
+        province: payload.province,
+        ward: payload.ward ?? null,
+        avatar_url: payload.avatar_url ?? null,
+      };
+      return mockSuccess(profile);
+    }
+    const { data } = await apiClient.patch<ApiResponse<UserProfile>>('/users/me/profile', payload);
+    return data;
+  },
 };

@@ -67,6 +67,16 @@ export const useCompleteProfile = () => {
   });
 };
 
+export const useUpdateProfile = () => {
+  return useMutation({
+    mutationFn: (payload: CompleteProfileRequest) => authService.updateProfile(payload),
+    onSuccess: () => {
+      // Profile đã thay đổi → invalidate cache /me để refetch
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+    },
+  });
+};
+
 export const useLogout = () => {
   return useMutation({
     mutationFn: () => authService.logout(),
