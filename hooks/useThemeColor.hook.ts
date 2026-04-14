@@ -1,16 +1,20 @@
 import { useColorScheme } from 'nativewind';
 import { NEUTRAL_COLORS } from '../constants/color.constant';
+import { getThemeColors } from '../constants/theme.constant';
 
 export function useThemeColor() {
   const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const colors = getThemeColors(colorScheme);
 
   return {
-    background: isDark ? '#0a0a0a' : '#ffffff',
-    foreground: isDark ? '#ededed' : '#171717',
-    card: isDark ? '#171717' : '#f3f4f6',
+    background: colors.background,
+    foreground: colors.foreground,
+    card: colors.card,
 
-    primary: '#22c55e',
+    primary: colors.primary,
+    onPrimary: colors.onPrimary,
+    mutedForeground: colors.mutedForeground,
+    border: colors.border,
 
     primary50: '#f0fdf4',
     primary100: '#dcfce7',
@@ -27,10 +31,12 @@ export function useThemeColor() {
     // Neutral tones aligned with Tailwind/NativeWind neutral palette
     neutral400: NEUTRAL_COLORS[400],
     neutral500: NEUTRAL_COLORS[500],
-    border: isDark ? '#262626' : '#e5e7eb',
+    primaryLight: colors.primaryLight,
+    dangerBg: colors.dangerBg,
+    dangerText: colors.dangerText,
 
-    error: isDark ? '#f87171' : '#ef4444',   // (Tailwind red-400 / red-500)
-    warning: isDark ? '#fbbf24' : '#f59e0b', // (Tailwind amber-400 / amber-500)
-    success: isDark ? '#34d399' : '#10b981',
+    error: colors.error,
+    warning: colors.warning,
+    success: colors.success,
   };
 }

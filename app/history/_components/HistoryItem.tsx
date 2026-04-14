@@ -13,16 +13,16 @@ const HistoryItem = ({ title, subtitle, points, iconUrl }: HistoryItemProps) => 
   const isPositive = points > 0;
 
   return (
-    <View className="flex-row items-center border-b border-gray-100 py-4">
+    <View className="flex-row items-center border-b border-muted-foreground py-4">
       {iconUrl ? (
-        <View className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-gray-100">
+        <View className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl border">
           <Image source={{ uri: iconUrl }} className="h-full w-full" resizeMode="cover" />
         </View>
       ) : null}
 
       <View className="ml-3 flex-1">
-        <Text className="mb-0.5 text-base">{title}</Text>
-        <Text className="text-sm text-gray-500" numberOfLines={1}>
+        <Text className="mb-0.5 text-base font-medium text-foreground">{title}</Text>
+        <Text className="text-sm text-muted-foreground" numberOfLines={1}>
           {subtitle}
         </Text>
       </View>

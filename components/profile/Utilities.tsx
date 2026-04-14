@@ -5,7 +5,7 @@ const utils = [
   { name: 'Bản đồ Xanh', icon: require('../../assets/map.png'), route: null },
   { name: 'Chợ Voucher', icon: require('../../assets/market.png'), route: null },
   { name: 'Bảng xếp hạng', icon: require('../../assets/rank.png'), route: '/leaderboard' },
-  { name: 'Lịch xanh', icon: require('../../assets/calender.png'), route: null },
+  { name: 'Lịch xanh', icon: require('../../assets/calender.png'), route: '/calendar' },
   {
     name: 'Ví & Điểm',
     icon: require('../../assets/wallet.png'),

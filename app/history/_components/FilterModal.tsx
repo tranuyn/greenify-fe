@@ -8,19 +8,28 @@ import {
   OTHER_SOURCE_TYPES,
   SOURCE_TYPE_LABELS,
 } from '@/constants/sourceTypeLabel';
+import { useThemeColor } from '@/hooks/useThemeColor.hook';
 
 interface CheckboxRowProps {
   label: string;
   isChecked: boolean;
   onPress: () => void;
+  checkedColor: string;
+  uncheckedColor: string;
 }
 
-const CheckboxRow = ({ label, isChecked, onPress }: CheckboxRowProps) => (
+const CheckboxRow = ({
+  label,
+  isChecked,
+  onPress,
+  checkedColor,
+  uncheckedColor,
+}: CheckboxRowProps) => (
   <TouchableOpacity onPress={onPress} className="flex-row items-center py-2.5">
     <MaterialIcons
       name={isChecked ? 'check-box' : 'check-box-outline-blank'}
       size={22}
-      color={isChecked ? '#171717' : '#a1a1aa'}
+      color={isChecked ? checkedColor : uncheckedColor}
     />
     <Text className="ml-3 text-[15px] text-foreground">{label}</Text>
   </TouchableOpacity>
@@ -44,6 +53,8 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
   const [selectedSourceTypes, setSelectedSourceTypes] = useState<PointSourceType[]>(
     value.sourceTypes
   );
+
+  const colors = useThemeColor();
 
   useEffect(() => {
     if (isVisible) {
@@ -88,13 +99,13 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
       {/* Backdrop: ĐỔI flex-direction thành justify-center và items-center ĐỂ CĂN GIỮA */}
       <Pressable className="flex-1 items-center justify-center bg-black/50 px-6" onPress={onClose}>
         <Pressable
-          className="w-full rounded-3xl bg-white px-5 pb-7 pt-5 shadow-2xl"
+          className="w-full rounded-3xl bg-background px-5 pb-7 pt-5 shadow-2xl"
           style={{ maxHeight: '80%' }}>
           <View className="mb-5 flex-row items-center justify-between">
             <View className="w-8" />
             <Text className="text-xl font-bold text-foreground">Bộ lọc</Text>
             <TouchableOpacity onPress={onClose} className="p-1">
-              <AntDesign name="close" size={22} color="#71717a" />
+              <AntDesign name="close" size={22} color={colors.foreground} />
             </TouchableOpacity>
           </View>
 
@@ -104,22 +115,28 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             <View className="mb-6 border-b border-gray-100 pb-4">
               <View className="mb-2 flex-row items-center justify-between">
                 <Text className="text-base font-semibold text-foreground">Theo thời gian</Text>
-                <MaterialIcons name="keyboard-arrow-down" size={24} color="black" />
+                <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.foreground} />
               </View>
               <CheckboxRow
                 label="Tuần"
                 isChecked={selectedTimeSet.has('week')}
                 onPress={() => toggleTime('week')}
+                checkedColor={colors.primary}
+                uncheckedColor={colors.mutedForeground}
               />
               <CheckboxRow
                 label="Tháng"
                 isChecked={selectedTimeSet.has('month')}
                 onPress={() => toggleTime('month')}
+                checkedColor={colors.primary}
+                uncheckedColor={colors.mutedForeground}
               />
               <CheckboxRow
                 label="Tất cả"
                 isChecked={selectedTime.length === 0}
                 onPress={clearTime}
+                checkedColor={colors.primary}
+                uncheckedColor={colors.mutedForeground}
               />
             </View>
 
@@ -127,7 +144,7 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             <View className="mb-6 border-b border-gray-100 pb-4">
               <View className="mb-2 flex-row items-center justify-between">
                 <Text className="text-base font-semibold text-foreground">Chi tiết</Text>
-                <MaterialIcons name="keyboard-arrow-down" size={24} color="black" />
+                <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.foreground} />
               </View>
               {DETAIL_SOURCE_TYPES.map((sourceType) => (
                 <CheckboxRow
@@ -135,6 +152,8 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
                   label={SOURCE_TYPE_LABELS[sourceType]}
                   isChecked={selectedSet.has(sourceType)}
                   onPress={() => toggleSourceType(sourceType)}
+                  checkedColor={colors.primary}
+                  uncheckedColor={colors.mutedForeground}
                 />
               ))}
             </View>
@@ -143,7 +162,7 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             <View className="mb-6 border-b border-gray-100 pb-4">
               <View className="mb-2 flex-row items-center justify-between">
                 <Text className="text-base font-semibold text-foreground">Khác</Text>
-                <MaterialIcons name="keyboard-arrow-down" size={24} color="black" />
+                <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.foreground} />
               </View>
               {OTHER_SOURCE_TYPES.map((sourceType) => (
                 <CheckboxRow
@@ -151,6 +170,8 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
                   label={SOURCE_TYPE_LABELS[sourceType]}
                   isChecked={selectedSet.has(sourceType)}
                   onPress={() => toggleSourceType(sourceType)}
+                  checkedColor={colors.primary}
+                  uncheckedColor={colors.mutedForeground}
                 />
               ))}
             </View>

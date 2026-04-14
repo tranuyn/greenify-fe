@@ -58,6 +58,7 @@ export const QUERY_KEYS = {
     active: () => ['garden', 'active'] as const,
     archives: () => ['garden', 'archives'] as const,
     seeds: () => ['garden', 'seeds'] as const,
+    dailyLogs: (params?: object) => ['garden', 'daily-logs', params] as const,
   },
 
   // Vouchers

@@ -49,7 +49,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isVisible, onClose }) => {
             {benefits.map((item, index) => (
               <View key={index} className="mb-2 ml-2 flex-row items-start">
                 <Text className="mr-2 text-lg font-bold text-primary">·</Text>
-                <Text className="flex-1 text-sm leading-5">{item}</Text>
+                <Text className="flex-1 text-sm leading-5 text-foreground">{item}</Text>
               </View>
             ))}
           </View>
