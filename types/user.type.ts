@@ -28,7 +28,6 @@ export interface UserProfile {
   display_name: string;
   avatar_url: string | null;
   province: string;
-  district: string | null;
   ward: string | null;
   free_time_slots: FreeTimeSlot[] | null;
 }
@@ -44,9 +43,12 @@ export interface NgoProfile {
   user_id: string;
   org_name: string;
   representative_name: string;
+  avatar_url: string | null;
   hotline: string;
   contact_email: string;
-  address: string;
+  // address: string;
+  province: string;
+  ward: string | null;
   description: string;
   verification_docs: string[]; // array of URLs
   verify_status: NgoVerifyStatus;
@@ -80,7 +82,7 @@ export interface LoginResponse {
   access_token: string;
   refresh_token: string;
   user: User;
-  profile: UserProfile | null;
+  profile: UserProfile | NgoProfile | null;
 }
 
 export interface CompleteProfileRequest {
@@ -94,7 +96,7 @@ export interface CompleteProfileRequest {
 // User với profile gộp lại — dùng ở phần lớn màn hình
 export interface AuthenticatedUser {
   user: User;
-  profile: UserProfile;
+  profile: UserProfile | NgoProfile | null;
 }
 
 export interface CreateUserInput {

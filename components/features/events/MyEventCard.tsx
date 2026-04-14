@@ -1,5 +1,6 @@
 import { View, Image, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
+import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
@@ -11,44 +12,44 @@ type Props = {
 };
 
 type StatusConfig = {
-  label: string;
+  labelKey: string;
   bgClass: string;
   textClass: string;
 };
 
 const STATUS_CONFIG: Partial<Record<RegistrationStatus, StatusConfig>> = {
   REGISTERED: {
-    label: 'Đã đăng ký',
-    bgClass: 'bg-blue-50',
-    textClass: 'text-blue-600',
+    labelKey: 'events.my_events.status.registered',
+    bgClass: 'bg-blue-300',
+    textClass: 'text-blue-700',
   },
   WAITLISTED: {
-    label: 'Đang chờ',
-    bgClass: 'bg-amber-50',
-    textClass: 'text-amber-600',
+    labelKey: 'events.my_events.status.waitlisted',
+    bgClass: 'bg-amber-300',
+    textClass: 'text-amber-700',
   },
   CHECKED_IN: {
-    label: 'Đang tham gia',
-    bgClass: 'bg-primary-50',
+    labelKey: 'events.my_events.status.checked_in',
+    bgClass: 'bg-primary-300',
     textClass: 'text-primary-700',
   },
   ATTENDED: {
-    label: 'Đã tham gia',
+    labelKey: 'events.my_events.status.attended',
     bgClass: 'bg-primary-100',
     textClass: 'text-primary-800',
   },
   CHECKED_OUT: {
-    label: 'Đã hoàn thành',
+    labelKey: 'events.my_events.status.checked_out',
     bgClass: 'bg-primary-100',
     textClass: 'text-primary-800',
   },
   NO_SHOW: {
-    label: 'Vắng mặt',
+    labelKey: 'events.my_events.status.no_show',
     bgClass: 'bg-rose-50',
     textClass: 'text-rose-500',
   },
   CANCELLED: {
-    label: 'Đã hủy',
+    labelKey: 'events.my_events.status.cancelled',
     bgClass: 'bg-gray-100',
     textClass: 'text-gray-400',
   },
@@ -60,6 +61,8 @@ function formatDate(iso: string) {
 }
 
 export function MyEventCard({ registration, onPress }: Props) {
+  const { t } = useTranslation();
+  const c = (key: string, fallback = '') => t(`common.${key}`, { defaultValue: fallback });
   const colors = useThemeColor();
   const event = registration.event;
   const statusCfg = STATUS_CONFIG[registration.status];
@@ -84,7 +87,7 @@ export function MyEventCard({ registration, onPress }: Props) {
         {statusCfg && (
           <View className={`mb-1.5 self-start rounded-full px-2.5 py-0.5 ${statusCfg.bgClass}`}>
             <Text className={`font-inter-semibold text-[10px] ${statusCfg.textClass}`}>
-              {statusCfg.label}
+              {t(statusCfg.labelKey)}
             </Text>
           </View>
         )}
@@ -120,7 +123,7 @@ export function MyEventCard({ registration, onPress }: Props) {
           <View className="flex-row items-center">
             <Feather name="zap" size={11} color={colors.primary} />
             <Text className="ml-1 font-inter-semibold text-xs text-primary">
-              +{event.reward_points} GP
+              +{event.reward_points} {c('gp_unit')}
             </Text>
           </View>
           <Feather name="chevron-right" size={16} color={colors.neutral400} />

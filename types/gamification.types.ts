@@ -8,7 +8,14 @@ import { UserProfile } from './user.type';
 
 export type VoucherTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DEPLETED';
 
-export type UserVoucherStatus = 'AVAILABLE' | 'USED' | 'EXPIRED' | 'CANCELLED';
+export const USER_VOUCHER_STATUS = {
+  AVAILABLE: 'AVAILABLE',
+  USED: 'USED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type UserVoucherStatus = keyof typeof USER_VOUCHER_STATUS;
 
 export type VoucherSource = 'REDEEM' | 'LEADERBOARD_REWARD' | 'GARDEN_REWARD';
 

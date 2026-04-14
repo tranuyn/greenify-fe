@@ -13,7 +13,7 @@ import { StreakPlantCard } from '@/components/features/home/StreakPlantCard';
 import { CommunityFeedPreview } from '@/components/features/home/CommunityFeedPreview';
 
 import { router } from 'expo-router';
-import { useGetMe } from '@/hooks/queries/useAuth';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useRegisterEvent } from '@/hooks/mutations/useEvents';
 import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
@@ -21,7 +21,7 @@ import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
 import { useMyWallet } from '@/hooks/queries/useWallet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { Text } from '@/components/ui/Text';
-import type { VoucherTemplate } from '@/types/gamification.types';
+import { USER_VOUCHER_STATUS, type VoucherTemplate } from '@/types/gamification.types';
 
 // ============================================================
 // HOME SCREEN
@@ -35,7 +35,7 @@ export default function HomeScreen() {
   const colors = useThemeColor();
 
   // ---- Data fetching ----
-  const { data: authData, isLoading: isLoadingMe } = useGetMe(true);
+  const { data: authData, isLoading: isLoadingMe } = useCurrentUser();
   const { data: wallet } = useMyWallet();
   const { data: eventsData, isLoading: isLoadingEvents } = usePublishedEvents({
     page: 1,
@@ -46,9 +46,7 @@ export default function HomeScreen() {
   const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
 
   const registeredEventIds = new Set(
-    (myRegistrations ?? [])
-      .filter((r) => r.status !== 'CANCELLED')
-      .map((r) => r.event_id)
+    (myRegistrations ?? []).filter((r) => r.status !== 'CANCELLED').map((r) => r.event_id)
   );
 
   const handleRegisterEvent = (eventId: string) => {
@@ -62,14 +60,21 @@ export default function HomeScreen() {
   const { mutate: redeemVoucher } = useRedeemVoucher();
 
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const currentProfile = authData?.profile;
+  let userName = t('home.welcome_guest', 'Công dân xanh');
 
-  const userName = authData?.profile?.display_name || t('home.welcome_guest', 'Công dân xanh');
+  if (currentProfile) {
+    userName = 'org_name' in currentProfile ? currentProfile.org_name : currentProfile.display_name;
+  }
   const events = eventsData?.items ?? [];
   const allVouchers = vouchers ?? [];
 
   const collectedVoucherIds = new Set(
     (myVouchers ?? [])
-      .filter((v) => v.status === 'AVAILABLE' || v.status === 'USED')
+      .filter(
+        (v) =>
+          v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
+      )
       .map((v) => v.voucher_template_id)
   );
 
@@ -88,23 +93,17 @@ export default function HomeScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 100 }}
       showsVerticalScrollIndicator={false}>
-      {/* ============================================= */}
       {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
-      {/* ============================================= */}
       <HomeHeader
         userName={userName}
         avatarUrl={authData?.profile?.avatar_url}
         points={wallet?.available_points ?? 0}
       />
 
-      {/* ============================================= */}
       {/* 2. QUICK MENU — Bản đồ, Voucher, Leaderboard  */}
-      {/* ============================================= */}
       <HomeActionMenu />
 
-      {/* ============================================= */}
       {/* 3. SỰ KIỆN XANH — Carousel ngang              */}
-      {/* ============================================= */}
       <SectionHeader title={t('home.section_events')} />
 
       {isLoadingEvents ? (
@@ -117,8 +116,8 @@ export default function HomeScreen() {
           data={events}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <EventCard 
-              item={item} 
+            <EventCard
+              item={item}
               isRegistered={registeredEventIds.has(item.id)}
               isRegistering={registeringEventId === item.id}
               onPressCard={() => router.push(`/(events)/${item.id}`)}
@@ -140,9 +139,7 @@ export default function HomeScreen() {
         />
       )}
 
-      {/* ============================================= */}
       {/* 4. ĐỔI VOUCHER — Row list + Carousel          */}
-      {/* ============================================= */}
       <SectionHeader title={t('home.section_vouchers')} />
 
       {/* Row voucher list */}
@@ -164,15 +161,11 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* ============================================= */}
       {/* 5. STREAK + CÂY ĐANG TRỒNG                    */}
-      {/* ============================================= */}
       <SectionHeader title={t('home.section_streak_plant')} />
       <StreakPlantCard />
 
-      {/* ============================================= */}
       {/* 6. FEED CỘNG ĐỒNG XANH — 3 bài post mới nhất */}
-      {/* ============================================= */}
       <SectionHeader title={t('home.section_community')} />
       <CommunityFeedPreview />
     </ScrollView>

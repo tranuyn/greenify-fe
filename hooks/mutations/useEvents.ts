@@ -1,3 +1,4 @@
+import { CreateEventRequest } from '@/types/community.types';
 import { useMutation } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { queryClient } from 'lib/queryClient';
@@ -12,5 +13,20 @@ export const useRegisterEvent = () => {
       // Cập nhật danh sách event của mình
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.myRegistrations() });
     },
+  });
+};
+
+export const useCreateEvent = () => {
+  return useMutation({
+    mutationFn: (payload: CreateEventRequest) => eventService.createEvent(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
+    },
+  });
+};
+
+export const useCheckInAttendee = (eventId: string) => {
+  return useMutation({
+    mutationFn: (qrToken: string) => eventService.checkInAttendee(eventId, qrToken),
   });
 };

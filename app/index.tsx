@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { getOnboardingCompleted } from 'services/onboarding.service';
 import { tokenStorage } from 'lib/apiClient';
+import { authService } from 'services/auth.service';
+import { queryClient } from 'lib/queryClient';
+import { QUERY_KEYS } from 'constants/queryKeys';
 
 type RouteState = 'loading' | 'onboarding' | 'auth' | 'app';
 
@@ -11,17 +14,30 @@ export default function StartPage() {
 
   useEffect(() => {
     const decide = async () => {
-      const [onboardingDone, token] = await Promise.all([
-        getOnboardingCompleted(),
-        tokenStorage.getAccess(),
-      ]);
+      try {
+        const [onboardingDone, token] = await Promise.all([
+          getOnboardingCompleted(),
+          tokenStorage.getAccess(),
+        ]);
 
-      if (!onboardingDone) {
-        setRoute('onboarding');
-      } else if (!token) {
-        setRoute('auth');
-      } else {
+        if (!onboardingDone) {
+          setRoute('onboarding');
+          return;
+        }
+
+        if (!token) {
+          setRoute('auth');
+          return;
+        }
+
+        // Có token -> fetch user info để populate React Query Cache
+        const res = await authService.getMe();
+        queryClient.setQueryData(QUERY_KEYS.auth.me(), res.data);
         setRoute('app');
+      } catch (error) {
+        // Token hết hạn hoặc có lỗi gọi api -> clear local token và đẩy về màn đăng nhập
+        await tokenStorage.clear();
+        setRoute('auth');
       }
     };
 
@@ -29,7 +45,6 @@ export default function StartPage() {
   }, []);
 
   if (route === 'loading') {
-    // Splash screen đang hiện — render null hoặc spinner nhẹ
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="small" color="#15803d" />

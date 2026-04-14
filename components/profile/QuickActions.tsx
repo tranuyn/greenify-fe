@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { resetOnboardingCompleted } from '@/services/onboarding.service';
-import { useGetMe } from '@/hooks/queries/useAuth';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { router } from 'expo-router';
 
 // Giả lập dữ liệu cho Quick Actions
@@ -27,7 +27,7 @@ export const QuickActions = ({ navigation }: any) => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const settingsModalRef = useRef<BottomSheetModal>(null);
   const securityModalRef = useRef<BottomSheetModal>(null);
-  const { data: meData } = useGetMe(true);
+  const { data: meData } = useCurrentUser();
 
   // Điểm dừng
   const snapPoints = useMemo(() => ['60%'], []);

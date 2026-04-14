@@ -13,7 +13,7 @@ import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
 import { VoucherSearchBar } from '@/components/features/voucher/VoucherSearchBar';
 import { PartnerFilter } from '@/components/features/voucher/PartnerFilter';
 import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
-import type { VoucherTemplate } from '@/types/gamification.types';
+import { USER_VOUCHER_STATUS, type VoucherTemplate } from '@/types/gamification.types';
 
 export default function VoucherMarketScreen() {
   const insets = useSafeAreaInsets();
@@ -29,16 +29,18 @@ export default function VoucherMarketScreen() {
   const { data: myVouchers = [] } = useMyVouchers();
   const { mutate: redeemVoucher } = useRedeemVoucher();
 
-  // Mảng các vouchers đã thu thập
   const collectedVoucherIds = useMemo(() => {
     return new Set(
       myVouchers
-        .filter((v) => v.status === 'AVAILABLE' || v.status === 'USED')
+        .filter(
+          (v) =>
+            v.status === USER_VOUCHER_STATUS.AVAILABLE ||
+            v.status === USER_VOUCHER_STATUS.USED
+        )
         .map((v) => v.voucher_template_id)
     );
   }, [myVouchers]);
 
-  // Bộ lọc theo search & partner
   const filteredVouchers = useMemo(() => {
     return vouchers.filter((v) => {
       const matchSearch =

@@ -24,3 +24,26 @@ export const useActionTypes = () => {
     staleTime: 30 * 60 * 1000, // 30 phút — master data, ít thay đổi
   });
 };
+
+export const usePostDetail = (postId: string) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.posts.detail(postId),
+    queryFn: () => actionService.getPostById(postId).then((r) => r.data),
+    enabled: !!postId,
+  });
+};
+
+export const usePostReviews = (postId: string) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.posts.reviews(postId),
+    queryFn: () => actionService.getPostReviews(postId).then((r) => r.data),
+    enabled: !!postId,
+  });
+};
+
+export const usePendingReviewPosts = (params?: PaginationParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.posts.pendingReview(params),
+    queryFn: () => actionService.getPendingReviewPosts(params).then((r) => r.data),
+  });
+};

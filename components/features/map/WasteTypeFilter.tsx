@@ -22,7 +22,7 @@ export function WasteTypeFilter({ types, activeType, onSelect }: Props) {
             key={type}
             onPress={() => onSelect(type)}
             className={`mr-2 rounded-full px-4 py-2 shadow-sm ${
-              isActive ? 'shadow-primary/20 bg-primary' : 'bg-white shadow-black/10'
+              isActive ? 'shadow-primary/20 bg-primary' : 'bg-background shadow-black/10'
             }`}>
             <Text
               className={`font-inter-medium text-xs ${

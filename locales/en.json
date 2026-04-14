@@ -39,6 +39,18 @@
     "slide_2": "Turn every task\ninto a green action",
     "slide_3": "Today's work,\na greener tomorrow"
   },
+  "common": {
+    "processing": "Processing...",
+    "gp_unit": "GP",
+    "cancel": "Cancel",
+    "done": "Done",
+    "ok": "OK",
+    "success": "Success",
+    "error": "Error",
+    "create_new": "Create New",
+    "scan_qr": "Scan QR",
+    "my_events_short": "My events"
+  },
   "auth": {
     "login": {
       "title": "Log in",
@@ -108,6 +120,47 @@
     "error": "Something went wrong.",
     "retry": "Try again",
     "empty": "No posts found.",
+    "post_detail": {
+      "header_title": "Post Details",
+      "confirm_approve_title": "Confirm Approval",
+      "confirm_approve_message": "Do you want to approve this post?",
+      "approve_btn": "Approve",
+      "approve_success": "Post approved successfully.",
+      "approve_error": "Cannot approve post.",
+      "confirm_reject_title": "Recorded",
+      "confirm_reject_message": "Post has been rejected.",
+      "reject_error": "Cannot reject post.",
+      "reject_btn": "Reject",
+      "confirm_reject_btn": "Confirm Reject",
+      "anonymous_user": "Anonymous User",
+      "approve_count": "{{count}} approved",
+      "reject_count": "{{count}} rejected",
+      "action_date": "Action date: {{date}}",
+      "review_history": "Review History",
+      "no_reviews": "No reviews yet.",
+      "reason": "Reason",
+      "reject_reasons_title": "Reject Reason",
+      "additional_note": "Additional note *",
+      "additional_note_placeholder": "Enter specific reason..."
+    },
+    "post_card": {
+      "approve_count": "{{count}} Approvals",
+      "view_detail": "View Details & Approve"
+    },
+    "post_status": {
+      "pending_review": "Pending",
+      "partially_approved": "Reviewing",
+      "verified": "Verified",
+      "rejected": "Rejected",
+      "flagged": "Flagged",
+      "revoked": "Revoked",
+      "draft": "Draft"
+    },
+    "review_decision": {
+      "approve": "Approved",
+      "reject": "Rejected",
+      "report_suspicious": "Reported"
+    },
     "filters": {
       "title": "Search filters",
       "clear": "Clear filters",
@@ -137,6 +190,33 @@
     }
   },
   "events": {
+    "ngo_events": {
+      "title": "Events",
+      "subtitle": "Manage organization's events",
+      "create_new": "Create New",
+      "scan_qr": "Scan QR",
+      "registered_count": "{{registered}}/{{max}} participants",
+      "tabs": {
+        "pending": "Pending",
+        "registered": "Published",
+        "ongoing": "Ongoing",
+        "ended": "Ended",
+        "cancelled": "Cancelled"
+      },
+      "status": {
+        "pending_approval": "Pending",
+        "needs_revision": "Needs Revision",
+        "approved": "Approved",
+        "published": "Published",
+        "closed": "Closed",
+        "cancelled": "Cancelled",
+        "rejected": "Rejected"
+      },
+      "empty": {
+        "title": "No events found",
+        "subtitle": "Tap Create New to start your first event."
+      }
+    },
     "search": "Search events...",
     "card": {
       "registered": "Registered",
@@ -186,6 +266,15 @@
     "my_events": {
       "title": "My Events",
       "subtitle": "Manage your registered events",
+      "status": {
+        "registered": "Registered",
+        "waitlisted": "Waiting",
+        "checked_in": "Participating",
+        "attended": "Attended",
+        "checked_out": "Completed",
+        "no_show": "Absent",
+        "cancelled": "Cancelled"
+      },
       "tabs": {
         "pending": "Pending",
         "ongoing": "Ongoing",
@@ -197,6 +286,102 @@
         "ongoing": "You have not checked in to any event yet.",
         "attended": "You have not attended any events yet."
       }
+    },
+    "create_event": {
+      "title": "Create event",
+      "sections": {
+        "info": "Event information",
+        "location": "Location",
+        "time": "Time",
+        "reward": "Reward points"
+      },
+      "cover_placeholder": "Add cover image",
+      "fields": {
+        "title": {
+          "label": "Event name",
+          "placeholder": "Enter event name"
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "Add event description"
+        },
+        "event_type": {
+          "label": "Event type",
+          "placeholder": "Select event type"
+        },
+        "city": {
+          "label": "City",
+          "placeholder": "City"
+        },
+        "address": {
+          "label": "Address",
+          "placeholder": "Address"
+        },
+        "start": "Start",
+        "end": "End",
+        "reward_points": {
+          "placeholder": "Enter points"
+        }
+      },
+      "event_types": {
+        "cleanup": "Trash cleanup",
+        "tree_planting": "Tree planting",
+        "workshop": "Workshop",
+        "campaign": "Campaign",
+        "other": "Other"
+      },
+      "modal": {
+        "cancel": "Cancel",
+        "done": "Done"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Create event"
+      },
+      "terms": {
+        "prefix": "I agree to the",
+        "use": "Terms of Use",
+        "and": "and",
+        "privacy": "Privacy Policy",
+        "suffix": "of Greenify."
+      },
+      "alerts": {
+        "success_title": "Request sent",
+        "success_message": "Your event is waiting for admin approval.",
+        "error_title": "Creation failed",
+        "error_fallback": "Something went wrong, please try again.",
+        "ok": "OK"
+      },
+      "validation": {
+        "title": "Please enter the event name.",
+        "description": "Please enter the description.",
+        "event_type": "Please select an event type.",
+        "city": "Please enter the city.",
+        "location_address": "Please enter the address.",
+        "start_date": "Please select the start date.",
+        "start_time": "Please select the start time.",
+        "end_date": "Please select the end date.",
+        "end_time": "Please select the end time.",
+        "reward_points_required": "Please enter reward points.",
+        "reward_points_positive": "Points must be a positive number.",
+        "accepted_terms": "Please agree to the terms.",
+        "cover_image_url": "Please add a cover image.",
+        "latitude": "Invalid latitude.",
+        "longitude": "Invalid longitude.",
+        "max_participants": "Participants must be greater than 0.",
+        "participation_conditions": "Please enter participation conditions.",
+        "cancel_deadline_days": "Cancel days must be 0 or greater."
+      }
+    },
+    "scan_qr": {
+      "title": "Scan check-in QR",
+      "permission_title": "Camera permission required",
+      "permission_description": "To scan attendee QR codes, please allow camera access.",
+      "permission_button": "Allow camera",
+      "hint": "Place the attendee QR code inside the frame",
+      "invalid_qr": "Invalid QR code.",
+      "result_success": "Check-in successful: {{name}}",
+      "result_error": "{{message}}"
     }
   },
   "map": {
