@@ -21,7 +21,7 @@ import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
 import { useMyWallet } from '@/hooks/queries/useWallet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { Text } from '@/components/ui/Text';
-import type { VoucherTemplate } from '@/types/gamification.types';
+import { USER_VOUCHER_STATUS, type VoucherTemplate } from '@/types/gamification.types';
 
 // ============================================================
 // HOME SCREEN
@@ -71,7 +71,10 @@ export default function HomeScreen() {
 
   const collectedVoucherIds = new Set(
     (myVouchers ?? [])
-      .filter((v) => v.status === 'AVAILABLE' || v.status === 'USED')
+      .filter(
+        (v) =>
+          v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
+      )
       .map((v) => v.voucher_template_id)
   );
 

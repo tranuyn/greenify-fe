@@ -45,6 +45,8 @@
     "cancel": "Cancel",
     "done": "Done",
     "ok": "OK",
+    "success": "Success",
+    "error": "Error",
     "create_new": "Create New",
     "scan_qr": "Scan QR",
     "my_events_short": "My events"
@@ -118,6 +120,47 @@
     "error": "Something went wrong.",
     "retry": "Try again",
     "empty": "No posts found.",
+    "post_detail": {
+      "header_title": "Post Details",
+      "confirm_approve_title": "Confirm Approval",
+      "confirm_approve_message": "Do you want to approve this post?",
+      "approve_btn": "Approve",
+      "approve_success": "Post approved successfully.",
+      "approve_error": "Cannot approve post.",
+      "confirm_reject_title": "Recorded",
+      "confirm_reject_message": "Post has been rejected.",
+      "reject_error": "Cannot reject post.",
+      "reject_btn": "Reject",
+      "confirm_reject_btn": "Confirm Reject",
+      "anonymous_user": "Anonymous User",
+      "approve_count": "{{count}} approved",
+      "reject_count": "{{count}} rejected",
+      "action_date": "Action date: {{date}}",
+      "review_history": "Review History",
+      "no_reviews": "No reviews yet.",
+      "reason": "Reason",
+      "reject_reasons_title": "Reject Reason",
+      "additional_note": "Additional note *",
+      "additional_note_placeholder": "Enter specific reason..."
+    },
+    "post_card": {
+      "approve_count": "{{count}} Approvals",
+      "view_detail": "View Details & Approve"
+    },
+    "post_status": {
+      "pending_review": "Pending",
+      "partially_approved": "Reviewing",
+      "verified": "Verified",
+      "rejected": "Rejected",
+      "flagged": "Flagged",
+      "revoked": "Revoked",
+      "draft": "Draft"
+    },
+    "review_decision": {
+      "approve": "Approved",
+      "reject": "Rejected",
+      "report_suspicious": "Reported"
+    },
     "filters": {
       "title": "Search filters",
       "clear": "Clear filters",

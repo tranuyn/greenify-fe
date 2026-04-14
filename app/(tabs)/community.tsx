@@ -106,8 +106,8 @@ export default function CommunityScreen() {
         {t('community.title', 'Cộng đồng')}
       </Text>
 
-      <View className="flex-1 px-6 pt-4">
-        <View className="mb-4 flex-row items-center">
+      <View className="flex-1 px-4 pt-4">
+        <View className="mb-2 flex-row items-center">
           <SearchBar
             value={searchQuery}
             onChangeText={setSearchQuery}

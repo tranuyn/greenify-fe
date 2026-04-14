@@ -43,6 +43,8 @@
     "cancel": "Hủy",
     "done": "Xong",
     "ok": "OK",
+    "success": "Thành công",
+    "error": "Lỗi",
     "create_new": "Tạo mới",
     "scan_qr": "Quét mã",
     "my_events_short": "Của tôi"
@@ -116,6 +118,47 @@
     "error": "Đã có lỗi xảy ra.",
     "retry": "Thử lại",
     "empty": "Không tìm thấy bài viết nào.",
+    "post_detail": {
+      "header_title": "Chi tiết bài đăng",
+      "confirm_approve_title": "Xác nhận duyệt",
+      "confirm_approve_message": "Bạn muốn duyệt bài đăng này?",
+      "approve_btn": "Duyệt",
+      "approve_success": "Đã duyệt bài đăng.",
+      "approve_error": "Không thể duyệt bài.",
+      "confirm_reject_title": "Đã ghi nhận",
+      "confirm_reject_message": "Bài đăng đã bị từ chối.",
+      "reject_error": "Không thể từ chối bài.",
+      "reject_btn": "Từ chối",
+      "confirm_reject_btn": "Xác nhận từ chối",
+      "anonymous_user": "Người dùng ẩn danh",
+      "approve_count": "{{count}} duyệt",
+      "reject_count": "{{count}} từ chối",
+      "action_date": "Ngày thực hiện: {{date}}",
+      "review_history": "Lịch sử duyệt bài",
+      "no_reviews": "Chưa có lượt duyệt nào.",
+      "reason": "Lý do",
+      "reject_reasons_title": "Lý do từ chối",
+      "additional_note": "Mô tả thêm *",
+      "additional_note_placeholder": "Nhập lý do cụ thể..."
+    },
+    "post_card": {
+      "approve_count": "{{count}} Lượt duyệt",
+      "view_detail": "Xem chi tiết & Duyệt bài"
+    },
+    "post_status": {
+      "pending_review": "Chờ duyệt",
+      "partially_approved": "Đang xét duyệt",
+      "verified": "Đã xác thực",
+      "rejected": "Bị từ chối",
+      "flagged": "Đang bị gắn cờ",
+      "revoked": "Đã thu hồi điểm",
+      "draft": "Nháp"
+    },
+    "review_decision": {
+      "approve": "Đã duyệt",
+      "reject": "Từ chối",
+      "report_suspicious": "Báo nghi vấn"
+    },
     "filters": {
       "title": "Bộ lọc tìm kiếm",
       "clear": "Xóa bộ lọc",

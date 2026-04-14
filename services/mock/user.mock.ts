@@ -4,7 +4,7 @@ export const MOCK_USER: User = {
   id: 'usr-001',
   phone: '0901234567',
   email: 'uyen@greenify.vn',
-  role: 'USER',
+  role: 'CTV',
   status: 'ACTIVE',
   ctv_status: 'NOT_ELIGIBLE',
   created_at: '2026-01-10T08:00:00Z',
@@ -48,7 +48,7 @@ export const MOCK_NGO_PROFILE: NgoProfile = {
   id: 'ngo-prof-001',
   user_id: 'usr-003',
   org_name: 'Green Future Vietnam',
-  representative_name: 'Nguyễn Văn An',  
+  representative_name: 'Nguyễn Văn An',
   avatar_url: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
   hotline: '1800 1234',
   contact_email: 'contact@greenfuture.vn',
@@ -68,11 +68,11 @@ export const MOCK_AUTH_RESPONSE: LoginResponse = {
   profile: MOCK_USER_PROFILE,
 };
 
-// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-//   user: MOCK_USER,
-//   profile: MOCK_USER_PROFILE,
-// };
 export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-  user: MOCK_NGO_USER,
-  profile: MOCK_NGO_PROFILE,
+  user: MOCK_USER,
+  profile: MOCK_USER_PROFILE,
 };
+// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
+//   user: MOCK_NGO_USER,
+//   profile: MOCK_NGO_PROFILE,
+// };
