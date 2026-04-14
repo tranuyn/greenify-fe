@@ -33,6 +33,7 @@ export const QUERY_KEYS = {
     feed: (params?: object) => ['posts', 'feed', params] as const,
     mine: (params?: object) => ['posts', 'me', params] as const,
     detail: (postId: string) => ['posts', postId] as const,
+    reviews: (postId: string) => ['posts', postId, 'reviews'] as const,
     pendingReview: (params?: object) => ['posts', 'pending-review', params] as const,
   },
 

@@ -4,6 +4,7 @@ import {
   PointWallet,
   PointLedgerEntry,
   PointSourceType,
+  PostReview,
 } from 'types/action.types';
 
 export const MOCK_ACTION_TYPES: GreenActionType[] = [
@@ -56,6 +57,23 @@ export const MOCK_ACTION_TYPES: GreenActionType[] = [
     is_active: true,
   },
 ];
+
+
+export const MOCK_POST_REVIEWS: Record<string, PostReview[]> = {
+  'post-001': [
+    {
+      id: 'rev-001',
+      post_id: 'post-001',
+      reviewer_id: 'usr-002',
+      decision: 'APPROVE',
+      reject_reason_code: null,
+      reject_reason_note: null,
+      is_valid: true,
+      created_at: '2026-03-30T09:30:00Z',
+    },
+  ],
+  'post-003': [],
+};
 
 export const MOCK_POSTS: GreenActionPost[] = [
   {

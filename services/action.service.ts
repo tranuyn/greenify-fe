@@ -5,6 +5,8 @@ import type {
   CreatePostRequest,
   PointWallet,
   PointLedgerEntry,
+  PostReview,
+  ReviewPostRequest,
 } from 'types/action.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import { MOCK_ACTION_TYPES, MOCK_POSTS, MOCK_POINT_WALLET, MOCK_LEDGER } from './mock/action.mock';
@@ -144,6 +146,75 @@ export const actionService = {
     const { data } = await apiClient.post<ApiResponse<GreenActionPost>>('/posts', payload);
     return data;
   },
+
+  async getPendingReviewPosts(
+  params?: PaginationParams,
+): Promise<ApiResponse<PaginatedResponse<GreenActionPost>>> {
+  if (IS_MOCK_MODE) {
+    await mockDelay(500);
+    const pending = MOCK_POSTS.filter((p) => p.status === 'PENDING_REVIEW');
+    return mockSuccess({
+      items: pending,
+      total: pending.length,
+      page: params?.page ?? 1,
+      page_size: params?.page_size ?? 10,
+      has_next: false,
+    });
+  }
+  const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPost>>>(
+    '/posts/pending-review',
+    { params },
+  );
+  return data;
+},
+
+async getPostById(postId: string): Promise<ApiResponse<GreenActionPost>> {
+  if (IS_MOCK_MODE) {
+    await mockDelay(400);
+    const post = MOCK_POSTS.find((p) => p.id === postId);
+    if (!post) throw new Error('Post not found');
+    return mockSuccess(post);
+  }
+  const { data } = await apiClient.get<ApiResponse<GreenActionPost>>(`/posts/${postId}`);
+  return data;
+},
+
+async getPostReviews(postId: string): Promise<ApiResponse<PostReview[]>> {
+  if (IS_MOCK_MODE) {
+    await mockDelay(300);
+    return mockSuccess(MOCK_POST_REVIEWS[postId] ?? []);
+  }
+  const { data } = await apiClient.get<ApiResponse<PostReview[]>>(
+    `/posts/${postId}/reviews`,
+  );
+  return data;
+},
+
+async reviewPost(
+  postId: string,
+  payload: ReviewPostRequest,
+): Promise<ApiResponse<PostReview>> {
+  if (IS_MOCK_MODE) {
+    await mockDelay(600);
+    const review: PostReview = {
+      id: `rev-${Date.now()}`,
+      post_id: postId,
+      reviewer_id: 'usr-002',
+      decision: payload.decision,
+      reject_reason_code: payload.reject_reason_code ?? null,
+      reject_reason_note: payload.reject_reason_note ?? null,
+      is_valid: true,
+      created_at: new Date().toISOString(),
+    };
+    return mockSuccess(review);
+  }
+  const { data } = await apiClient.post<ApiResponse<PostReview>>(
+    `/posts/${postId}/review`,
+    payload,
+  );
+  return data;
+},
+
 };
 
 // ============================================================

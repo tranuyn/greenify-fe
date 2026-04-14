@@ -17,15 +17,13 @@ export const useCurrentUser = () => {
   });
 };
 
-/**
- * Hook "siêu nhẹ" chỉ để đọc Role (dùng cho các màn hình không cần full profile để rụng rẽ nhánh UI)
- */
 export const useAuthRole = () => {
   const queryClient = useQueryClient();
-  // Đọc đồng bộ từ cache, cực kỳ an toàn để render UI rẽ nhánh
   const authData = queryClient.getQueryData<AuthenticatedUser>(QUERY_KEYS.auth.me());
   
-  return {
+return {
+    userId: authData?.user?.id ?? null,
+    role: authData?.user?.role ?? null,
     isNgo: authData?.user?.role === 'NGO',
     isCitizen: authData?.user?.role === 'USER',
     isCtv: authData?.user?.role === 'CTV' || authData?.user?.ctv_status === 'ACTIVE_CTV',
