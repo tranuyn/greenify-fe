@@ -36,7 +36,7 @@ export const MOCK_USER_PROFILE: UserProfile = {
   display_name: 'Nhã Uyên',
   avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
   province: 'TP. Hồ Chí Minh',
-  district: 'Quận 1',
+  // district: 'Quận 1',
   ward: 'Phường Bến Nghé',
   free_time_slots: [
     { day: 'SAT', from: '08:00', to: '12:00' },
@@ -48,10 +48,13 @@ export const MOCK_NGO_PROFILE: NgoProfile = {
   id: 'ngo-prof-001',
   user_id: 'usr-003',
   org_name: 'Green Future Vietnam',
-  representative_name: 'Nguyễn Văn An',
+  representative_name: 'Nguyễn Văn An',  
+  avatar_url: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
   hotline: '1800 1234',
   contact_email: 'contact@greenfuture.vn',
-  address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+  // address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+  province: 'TP. Hồ Chí Minh',
+  ward: 'Phường Bến Nghé',
   description: 'Tổ chức phi lợi nhuận hoạt động vì môi trường xanh tại Việt Nam.',
   verification_docs: ['https://s3.example.com/docs/greenfuture-license.pdf'],
   verify_status: 'VERIFIED',
@@ -65,7 +68,11 @@ export const MOCK_AUTH_RESPONSE: LoginResponse = {
   profile: MOCK_USER_PROFILE,
 };
 
+// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
+//   user: MOCK_USER,
+//   profile: MOCK_USER_PROFILE,
+// };
 export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-  user: MOCK_USER,
-  profile: MOCK_USER_PROFILE,
+  user: MOCK_NGO_USER,
+  profile: MOCK_NGO_PROFILE,
 };

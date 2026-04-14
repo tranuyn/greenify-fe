@@ -69,7 +69,8 @@ export const QUERY_KEYS = {
   // Leaderboard
   leaderboard: {
     all: ['leaderboard'] as const,
-    scope: (scope: LeaderboardScope, province?: string) => ['leaderboard', scope, province] as const,
+    scope: (scope: LeaderboardScope, province?: string) =>
+      ['leaderboard', scope, province] as const,
     claim: (periodId: string) => ['leaderboard', 'claim', periodId] as const,
   },
 
@@ -77,6 +78,7 @@ export const QUERY_KEYS = {
   events: {
     all: ['events'] as const,
     list: (params?: object) => ['events', 'list', params] as const,
+    ngoList: (params?: object) => ['events', 'ngo-list', params] as const,
     detail: (eventId: string) => ['events', eventId] as const,
     myRegistrations: () => ['events', 'registrations', 'me'] as const,
   },

@@ -2,15 +2,15 @@ import { router } from 'expo-router';
 import { View, Pressable, ScrollView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useUpdateProfile } from '@/hooks/mutations/useAuth';
-import { useGetMe } from '@/hooks/queries/useAuth';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import type { CompleteProfileFormData } from '@/validations/auth.schema';
 import { ProfileForm } from '@/components/shared/auth/ProfileForm';
-import { StatusBar } from 'expo-status-bar';
 
 export default function EditProfileScreen() {
-  const { data: meData, isLoading: isLoadingUser } = useGetMe(true);
+  const { data: meData, isLoading: isLoadingUser } = useCurrentUser();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
-
+  const currentProfile = meData?.profile;
+  const isCitizenProfile = currentProfile && 'display_name' in currentProfile;
   const handleUpdateProfile = (data: CompleteProfileFormData) => {
     updateProfile(data, {
       onSuccess: () => {
@@ -41,7 +41,7 @@ export default function EditProfileScreen() {
         <ProfileForm
           email={meData?.user?.email ?? ''}
           initialValues={{
-            display_name: meData?.profile?.display_name ?? '',
+            display_name: isCitizenProfile ? currentProfile.display_name || '' : '',
             province: meData?.profile?.province ?? '',
             ward: meData?.profile?.ward ?? '',
           }}

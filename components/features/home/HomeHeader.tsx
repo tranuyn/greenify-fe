@@ -42,7 +42,7 @@ export function HomeHeader({ userName, avatarUrl, points }: Props) {
           <Text className="mb-0.5 font-inter text-xs text-white/80">
             {t('home.welcome')}
           </Text>
-          <Text className="line-clamp-1 font-inter-bold text-lg text-white">
+          <Text className="line-clamp-2 font-inter-bold text-lg text-white">
             {userName}
           </Text>
         </View>

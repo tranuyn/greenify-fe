@@ -5,6 +5,7 @@ import type {
   RecyclingStation,
   TrashSpotReport,
   CreateTrashReportRequest,
+  CreateEventRequest,
 } from 'types/community.types';
 import { ApiResponse, PaginatedResponse, PaginationParams } from 'types/common.types';
 
@@ -84,6 +85,58 @@ export const eventService = {
     const { data } = await apiClient.get<ApiResponse<EventRegistration[]>>(
       '/events/registrations/me'
     );
+    return data;
+  },
+
+  async getNgoEvents(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Event>>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(600);
+      return mockSuccess({
+        items: MOCK_EVENTS,
+        total: MOCK_EVENTS.length,
+        page: params?.page ?? 1,
+        page_size: params?.page_size ?? 20,
+        has_next: false,
+      });
+    }
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/ngo/events', {
+      params,
+    });
+    return data;
+  },
+
+  async createEvent(payload: CreateEventRequest): Promise<ApiResponse<Event>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(900);
+      const newEvent: Event = {
+        id: `evt-${Date.now()}`,
+        ngo_id: 'usr-003',
+        status: 'PENDING_APPROVAL',
+        admin_note: null,
+        created_at: new Date().toISOString(),
+        ngo_name: 'Green Future Vietnam',
+        registered_count: 0,
+        ...payload,
+      };
+      return mockSuccess(newEvent);
+    }
+    const { data } = await apiClient.post<ApiResponse<Event>>('/ngo/events', payload);
+    return data;
+  },
+
+  async checkInAttendee(
+    eventId: string,
+    qrToken: string
+  ): Promise<ApiResponse<{ registration_id: string; user_name: string; status: string }>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      return mockSuccess({
+        registration_id: 'reg-001',
+        user_name: 'Nhã Uyên',
+        status: 'CHECKED_IN',
+      });
+    }
+    const { data } = await apiClient.post(`/ngo/events/${eventId}/check-in`, { qr_token: qrToken });
     return data;
   },
 };

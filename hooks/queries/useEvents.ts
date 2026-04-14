@@ -24,3 +24,10 @@ export const useMyRegistrations = () => {
     queryFn: () => eventService.getMyRegistrations().then((r) => r.data),
   });
 };
+
+export const useNgoEvents = (params?: PaginationParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.events.ngoList(params),
+    queryFn: () => eventService.getNgoEvents(params).then((r) => r.data),
+  });
+};
