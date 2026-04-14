@@ -16,7 +16,7 @@ const RankItem = ({ item }: RankItemProps) => {
         ? 'text-[#C0C0C0]' // Bạc
         : item.rank === 3
           ? 'text-[#CD7F32]' // Đồng
-          : 'text-gray-500';
+          : 'text-foreground';
 
   // Hàm phụ trợ để lấy đúng frame theo rank (tránh viết if-else lồng nhau dài dòng ở dưới)
   const getFrameSource = (rank: number) => {
@@ -27,8 +27,8 @@ const RankItem = ({ item }: RankItemProps) => {
   };
 
   const frameSource = getFrameSource(item.rank);
-  const displayName = item.display_name || item.user_profiles.display_name;
-  const avatarUrl = item.avatar_url || item.user_profiles.avatar_url || IMAGES.treeAvatar;
+  const displayName = item?.display_name || item.user_profiles?.display_name || 'Ẩn danh';
+  const avatarUrl = item?.avatar_url || item.user_profiles?.avatar_url || IMAGES.treeAvatar;
 
   return (
     <View className="flex-row items-center justify-between py-3">
@@ -52,18 +52,16 @@ const RankItem = ({ item }: RankItemProps) => {
           <Image
             source={{ uri: avatarUrl }}
             className={
-              frameSource
-                ? 'h-8 w-8 rounded-full'
-                : 'h-10 w-10 rounded-full border border-gray-200 bg-white'
+              frameSource ? 'h-8 w-8 rounded-full' : 'h-10 w-10 rounded-full border border-primary '
             }
             resizeMode="contain"
           />
         </View>
 
-        <Text className="text-base font-medium text-gray-800">{displayName}</Text>
+        <Text className="text-base font-medium text-foreground">{displayName}</Text>
       </View>
 
-      <Text className="text-base font-bold text-gray-800">
+      <Text className="text-base font-bold text-foreground">
         {item.weekly_points} <Text className="text-[#359B63]">GP</Text>
       </Text>
     </View>

@@ -22,7 +22,7 @@ import RankItem from './components/RankItem';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { RewardDetail } from './components/LeaderboardReward';
+import RewardDetail from './components/LeaderboardReward';
 
 const LeaderboardScreen = () => {
   const [scope, setScope] = React.useState<LeaderboardScope>(LeaderboardScope.NATIONAL);
@@ -81,7 +81,7 @@ const LeaderboardScreen = () => {
                   resizeMode="contain"
                 />
               </TouchableOpacity>
-              <Text className="text-lg font-medium text-white">Bảng xếp hạng</Text>
+              <Text className="text-lg font-medium text-foreground">Bảng xếp hạng</Text>
             </View>
 
             <View className="flex-row gap-3">
@@ -116,7 +116,7 @@ const LeaderboardScreen = () => {
       </ImageBackground>
 
       {/* Nửa dưới: Danh sách User */}
-      <View className="-mt-24 flex-1 rounded-t-[32px] bg-white px-5 pt-6 shadow-lg">
+      <View className="-mt-24 flex-1 rounded-t-[32px] bg-background px-5 pt-6 shadow-lg">
         {showLeaderboardReward ? (
           <RewardDetail
             data={claimLeaderboardReward.data?.data}

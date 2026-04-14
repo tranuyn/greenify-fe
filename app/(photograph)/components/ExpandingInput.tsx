@@ -8,7 +8,7 @@ const ExpandingInput = memo(({ description, setDescription }: any) => {
   const MAX_WIDTH = 300; // Giới hạn chiều ngang tối đa
 
   return (
-    <View className="absolute bottom-6 w-full items-center">
+    <View className="absolute top-6 w-full items-center">
       <Animated.View
         className="flex-row items-center rounded-3xl bg-black/50 px-5 py-2 shadow-md"
         style={{

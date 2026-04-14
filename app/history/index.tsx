@@ -9,6 +9,7 @@ import HistoryItem from './_components/HistoryItem';
 import FilterModal, { LedgerFilterValue } from './_components/FilterModal';
 import { SOURCE_TYPE_LABELS } from '@/constants/sourceTypeLabel';
 import { router } from 'expo-router';
+import { useThemeColor } from '@/hooks/useThemeColor.hook';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -63,6 +64,8 @@ export default function WalletScreen() {
     sourceTypes: [],
   });
 
+  const colors = useThemeColor();
+
   const { data: ledgerData, isLoading: isLedgerLoading } = usePointLedger({
     page: 1,
     page_size: 20,
@@ -92,19 +95,19 @@ export default function WalletScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="h-10 w-10 items-center justify-center rounded-full bg-green-100">
-          <AntDesign name="left" size={20} color="#15803d" />
+          className="h-10 w-10 items-center justify-center rounded-full bg-primary-light">
+          <AntDesign name="left" size={20} color={colors.foreground} />
         </TouchableOpacity>
         <Text className="text-lg font-bold text-foreground">Ví & Điểm</Text>
         <TouchableOpacity
           onPress={() => router.replace('/(tabs)/')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-green-100">
-          <AntDesign name="home" size={20} color="#15803d" />
+          className="h-10 w-10 items-center justify-center rounded-full bg-primary-light">
+          <AntDesign name="home" size={20} color={colors.foreground} />
         </TouchableOpacity>
       </View>
 
@@ -115,8 +118,8 @@ export default function WalletScreen() {
         keyboardShouldPersistTaps="handled">
         {/* Thẻ Điểm (PointsCard) */}
         <View className="mx-4 mt-4 rounded-2xl bg-primary p-5 shadow-sm">
-          <Text className="text-right text-sm font-medium text-white/90">Điểm</Text>
-          <Text className="mt-1 text-right text-4xl font-black text-white">20 GP</Text>
+          <Text className="text-right text-sm font-medium text-on-primary">Điểm</Text>
+          <Text className="mt-1 text-right text-4xl text-on-primary">20 GP</Text>
         </View>
         <Text className="mt-3 text-center text-xs text-muted-foreground">
           10GP sẽ hết hạn vào ngày 01/02/2026
@@ -129,25 +132,26 @@ export default function WalletScreen() {
             <View className="flex-1 flex-row items-center rounded-full border border-primary px-4 py-2.5">
               <TextInput
                 placeholder="Tìm kiếm"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.foreground}
                 className="flex-1 p-0 text-[15px]"
               />
-              <Feather name="search" size={20} color="#6b7280" />
+              <Feather name="search" size={20} color={colors.foreground} />
             </View>
 
             {/* Nút Mở  Filter */}
             <TouchableOpacity
               onPress={() => setFilterVisible(true)}
               className="h-11 w-11 items-center justify-center rounded-full border border-primary">
-              <MaterialCommunityIcons name="filter-outline" size={22} color="#15803d" />
+              <MaterialCommunityIcons name="filter-outline" size={22} color={colors.foreground} />
             </TouchableOpacity>
           </View>
           {appliedFilters.sourceTypes.length > 0 || appliedFilters.time.length > 0 ? (
             <View>
-              <Text className="text-xs text-gray-500">
-                Đang áp dụng {appliedFilters.time.length + appliedFilters.sourceTypes.length} bộ lọc
+              <Text className="mb-1 text-foreground">
+                Đang áp dụng {appliedFilters.time.length + appliedFilters.sourceTypes.length} bộ
+                lọc:
               </Text>
-              <Text className="mt-1 text-xs text-gray-600">{appliedFilterLabels.join(' • ')}</Text>
+              <Text className="mt-1 text-foreground">{appliedFilterLabels.join(' • ')}</Text>
             </View>
           ) : null}
         </View>

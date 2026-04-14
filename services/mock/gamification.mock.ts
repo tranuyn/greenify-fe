@@ -3,10 +3,12 @@ import {
   Seed,
   PlantProgress,
   GardenArchive,
+  PlantDailyLog,
   VoucherTemplate,
   UserVoucher,
   LeaderboardEntry,
   LeaderboardScope,
+  PlantStatus,
 } from 'types/gamification.types';
 import { MOCK_USER_PROFILE } from './user.mock';
 
@@ -60,7 +62,7 @@ export const MOCK_PLANT_PROGRESS: PlantProgress = {
   user_id: 'usr-001',
   seed_id: 'seed-001',
   progress_days: 7,
-  status: 'GROWING',
+  status: PlantStatus.GROWING,
   started_at: '2026-03-24T00:00:00Z',
   matured_at: null,
   seed: MOCK_SEEDS[0],
@@ -77,6 +79,35 @@ export const MOCK_GARDEN_ARCHIVES: GardenArchive[] = [
     user_voucher_id: 'uvoucher-001',
     archived_at: '2026-02-28T00:00:00Z',
     seed: MOCK_SEEDS[2],
+  },
+];
+
+export const MOCK_PLANT_DAILY_LOGS: PlantDailyLog[] = [
+  {
+    id: 'plog-001',
+    user_id: 'usr-001',
+    user: MOCK_USER_PROFILE,
+    plant_progress_id: 'plant-001',
+    plant_progress: MOCK_PLANT_PROGRESS,
+    log_date: new Date('2026-03-29T00:00:00Z'),
+    stage: PlantStatus.SPROUT,
+    is_active_day: true,
+    green_post_url: 'https://greenify.app/posts/post-001',
+    image_url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400',
+    created_at: '2026-03-29T12:00:00Z',
+  },
+  {
+    id: 'plog-002',
+    user_id: 'usr-001',
+    user: MOCK_USER_PROFILE,
+    plant_progress_id: 'plant-001',
+    plant_progress: MOCK_PLANT_PROGRESS,
+    log_date: new Date('2026-03-30T00:00:00Z'),
+    stage: PlantStatus.GROWING,
+    is_active_day: true,
+    green_post_url: 'https://greenify.app/posts/post-002',
+    image_url: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400',
+    created_at: '2026-03-30T12:00:00Z',
   },
 ];
 

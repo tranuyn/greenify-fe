@@ -14,9 +14,19 @@ export const IMAGES = {
   lightHome:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Icon/Nav/light-home.svg?updatedAt=1775669261066',
   gift: 'https://ik.imagekit.io/ii5tr5cdi/Material/Icon/Nav/gift.svg?updatedAt=1775669261026',
+  giftColor:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/gift.png?updatedAt=1775669299300',
   blog: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/blog.png?updatedAt=1775669299294',
   germination:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/germination.png?updatedAt=1775669299415',
   voucher:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/voucher.png?updatedAt=1775669299391',
+  calendar:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Background/Untitled%20design.png?updatedAt=1775669299296',
+  leaf: 'https://ik.imagekit.io/ii5tr5cdi/Material/Icon/Nav/leaf-fall.svg?updatedAt=1775669260938',
+  recycle:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/recycle.png?updatedAt=1775669299342',
+  saveWater:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/save-water.png?updatedAt=1775669299297',
+  house: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/house.png?updatedAt=1775669299347',
 };

@@ -2,7 +2,6 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 // --- PHẦN 1: TYPES & MOCK ICONS ---
 type DayStatus = 'empty' | 'normal' | 'seed' | 'sprout' | 'tree' | 'fruit';
@@ -123,10 +122,11 @@ export default function ScheduleScreen() {
   );
 
   return (
-    <View className="flex-1 justify-between pt-10">
+    <View className="flex-1 bg-neutral-900">
       {/* --- CỤM 1: TOP BAR --- */}
       <BlurView
-        intensity={50} // Độ mờ (từ 1 đến 100)
+        pointerEvents="box-none"
+        intensity={100} // Độ mờ (từ 1 đến 100)
         tint="dark" // Màu nền (light, dark, hoặc default)
         className="absolute left-0 right-0 top-0 z-50">
         <View className="flex-row items-center justify-between  px-6 pb-6 pt-16">
@@ -150,6 +150,7 @@ export default function ScheduleScreen() {
       </BlurView>
 
       <FlatList
+        contentContainerStyle={{ paddingTop: 100 }}
         data={months}
         keyExtractor={(item) => item.id}
         renderItem={renderMonthItem}

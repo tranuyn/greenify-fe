@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { VoucherTemplate } from '@/types/gamification.types';
+import { IMAGES } from '@/constants/linkMedia';
+import { useThemeColor } from '@/hooks/useThemeColor.hook';
 
 interface RewardDetailProps {
   data?: VoucherTemplate;
@@ -9,14 +11,15 @@ interface RewardDetailProps {
   isClaiming: boolean;
 }
 
-export function RewardDetail({ data, onClaim, isClaiming }: RewardDetailProps) {
+export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetailProps) {
   const rewardData = data;
-
+  const colors = useThemeColor();
   if (!rewardData) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-gray-50 px-6">
-        <Text className="text-center text-sm text-gray-500">
-          Không tìm thấy thông tin giải thưởng.
+      <View className="flex-1 items-center justify-center gap-3">
+        <Image source={{ uri: IMAGES.germination }} className="h-32 w-32" />
+        <Text className="font-inter-medium text-base text-foreground">
+          Không tìm thấy thông tin giải thưởng
         </Text>
       </View>
     );
@@ -38,8 +41,8 @@ export function RewardDetail({ data, onClaim, isClaiming }: RewardDetailProps) {
     <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
       {/* Header Titles */}
       <View className="mb-4 items-center">
-        <Text className="mb-1 font-inter-bold text-2xl text-green-500">Thông tin giải thưởng</Text>
-        <Text className="font-inter-medium text-base text-gray-700">
+        <Text className="mb-1 font-inter-bold text-2xl text-primary">Thông tin giải thưởng</Text>
+        <Text className="font-inter-medium text-base text-foreground">
           Giải thưởng dành cho Top 5
         </Text>
       </View>
@@ -54,7 +57,7 @@ export function RewardDetail({ data, onClaim, isClaiming }: RewardDetailProps) {
         />
 
         {/* Reward Title */}
-        <Text className="mb-4 font-inter-bold text-xl text-foreground">{rewardData.name}</Text>
+        <Text className="mb-4 font-inter-medium text-xl text-foreground">{rewardData.name}</Text>
 
         {/* Provider Section */}
         <View className="mb-4">
@@ -67,19 +70,19 @@ export function RewardDetail({ data, onClaim, isClaiming }: RewardDetailProps) {
                 resizeMode="contain"
               />
             </View>
-            <Text className="font-inter-medium text-gray-700">{rewardData.partner_name}</Text>
+            <Text className="font-inter-medium text-foreground">{rewardData.partner_name}</Text>
           </View>
         </View>
 
         {/* Validity Section */}
         <View className="mb-4">
           <Text className="mb-2 font-inter-bold text-base text-foreground">Hạn sử dụng</Text>
-          <Text className="font-inter-regular mb-2 text-gray-700">
+          <Text className="font-inter-regular mb-2 text-foreground">
             Có hiệu lực trong 7 ngày kể từ ngày nhận
           </Text>
           <View className="flex-row items-center">
-            <Feather name="clock" size={16} color="#374151" className="mr-2" />
-            <Text className="font-inter-regular ml-1 text-gray-700">
+            <Feather name="clock" size={16} color={colors.foreground} className="mr-2" />
+            <Text className="font-inter-regular ml-1 text-foreground">
               Hết hạn sau: {formattedDate}
             </Text>
           </View>

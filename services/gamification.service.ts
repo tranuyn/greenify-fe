@@ -3,6 +3,9 @@ import {
   Streak,
   PlantProgress,
   GardenArchive,
+  PlantDailyLog,
+  PlantDailyLogQueryParams,
+  CreatePlantDailyLogRequest,
   Seed,
   VoucherTemplate,
   UserVoucher,
@@ -17,6 +20,7 @@ import {
   MOCK_STREAK,
   MOCK_PLANT_PROGRESS,
   MOCK_GARDEN_ARCHIVES,
+  MOCK_PLANT_DAILY_LOGS,
   MOCK_SEEDS,
   MOCK_VOUCHER_TEMPLATES,
   MOCK_USER_VOUCHERS,
@@ -51,6 +55,58 @@ export const gamificationService = {
       return mockSuccess(MOCK_GARDEN_ARCHIVES);
     }
     const { data } = await apiClient.get<ApiResponse<GardenArchive[]>>('/garden/archives');
+    return data;
+  },
+
+  async getPlantDailyLogs(params?: PlantDailyLogQueryParams): Promise<ApiResponse<PlantDailyLog[]>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(350);
+      let logs = [...MOCK_PLANT_DAILY_LOGS];
+
+      if (params?.plant_progress_id) {
+        logs = logs.filter((log) => log.plant_progress_id === params.plant_progress_id);
+      }
+
+      if (params?.from_date) {
+        const fromTime = new Date(params.from_date).getTime();
+        logs = logs.filter((log) => log.log_date.getTime() >= fromTime);
+      }
+
+      if (params?.to_date) {
+        const toTime = new Date(params.to_date).getTime();
+        logs = logs.filter((log) => log.log_date.getTime() <= toTime);
+      }
+
+      return mockSuccess(logs);
+    }
+    const { data } = await apiClient.get<ApiResponse<PlantDailyLog[]>>('/garden/daily-logs', {
+      params,
+    });
+    return data;
+  },
+
+  async createPlantDailyLog(
+    payload: CreatePlantDailyLogRequest
+  ): Promise<ApiResponse<PlantDailyLog>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      const mockLog: PlantDailyLog = {
+        id: `plog-${Date.now()}`,
+        user_id: 'usr-001',
+        user: MOCK_LEADERBOARD_NATIONAL[0]?.user_profiles,
+        plant_progress_id: payload.plant_progress_id,
+        plant_progress: MOCK_PLANT_PROGRESS,
+        log_date: new Date(payload.log_date),
+        stage: payload.stage,
+        is_active_day: payload.is_active_day,
+        green_post_url: payload.green_post_url ?? '',
+        image_url: payload.image_url ?? '',
+        created_at: new Date().toISOString(),
+      };
+      return mockSuccess(mockLog);
+    }
+
+    const { data } = await apiClient.post<ApiResponse<PlantDailyLog>>('/garden/daily-logs', payload);
     return data;
   },
 

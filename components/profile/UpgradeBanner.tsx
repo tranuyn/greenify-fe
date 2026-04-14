@@ -4,7 +4,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { useState } from 'react';
 import UpgradeModal from './UpgradeModal';
 
-const GP = 110; // ví dụ, bạn có thể truyền prop hoặc lấy từ state
+const GP = 70; // ví dụ, bạn có thể truyền prop hoặc lấy từ state
 const GP_TARGET = 100;
 const percent = Math.min(GP / GP_TARGET, 1);
 const size = 120;

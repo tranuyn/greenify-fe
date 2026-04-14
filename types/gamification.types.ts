@@ -52,7 +52,13 @@ export interface RedeemVoucherRequest {
 
 export type StreakStatus = 'NOT_STARTED' | 'ACTIVE' | 'BROKEN';
 
-export type PlantStatus = 'GROWING' | 'MATURED';
+export enum PlantStatus {
+  SEED = 'SEED',
+  SPROUT = 'SPROUT',
+  GROWING = 'GROWING',
+  BLOOMING = 'BLOOMING',
+  MATURED = 'MATURED',
+}
 
 export type GardenRewardStatus = 'MATURED' | 'REWARDED';
 
@@ -89,6 +95,35 @@ export interface PlantProgress {
   matured_at: string | null;
   // Joined
   seed?: Seed;
+}
+
+export interface PlantDailyLog {
+  id: string;
+  user_id: string;
+  user: UserProfile;
+  plant_progress_id: string;
+  plant_progress: PlantProgress;
+  log_date: Date;
+  stage: PlantStatus;
+  is_active_day: boolean;
+  green_post_url: string;
+  image_url: string;
+  created_at: string;
+}
+
+export interface PlantDailyLogQueryParams {
+  plant_progress_id?: string;
+  from_date?: string;
+  to_date?: string;
+}
+
+export interface CreatePlantDailyLogRequest {
+  plant_progress_id: string;
+  log_date: string;
+  stage: PlantStatus;
+  is_active_day: boolean;
+  green_post_url?: string;
+  image_url?: string;
 }
 
 export interface GardenArchive {

@@ -12,6 +12,14 @@
   --muted-foreground: #71717a;
   --accent: #ffd700;
   --on-primary: #ffffff;
+  --danger-bg: #fee2e2;
+  --danger-text: #ef4444;
+
+  --primary-light: #e9fef1;
+  --primary-light-hover: #c8f9d9;
+  --status-pending: #ecfdf5;
+  --status-approved: #d1fae5;
+  --status-text: #065f46;
 
   /* Font */
   --font-inter: 'Inter_400Regular';
@@ -30,6 +38,15 @@
     --muted-foreground: #a1a1aa;
     --accent: #facc15; /* Vàng sáng hơn chút cho Dark mode */
     --on-primary: #000000;
+    --danger-bg: #c95757;
+    --danger-text: #fca5a5;
+
+    --primary-light: #14532d;
+    --primary-light-hover: #166534;
+
+    --status-pending: #064e3b;
+    --status-approved: #065f46;
+    --status-text: #6ee7b7;
   }
 }
 

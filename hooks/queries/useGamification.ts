@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
-import { LeaderboardScope } from 'types/gamification.types';
+import { LeaderboardScope, PlantDailyLogQueryParams } from 'types/gamification.types';
 
 export const useMyStreak = () => {
   return useQuery({
@@ -24,6 +24,13 @@ export const useGardenArchives = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.archives(),
     queryFn: () => gamificationService.getGardenArchives().then((r) => r.data),
+  });
+};
+
+export const usePlantDailyLogs = (params?: PlantDailyLogQueryParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.garden.dailyLogs(params),
+    queryFn: () => gamificationService.getPlantDailyLogs(params).then((r) => r.data),
   });
 };
 
