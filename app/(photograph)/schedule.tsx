@@ -1,15 +1,15 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
-
-// --- PHẦN 1: TYPES & MOCK ICONS ---
-type DayStatus = 'empty' | 'normal' | 'seed' | 'sprout' | 'tree' | 'fruit';
+import { usePlantDailyLogs } from '@/hooks/queries/useGamification';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
+import { IMAGES } from '@/constants/linkMedia';
 
 interface DayData {
   id: string;
-  status: DayStatus;
-  imageUrl?: any;
+  imageUrl?: string;
+  imageSourceType?: 'image_url' | 'green_post_url';
 }
 
 interface MonthData {
@@ -19,31 +19,26 @@ interface MonthData {
   days: DayData[];
 }
 
-const SeedIcon = () => <Text className="text-xl">🌰</Text>;
-const SproutIcon = () => <Text className="text-xl">🌱</Text>;
-const TreeIcon = () => <Text className="text-xl">🌳</Text>;
-const FruitIcon = () => <Text className="text-xl">🍎</Text>;
-const DUMMY_IMAGE = { uri: 'https://picsum.photos/100' };
-
 // --- PHẦN 2: HELPER FUNCTIONS ---
 
 // Hàm tạo dữ liệu cho 1 tháng cụ thể
-const generateMonth = (year: number, month: number): MonthData => {
+const generateMonth = (
+  year: number,
+  month: number,
+  activeDayImageByDate: Record<string, { uri: string; sourceType: 'image_url' | 'green_post_url' }>
+): MonthData => {
   const daysInMonth = new Date(year, month, 0).getDate();
   const days: DayData[] = [];
 
   for (let i = 1; i <= daysInMonth; i++) {
-    // Logic giả lập status để demo giống ảnh của bạn
-    let status: DayStatus = 'empty';
-    if (i % 3 === 0) status = 'normal';
-    if (i === 5) status = 'seed';
-    if (i === 12) status = 'sprout';
-    if (i === 19) status = 'tree';
+    const dayKey = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    const imageData = activeDayImageByDate[dayKey];
+    const imageUrl = imageData?.uri;
 
     days.push({
       id: `${year}-${month}-${i}`,
-      status: status,
-      imageUrl: status === 'normal' ? DUMMY_IMAGE : undefined,
+      imageUrl,
+      imageSourceType: imageData?.sourceType,
     });
   }
 
@@ -56,58 +51,74 @@ const generateMonth = (year: number, month: number): MonthData => {
 };
 
 export default function ScheduleScreen() {
-  const [months, setMonths] = useState<MonthData[]>([]);
+  const [monthCount, setMonthCount] = useState(2);
   const [loading, setLoading] = useState(false);
+  const { data: dailyLogs = [] } = usePlantDailyLogs();
+  const { data: userProfile } = useCurrentUser();
 
-  // Khởi tạo: Lấy tháng hiện tại (T4/2026) và tháng trước đó (T3/2026)
-  useEffect(() => {
+  const activeDayImageByDate = useMemo(() => {
+    return dailyLogs.reduce<
+      Record<string, { uri: string; sourceType: 'image_url' | 'green_post_url' }>
+    >((acc, log) => {
+      if (!log?.is_active_day) return acc;
+
+      const sourceType = log.image_url ? 'image_url' : log.green_post_url ? 'green_post_url' : null;
+      const image = log.image_url || log.green_post_url;
+      if (!image) return acc;
+      if (!sourceType) return acc;
+
+      const logDate = log.log_date instanceof Date ? log.log_date : new Date(log.log_date);
+      if (Number.isNaN(logDate.getTime())) return acc;
+
+      acc[logDate.toISOString().slice(0, 10)] = {
+        uri: image,
+        sourceType,
+      };
+      return acc;
+    }, {});
+  }, [dailyLogs]);
+
+  const months = useMemo(() => {
+    const generatedMonths: MonthData[] = [];
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1; // getMonth() trả về 0-11
+    let year = now.getFullYear();
+    let month = now.getMonth() + 1;
 
-    const initialMonths = [
-      generateMonth(currentYear, currentMonth),
-      generateMonth(currentYear, currentMonth - 1),
-    ];
-    setMonths(initialMonths);
-  }, []);
+    for (let i = 0; i < monthCount; i++) {
+      generatedMonths.push(generateMonth(year, month, activeDayImageByDate));
+      month -= 1;
+      if (month === 0) {
+        month = 12;
+        year -= 1;
+      }
+    }
 
-  // Hàm tải thêm các tháng cũ hơn khi scroll
+    return generatedMonths;
+  }, [monthCount, activeDayImageByDate]);
+
   // Hàm tải thêm các tháng cũ hơn khi scroll
   const loadMoreMonths = useCallback(() => {
-    // THÊM ĐIỀU KIỆN: Nếu đang loading HOẶC mảng months chưa có dữ liệu thì return luôn
-    if (loading || months.length === 0) return;
+    if (loading) return;
 
     setLoading(true);
 
-    const lastMonth = months[months.length - 1];
-    let nextMonthToLoad = lastMonth.month - 1;
-    let nextYearToLoad = lastMonth.year;
-
-    if (nextMonthToLoad === 0) {
-      nextMonthToLoad = 12;
-      nextYearToLoad -= 1;
-    }
-
     // Giả lập delay mạng một chút
     setTimeout(() => {
-      const newMonth = generateMonth(nextYearToLoad, nextMonthToLoad);
-      setMonths((prev) => [...prev, newMonth]);
+      setMonthCount((prev) => prev + 1);
       setLoading(false);
     }, 500);
-  }, [months, loading]);
+  }, [loading]);
 
   // Render từng ô ngày
   const renderDayItem = (day: DayData) => (
     <View key={day.id} className="mb-2 aspect-square w-[14.28%] items-center justify-center">
-      {day.status === 'empty' && <View className="h-4 w-4 rounded-full bg-gray-600/80" />}
-      {day.status === 'normal' && (
-        <Image source={day.imageUrl} className="h-10 w-10 rounded-xl border-2 border-green-500" />
+      {!day.imageUrl && <View className="h-4 w-4 rounded-full bg-gray-600/80" />}
+      {day.imageUrl && (
+        <Image
+          source={{ uri: day.imageUrl }}
+          className={`h-10 w-10 ${day.imageSourceType === 'green_post_url' ? 'rounded-xl border-2 border-green-500' : ''}`}
+        />
       )}
-      {day.status === 'seed' && <SeedIcon />}
-      {day.status === 'sprout' && <SproutIcon />}
-      {day.status === 'tree' && <TreeIcon />}
-      {day.status === 'fruit' && <FruitIcon />}
     </View>
   );
 
@@ -137,7 +148,7 @@ export default function ScheduleScreen() {
           <View className="aspect-square w-14 overflow-hidden rounded-[40px] border border-neutral-500">
             <Image
               source={{
-                uri: '',
+                uri: userProfile?.profile?.avatar_url || IMAGES.treeAvatar,
               }}
               className="flex-1"
             />
