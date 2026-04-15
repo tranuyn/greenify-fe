@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { queryClient } from 'lib/queryClient';
+import { QUERY_KEYS } from 'constants/queryKeys';
+import { authService } from 'services/auth.service';
 
 import { AuthBrandHeader } from 'components/shared/auth/AuthBrandHeader';
 import { AuthInput } from 'components/shared/auth/AuthInput';
@@ -28,15 +31,22 @@ export default function LoginScreen() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { identifier: '', password: '' },
   });
-  // console.log('🛑 Lỗi từ Zod/Form:', errors);
 
   // Hàm xử lý khi user bấm nút Đăng nhập (Chỉ chạy khi đã qua ải Zod)
   const onSubmit = (data: LoginFormData) => {
     loginMutation(data, {
-      onSuccess: () => {
-        // Tạm thời router.replace, lát setup Zustand xong sẽ để Zustand tự bế user đi
+      onSuccess: async () => {
+        try {
+          await queryClient.prefetchQuery({
+            queryKey: QUERY_KEYS.auth.me(),
+            queryFn: () => authService.getMe().then((res) => res.data),
+          });
+        } catch (error) {
+          console.warn('Failed to fetch user data:', error);
+        }
+        // Navigate to home
         router.replace('/(tabs)');
       },
       onError: (error: any) => {
@@ -45,8 +55,8 @@ export default function LoginScreen() {
         const message = error?.response?.data?.message || t('auth.login.error_fallback');
 
         if (errorCode === 'INVALID_CREDENTIALS' || error?.response?.status === 401) {
-          // Highlight ô email bị lỗi nhưng không hiện text (cho đỡ rối)
-          setError('email', { type: 'manual', message: '' });
+          // Highlight ô identifier bị lỗi nhưng không hiện text (cho đỡ rối)
+          setError('identifier', { type: 'manual', message: '' });
           // Hiện text lỗi ở ô password
           setError('password', { type: 'manual', message: message });
         } else {
@@ -64,7 +74,7 @@ export default function LoginScreen() {
       <View className="mt-6 gap-4">
         <Controller
           control={control}
-          name="email"
+          name="identifier"
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}

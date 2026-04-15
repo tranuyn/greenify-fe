@@ -8,10 +8,15 @@ export const passwordRule = z
 
 // Schema cho form Login
 export const loginSchema = z.object({
-  email: z
+  identifier: z
     .string()
-    .min(1, 'Vui lòng nhập email.')
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Định dạng email không hợp lệ.'),
+    .min(1, 'Vui lòng nhập email hoặc số điện thoại.')
+    .refine((val) => {
+      // Email hoặc Phone (chỉ cần 1 cái pass)
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      const isPhone = /^[0-9]{10,11}$/.test(val);
+      return isEmail || isPhone;
+    }, 'Vui lòng nhập email hoặc số điện thoại hợp lệ.'),
   password: passwordRule,
 });
 
@@ -20,7 +25,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 // Định nghĩa form nhập Email đăng ký
 export const signupEmailSchema = z.object({
-  email: z
+  identifier: z
     .string()
     .min(1, 'Vui lòng nhập email.')
     .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Định dạng email không hợp lệ.'),
