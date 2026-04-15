@@ -9,107 +9,10 @@ import {
   LeaderboardEntry,
   LeaderboardScope,
   PlantStatus,
+  CycleType,
 } from 'types/gamification.types';
 import { MOCK_USER_PROFILE } from './user.mock';
-
-// ---- Streak ----
-
-export const MOCK_STREAK: Streak = {
-  id: 'streak-001',
-  user_id: 'usr-001',
-  current_streak: 7,
-  longest_streak: 14,
-  last_valid_date: '2026-03-30',
-  status: 'ACTIVE',
-  restore_used_this_month: 1,
-  restore_month: '2026-03-01',
-  last_break_date: '2026-03-10',
-  broken_streak: 5,
-  updated_at: '2026-03-30T09:20:00Z',
-};
-
-// ---- Seeds & Garden ----
-
-export const MOCK_SEEDS: Seed[] = [
-  {
-    id: 'seed-001',
-    name: 'Cây Xương Rồng',
-    image_url: 'https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=200',
-    days_to_mature: 7,
-    reward_voucher_template_id: 'vt-002',
-    is_active: true,
-  },
-  {
-    id: 'seed-002',
-    name: 'Cây Bạc Hà',
-    image_url: 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=200',
-    days_to_mature: 14,
-    reward_voucher_template_id: 'vt-003',
-    is_active: true,
-  },
-  {
-    id: 'seed-003',
-    name: 'Cây Tre',
-    image_url: 'https://images.unsplash.com/photo-1594818379496-da1e345b0ded?w=200',
-    days_to_mature: 30,
-    reward_voucher_template_id: 'vt-001',
-    is_active: true,
-  },
-];
-
-export const MOCK_PLANT_PROGRESS: PlantProgress = {
-  id: 'plant-001',
-  user_id: 'usr-001',
-  seed_id: 'seed-001',
-  progress_days: 7,
-  status: PlantStatus.GROWING,
-  started_at: '2026-03-24T00:00:00Z',
-  matured_at: null,
-  seed: MOCK_SEEDS[0],
-};
-
-export const MOCK_GARDEN_ARCHIVES: GardenArchive[] = [
-  {
-    id: 'garden-001',
-    user_id: 'usr-001',
-    seed_id: 'seed-003',
-    plant_progress_id: 'plant-000',
-    days_taken: 30,
-    reward_status: 'REWARDED',
-    user_voucher_id: 'uvoucher-001',
-    archived_at: '2026-02-28T00:00:00Z',
-    seed: MOCK_SEEDS[2],
-  },
-];
-
-export const MOCK_PLANT_DAILY_LOGS: PlantDailyLog[] = [
-  {
-    id: 'plog-001',
-    user_id: 'usr-001',
-    user: MOCK_USER_PROFILE,
-    plant_progress_id: 'plant-001',
-    plant_progress: MOCK_PLANT_PROGRESS,
-    log_date: new Date('2026-03-29T00:00:00Z'),
-    stage: PlantStatus.SPROUT,
-    is_active_day: true,
-    green_post_url: 'https://greenify.app/posts/post-001',
-    image_url: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400',
-    created_at: '2026-03-29T12:00:00Z',
-  },
-  {
-    id: 'plog-002',
-    user_id: 'usr-001',
-    user: MOCK_USER_PROFILE,
-    plant_progress_id: 'plant-001',
-    plant_progress: MOCK_PLANT_PROGRESS,
-    log_date: new Date('2026-03-30T00:00:00Z'),
-    stage: PlantStatus.GROWING,
-    is_active_day: true,
-    green_post_url: 'https://greenify.app/posts/post-002',
-    image_url: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400',
-    created_at: '2026-03-30T12:00:00Z',
-  },
-];
+import { IMAGES } from '@/constants/linkMedia';
 
 // ---- Vouchers ----
 
@@ -176,6 +79,204 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
       '- Áp dụng cho hóa đơn từ 100.000đ trở lên\n- Mỗi voucher chỉ sử dụng 1 lần / 1 hóa đơn\n- Không áp dụng đồng thời với các chương trình khuyến mãi khác\n- Không quy đổi thành tiền mặt\n- Chỉ áp dụng khi mua hàng trực tiếp tại cửa hàng\n- Voucher không được chuyển nhượng\n- Trong trường hợp có tranh chấp, quyết định từ hệ thống là cuối cùng',
     valid_until: '2026-01-01T23:59:59Z', // Lấy theo ngày ghi chú dưới dòng "Hết hạn sau"
     status: 'ACTIVE',
+  },
+];
+
+// ---- Streak ----
+
+export const MOCK_STREAK: Streak = {
+  id: 'streak-001',
+  user_id: 'usr-001',
+  current_streak: 7,
+  longest_streak: 14,
+  last_valid_date: '2026-03-30',
+  status: 'ACTIVE',
+  restore_used_this_month: 1, //max 3
+  restore_month: '2026-03-01',
+  last_break_date: '2026-03-10',
+  broken_streak: 5,
+  updated_at: '2026-03-30T09:20:00Z',
+};
+
+// ---- Seeds & Garden ----
+
+export const MOCK_SEEDS: Seed[] = [
+  {
+    id: 'seed-001',
+    name: 'Cây Anh Đào',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.cherryBlossom,
+    days_to_mature: 30,
+    stage2_from_day: 8,
+    stage3_from_day: 18,
+    stage4_from_day: 30,
+    reward_voucher_template_id: 'vt-002',
+    reward_voucher_template: MOCK_VOUCHER_TEMPLATES[0],
+    cycle_type: CycleType.LONG_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-002',
+    name: 'Cây Dừa',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.palmTree,
+    days_to_mature: 35,
+    stage2_from_day: 10,
+    stage3_from_day: 21,
+    stage4_from_day: 35,
+    reward_voucher_template_id: 'vt-003',
+    cycle_type: CycleType.LONG_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-003',
+    name: 'Cây Phong',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.windowTree,
+    days_to_mature: 40,
+    stage2_from_day: 12,
+    stage3_from_day: 24,
+    stage4_from_day: 40,
+    reward_voucher_template_id: 'vt-001',
+    cycle_type: CycleType.LONG_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-004',
+    name: 'Cây Thông',
+    stage1_image_url: IMAGES.acorn,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.christmasTree,
+    days_to_mature: 45,
+    stage2_from_day: 14,
+    stage3_from_day: 28,
+    stage4_from_day: 45,
+    reward_voucher_template_id: 'vt-001',
+    cycle_type: CycleType.LONG_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-005',
+    name: 'Hướng Dương',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.sunflower,
+    days_to_mature: 7,
+    stage2_from_day: 2,
+    stage3_from_day: 5,
+    stage4_from_day: 7,
+    reward_voucher_template_id: 'vt-002',
+    cycle_type: CycleType.SHORT_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-006',
+    name: 'Hoa Sen',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.lotus,
+    days_to_mature: 10,
+    stage2_from_day: 3,
+    stage3_from_day: 7,
+    stage4_from_day: 10,
+    reward_voucher_template_id: 'vt-003',
+    cycle_type: CycleType.SHORT_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-007',
+    name: 'Hoa Hồng',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.rose,
+    days_to_mature: 12,
+    stage2_from_day: 4,
+    stage3_from_day: 8,
+    stage4_from_day: 12,
+    reward_voucher_template_id: 'vt-002',
+    cycle_type: CycleType.SHORT_TERM,
+    is_active: true,
+  },
+  {
+    id: 'seed-008',
+    name: 'Cẩm Chướng',
+    stage1_image_url: IMAGES.saveWater,
+    stage2_image_url: IMAGES.growingPlant,
+    stage3_image_url: IMAGES.leafPlant,
+    stage4_image_url: IMAGES.carnation,
+    days_to_mature: 14,
+    stage2_from_day: 4,
+    stage3_from_day: 9,
+    stage4_from_day: 14,
+    reward_voucher_template_id: 'vt-003',
+    cycle_type: CycleType.SHORT_TERM,
+    is_active: true,
+  },
+];
+
+export const MOCK_PLANT_PROGRESS: PlantProgress = {
+  id: 'plant-001',
+  user_id: 'usr-001',
+  seed_id: 'seed-001',
+  progress_days: 7,
+  status: PlantStatus.GROWING,
+  started_at: '2026-04-15T00:00:00Z',
+  matured_at: null,
+  seed: MOCK_SEEDS[0],
+};
+
+export const MOCK_GARDEN_ARCHIVES: GardenArchive[] = [
+  {
+    id: 'garden-001',
+    user_id: 'usr-001',
+    seed_id: 'seed-003',
+    seed: MOCK_SEEDS[2],
+    plant_progress_id: 'plant-000',
+    plant_progress: MOCK_PLANT_PROGRESS,
+    days_taken: 30,
+    reward_status: 'REWARDED',
+    user_voucher_id: 'uvoucher-001',
+    archived_at: '2026-02-28T00:00:00Z',
+    display_image_url: IMAGES.leafPlant,
+  },
+];
+
+export const MOCK_PLANT_DAILY_LOGS: PlantDailyLog[] = [
+  {
+    id: 'plog-001',
+    user_id: 'usr-001',
+    user: MOCK_USER_PROFILE,
+    plant_progress_id: 'plant-001',
+    plant_progress: MOCK_PLANT_PROGRESS,
+    log_date: new Date('2026-03-29T00:00:00Z'),
+    stage: PlantStatus.SPROUT,
+    is_active_day: true,
+    green_post_url: 'https://greenify.app/posts/post-001',
+    image_url: IMAGES.growingPlant,
+    created_at: '2026-03-29T12:00:00Z',
+  },
+  {
+    id: 'plog-002',
+    user_id: 'usr-001',
+    user: MOCK_USER_PROFILE,
+    plant_progress_id: 'plant-001',
+    plant_progress: MOCK_PLANT_PROGRESS,
+    log_date: new Date('2026-04-15T00:00:00Z'),
+    stage: PlantStatus.GROWING,
+    is_active_day: true,
+    green_post_url: 'https://greenify.app/posts/post-002',
+    image_url: IMAGES.leafPlant,
+    created_at: '2026-03-30T12:00:00Z',
   },
 ];
 

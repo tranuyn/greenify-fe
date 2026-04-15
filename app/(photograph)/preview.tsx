@@ -20,18 +20,15 @@ import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/
 import ExpandingInput from './components/ExpandingInput';
 import ActionBottomSheet from './components/ActionBottomSheet';
 import LocationBottomSheet from './components/LocationBottomSheet';
-
-const SECTIONS = [
-  { title: 'Chú thích', tags: ['Mô tả thêm', 'Thêm vị trí', 'Thêm Thời gian:', 'Gieo hạt'] },
-  { title: 'Tag hành động', tags: ['Green Daily', 'Ô nhiễm', 'Cộng đồng', 'Hành động 4'] },
-];
+import { useCurrentUser } from '@/hooks/queries/useAuth';
+import { IMAGES } from '@/constants/linkMedia';
 
 export default function PreviewScreen() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   // 1. Khai báo Ref cho Modal
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { data: userProfile } = useCurrentUser();
   const animWidth = useRef(new Animated.Value(150)).current;
 
   const [location, setLocation] = useState<string | null>(null);
@@ -66,9 +63,12 @@ export default function PreviewScreen() {
               <Ionicons name="grid" size={24} color="white" />
             </TouchableOpacity>
 
-            <View className="aspect-square w-14 overflow-hidden rounded-[40px] border border-neutral-500">
-              <Image source={{ uri: imageUri || '' }} className="flex-1" />
-            </View>
+            <Image
+              source={{
+                uri: userProfile?.profile?.avatar_url || IMAGES.treeAvatar,
+              }}
+              className="flex-1"
+            />
 
             <TouchableOpacity className="rounded-2xl bg-white/10 p-3 shadow-sm">
               <Feather name="download" size={24} color="white" />

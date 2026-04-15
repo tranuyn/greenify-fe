@@ -67,6 +67,11 @@ export enum PlantStatus {
   MATURED = 'MATURED',
 }
 
+export enum CycleType {
+  SHORT_TERM = 'SHORT_TERM',
+  LONG_TERM = 'LONG_TERM',
+}
+
 export type GardenRewardStatus = 'MATURED' | 'REWARDED';
 
 export interface Streak {
@@ -86,9 +91,17 @@ export interface Streak {
 export interface Seed {
   id: string;
   name: string;
-  image_url: string;
+  stage1_image_url: string;
+  stage2_image_url: string;
+  stage3_image_url: string;
+  stage4_image_url: string;
   days_to_mature: number;
+  stage2_from_day: number;
+  stage3_from_day: number;
+  stage4_from_day: number;
   reward_voucher_template_id: string | null;
+  reward_voucher_template?: VoucherTemplate;
+  cycle_type: CycleType;
   is_active: boolean;
 }
 
@@ -120,8 +133,10 @@ export interface PlantDailyLog {
 
 export interface PlantDailyLogQueryParams {
   plant_progress_id?: string;
+  user_id?: string;
   from_date?: string;
   to_date?: string;
+  log_date?: string;
 }
 
 export interface CreatePlantDailyLogRequest {
@@ -140,10 +155,12 @@ export interface GardenArchive {
   plant_progress_id: string;
   days_taken: number;
   reward_status: GardenRewardStatus;
+  display_image_url: string;
   user_voucher_id: string | null;
   archived_at: string;
   // Joined
   seed?: Seed;
+  plant_progress?: PlantProgress;
 }
 
 // ============================================================

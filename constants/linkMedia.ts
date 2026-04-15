@@ -29,4 +29,25 @@ export const IMAGES = {
   saveWater:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/save-water.png?updatedAt=1775669299297',
   house: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/house.png?updatedAt=1775669299347',
+  growingPlant:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/growing-plant.png?updatedAt=1775669299246',
+  leafPlant:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/leaf-plant.png?updatedAt=1775669299189',
+  cherryBlossom:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/cherry-blossom-tree.png?updatedAt=1775669299230',
+  palmTree:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/palm-trees.png?updatedAt=1775669299243',
+  windowTree:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/tree.png?updatedAt=1775669299238',
+  christmasTree:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/christmas-tree.png?updatedAt=1775669299196',
+  sunflower:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/sunflower.png?updatedAt=1775669299171',
+  lotus: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/lotus.png?updatedAt=1775669299121',
+  rose: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/rose.png?updatedAt=1775669299187',
+  carnation:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/carnation.png?updatedAt=1775669299129',
+  acorn: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/acorn.png?updatedAt=1775669299231',
+  baobab:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/baobab.png?updatedAt=1775669299325',
 };

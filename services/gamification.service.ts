@@ -58,7 +58,9 @@ export const gamificationService = {
     return data;
   },
 
-  async getPlantDailyLogs(params?: PlantDailyLogQueryParams): Promise<ApiResponse<PlantDailyLog[]>> {
+  async getPlantDailyLogs(
+    params?: PlantDailyLogQueryParams
+  ): Promise<ApiResponse<PlantDailyLog[]>> {
     if (IS_MOCK_MODE) {
       await mockDelay(350);
       let logs = [...MOCK_PLANT_DAILY_LOGS];
@@ -75,6 +77,15 @@ export const gamificationService = {
       if (params?.to_date) {
         const toTime = new Date(params.to_date).getTime();
         logs = logs.filter((log) => log.log_date.getTime() <= toTime);
+      }
+
+      if (params?.log_date) {
+        const targetTime = new Date(params.log_date).getTime();
+        logs = logs.filter((log) => log.log_date.getTime() === targetTime);
+      }
+
+      if (params?.user_id) {
+        logs = logs.filter((log) => log.user_id === params.user_id);
       }
 
       return mockSuccess(logs);
@@ -106,7 +117,10 @@ export const gamificationService = {
       return mockSuccess(mockLog);
     }
 
-    const { data } = await apiClient.post<ApiResponse<PlantDailyLog>>('/garden/daily-logs', payload);
+    const { data } = await apiClient.post<ApiResponse<PlantDailyLog>>(
+      '/garden/daily-logs',
+      payload
+    );
     return data;
   },
 
