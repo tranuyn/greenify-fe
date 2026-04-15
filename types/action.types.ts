@@ -62,6 +62,7 @@ export interface PostReview {
   created_at: string;
 }
 
+
 export interface PostAppeal {
   id: string;
   post_id: string;
@@ -86,6 +87,33 @@ export interface ReviewPostRequest {
   decision: ReviewDecision;
   reject_reason_code?: string;
   reject_reason_note?: string;
+}
+
+export interface PostReviewDto {
+  reviewId: string;
+  reviewerId: string;
+  reviewerDisplayName: string;
+  decision: ReviewDecision;
+  createdAt: string;
+  rejectReasonCode?: string | null;
+  rejectReasonNote?: string | null;
+}
+
+export interface GreenActionPostDetailDto {
+  id: string;
+  authorDisplayName: string;
+  authorAvatarUrl: string | null;
+  actionTypeName: string;
+  groupName: string;
+  caption: string;
+  mediaUrl: string;
+  approveCount: number;
+  rejectCount: number;
+  location: string | null;
+  reviews: PostReviewDto[];
+  actionDate: string;
+  status: PostStatus;
+  createdAt: string;
 }
 
 export interface AppealPostRequest {

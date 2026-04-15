@@ -7,9 +7,16 @@ import type {
   PointLedgerEntry,
   PostReview,
   ReviewPostRequest,
+  GreenActionPostDetailDto,
 } from 'types/action.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
-import { MOCK_ACTION_TYPES, MOCK_POSTS, MOCK_POINT_WALLET, MOCK_LEDGER } from './mock/action.mock';
+import {
+  MOCK_ACTION_TYPES,
+  MOCK_POSTS,
+  MOCK_POINT_WALLET,
+  MOCK_LEDGER,
+  MOCK_POST_REVIEWS,
+} from './mock/action.mock';
 import {
   ApiResponse,
   FeedQueryParams,
@@ -29,9 +36,10 @@ export const actionService = {
     const { data } = await apiClient.get<ApiResponse<GreenActionType[]>>('/action-types');
     return data;
   },
+
   async getFeedPosts(
     params?: FeedQueryParams
-  ): Promise<ApiResponse<PaginatedResponse<GreenActionPost>>> {
+  ): Promise<ApiResponse<PaginatedResponse<GreenActionPostDetailDto>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
 
@@ -44,14 +52,14 @@ export const actionService = {
         filteredPosts = filteredPosts.filter(
           (post) =>
             post.caption.toLowerCase().includes(lowerSearch) ||
-            (post.user_display_name && post.user_display_name.toLowerCase().includes(lowerSearch))
+            (post.authorDisplayName && post.authorDisplayName.toLowerCase().includes(lowerSearch))
         );
       }
 
       // 3. Xử lý Lọc theo Loại hành động
       if (params?.action_type_id && params.action_type_id !== 'all') {
         filteredPosts = filteredPosts.filter(
-          (post) => post.action_type_id === params.action_type_id
+          (post) => post.actionTypeName === params.action_type_id
         );
       }
 
@@ -59,7 +67,7 @@ export const actionService = {
       if (params?.time && params.time !== 'all') {
         const now = new Date();
         filteredPosts = filteredPosts.filter((post) => {
-          const postDate = new Date(post.created_at);
+          const postDate = new Date(post.createdAt);
           const diffTime = Math.abs(now.getTime() - postDate.getTime());
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -72,11 +80,11 @@ export const actionService = {
       // 5. Xử lý Sắp xếp (Sort)
       if (params?.sort === 'popular') {
         // Nổi bật: Nhiều like nhất xếp trên
-        filteredPosts.sort((a, b) => b.approve_count - a.approve_count);
+        filteredPosts.sort((a, b) => b.approveCount - a.approveCount);
       } else {
         // Mặc định (newest): Mới nhất xếp trên
         filteredPosts.sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       }
 
@@ -95,7 +103,7 @@ export const actionService = {
       });
     }
 
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPost>>>(
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPostDetailDto>>>(
       '/posts/feed',
       { params }
     );
@@ -104,10 +112,10 @@ export const actionService = {
 
   async getMyPosts(
     params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<GreenActionPost>>> {
+  ): Promise<ApiResponse<PaginatedResponse<GreenActionPostDetailDto>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
-      const myPosts = MOCK_POSTS.filter((p) => p.user_id === 'usr-001');
+      const myPosts = MOCK_POSTS.filter((p) => p.authorDisplayName === 'Nhã Uyên');
       return mockSuccess({
         items: myPosts,
         total: myPosts.length,
@@ -116,7 +124,7 @@ export const actionService = {
         has_next: false,
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPost>>>(
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPostDetailDto>>>(
       '/posts/me',
       { params }
     );
@@ -148,73 +156,69 @@ export const actionService = {
   },
 
   async getPendingReviewPosts(
-  params?: PaginationParams,
-): Promise<ApiResponse<PaginatedResponse<GreenActionPost>>> {
-  if (IS_MOCK_MODE) {
-    await mockDelay(500);
-    const pending = MOCK_POSTS.filter((p) => p.status === 'PENDING_REVIEW');
-    return mockSuccess({
-      items: pending,
-      total: pending.length,
-      page: params?.page ?? 1,
-      page_size: params?.page_size ?? 10,
-      has_next: false,
-    });
-  }
-  const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPost>>>(
-    '/posts/pending-review',
-    { params },
-  );
-  return data;
-},
+    params?: PaginationParams
+  ): Promise<ApiResponse<PaginatedResponse<GreenActionPostDetailDto>>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      const pending = MOCK_POSTS.filter((p) => p.status === 'PENDING_REVIEW');
+      return mockSuccess({
+        items: pending,
+        total: pending.length,
+        page: params?.page ?? 1,
+        page_size: params?.page_size ?? 10,
+        has_next: false,
+      });
+    }
+    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<GreenActionPostDetailDto>>>(
+      '/posts/pending-review',
+      { params }
+    );
+    return data;
+  },
 
-async getPostById(postId: string): Promise<ApiResponse<GreenActionPost>> {
-  if (IS_MOCK_MODE) {
-    await mockDelay(400);
-    const post = MOCK_POSTS.find((p) => p.id === postId);
-    if (!post) throw new Error('Post not found');
-    return mockSuccess(post);
-  }
-  const { data } = await apiClient.get<ApiResponse<GreenActionPost>>(`/posts/${postId}`);
-  return data;
-},
+  async getPostById(postId: string): Promise<ApiResponse<GreenActionPostDetailDto>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(400);
+      const post = MOCK_POSTS.find((p) => p.id === postId);
+      if (!post) throw new Error('Post not found');
+      return mockSuccess(post);
+    }
+    const { data } = await apiClient.get<ApiResponse<GreenActionPostDetailDto>>(
+      `/green-action/posts/${postId}`
+    );
+    return data;
+  },
 
-async getPostReviews(postId: string): Promise<ApiResponse<PostReview[]>> {
-  if (IS_MOCK_MODE) {
-    await mockDelay(300);
-    return mockSuccess(MOCK_POST_REVIEWS[postId] ?? []);
-  }
-  const { data } = await apiClient.get<ApiResponse<PostReview[]>>(
-    `/posts/${postId}/reviews`,
-  );
-  return data;
-},
+  // async getPostReviews(postId: string): Promise<ApiResponse<PostReview[]>> {
+  //   if (IS_MOCK_MODE) {
+  //     await mockDelay(300);
+  //     return mockSuccess(MOCK_POST_REVIEWS[postId] ?? []);
+  //   }
+  //   const { data } = await apiClient.get<ApiResponse<PostReview[]>>(`/posts/${postId}/reviews`);
+  //   return data;
+  // },
 
-async reviewPost(
-  postId: string,
-  payload: ReviewPostRequest,
-): Promise<ApiResponse<PostReview>> {
-  if (IS_MOCK_MODE) {
-    await mockDelay(600);
-    const review: PostReview = {
-      id: `rev-${Date.now()}`,
-      post_id: postId,
-      reviewer_id: 'usr-002',
-      decision: payload.decision,
-      reject_reason_code: payload.reject_reason_code ?? null,
-      reject_reason_note: payload.reject_reason_note ?? null,
-      is_valid: true,
-      created_at: new Date().toISOString(),
-    };
-    return mockSuccess(review);
-  }
-  const { data } = await apiClient.post<ApiResponse<PostReview>>(
-    `/posts/${postId}/review`,
-    payload,
-  );
-  return data;
-},
-
+  async reviewPost(postId: string, payload: ReviewPostRequest): Promise<ApiResponse<PostReview>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(600);
+      const review: PostReview = {
+        id: `rev-${Date.now()}`,
+        post_id: postId,
+        reviewer_id: 'usr-002',
+        decision: payload.decision,
+        reject_reason_code: payload.reject_reason_code ?? null,
+        reject_reason_note: payload.reject_reason_note ?? null,
+        is_valid: true,
+        created_at: new Date().toISOString(),
+      };
+      return mockSuccess(review);
+    }
+    const { data } = await apiClient.post<ApiResponse<PostReview>>(
+      `/posts/${postId}/review`,
+      payload
+    );
+    return data;
+  },
 };
 
 // ============================================================

@@ -51,29 +51,34 @@ export function DropdownPicker({
       </Pressable>
 
       {isOpen && !isLoading && (
-        <ScrollView
-          className="mt-2 max-h-48 rounded-xl border border-primary-100 bg-white p-2"
-          nestedScrollEnabled>
-          {options.length === 0 ? (
-            <Text className="text-foreground/50 px-3 py-2 text-sm">Không có dữ liệu</Text>
-          ) : (
-            options.map((opt) => (
-              <Pressable
-                key={opt.code}
-                className={`rounded-lg px-3 py-2 active:bg-primary-50 ${
-                  value === opt.name ? 'bg-primary-50' : ''
-                }`}
-                onPress={() => onSelect(opt)}>
-                <Text
-                  className={`text-sm ${
-                    value === opt.name ? 'font-inter-medium text-primary-700' : 'text-foreground/80'
-                  }`}>
-                  {opt.name}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </ScrollView>
+        <View 
+          className="absolute inset-x-0 z-50 rounded-xl border border-primary-100 bg-white shadow-sm shadow-black/10 elevation-5"
+          style={{ top: '100%', marginTop: 8 }}
+        >
+          <ScrollView
+            className="max-h-48 p-2"
+            nestedScrollEnabled>
+            {options.length === 0 ? (
+              <Text className="text-foreground/50 px-3 py-2 text-sm">Không có dữ liệu</Text>
+            ) : (
+              options.map((opt) => (
+                <Pressable
+                  key={opt.code}
+                  className={`rounded-lg px-3 py-2 active:bg-primary-50 ${
+                    value === opt.name ? 'bg-primary-50' : ''
+                  }`}
+                  onPress={() => onSelect(opt)}>
+                  <Text
+                    className={`text-sm ${
+                      value === opt.name ? 'font-inter-medium text-primary-700' : 'text-foreground/80'
+                    }`}>
+                    {opt.name}
+                  </Text>
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+        </View>
       )}
 
       {errorText ? <Text className="mt-1 text-xs text-rose-600">{errorText}</Text> : null}

@@ -1,18 +1,8 @@
 import { useRef, useCallback } from 'react';
-import {
-  View,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import {
-  BottomSheetModal,
-  BottomSheetBackdrop,
-} from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useTranslation } from 'react-i18next';
@@ -21,11 +11,11 @@ import { Text } from '@/components/ui/Text';
 import { RejectSheet } from '@/components/features/community/RejectSheet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { useAuthRole } from '@/hooks/queries/useAuth';
-import { usePostDetail, usePostReviews } from '@/hooks/queries/usePosts';
+import { usePostDetail } from '@/hooks/queries/usePosts';
 import { useReviewPost } from '@/hooks/mutations/usePosts';
 import { getTimeAgo } from '@/utils/date.util';
 import { REJECT_REASONS, type RejectReasonCode } from '@/constants/review.constant';
-import type { PostStatus, ReviewDecision } from '@/types/action.types';
+import type { PostReviewDto, PostStatus, ReviewDecision } from '@/types/action.types';
 
 type PostStatusConfig = {
   labelKey: string;
@@ -35,13 +25,48 @@ type PostStatusConfig = {
 };
 
 const POST_STATUS_CONFIG: Record<PostStatus, PostStatusConfig> = {
-  PENDING_REVIEW:     { labelKey: 'community.post_status.pending_review',     bgClass: 'bg-amber-50',   textClass: 'text-amber-700',  icon: 'clock' },
-  PARTIALLY_APPROVED: { labelKey: 'community.post_status.partially_approved', bgClass: 'bg-blue-50',    textClass: 'text-blue-700',   icon: 'loader' },
-  VERIFIED:           { labelKey: 'community.post_status.verified',           bgClass: 'bg-primary-50', textClass: 'text-primary-700',icon: 'check-circle' },
-  REJECTED:           { labelKey: 'community.post_status.rejected',           bgClass: 'bg-rose-50',    textClass: 'text-rose-700',   icon: 'x-circle' },
-  FLAGGED:            { labelKey: 'community.post_status.flagged',            bgClass: 'bg-orange-50',  textClass: 'text-orange-700', icon: 'flag' },
-  REVOKED:            { labelKey: 'community.post_status.revoked',            bgClass: 'bg-gray-100',   textClass: 'text-gray-700',   icon: 'slash' },
-  DRAFT:              { labelKey: 'community.post_status.draft',              bgClass: 'bg-gray-100',   textClass: 'text-gray-700',   icon: 'file' },
+  PENDING_REVIEW: {
+    labelKey: 'community.post_status.pending_review',
+    bgClass: 'bg-amber-50',
+    textClass: 'text-amber-700',
+    icon: 'clock',
+  },
+  PARTIALLY_APPROVED: {
+    labelKey: 'community.post_status.partially_approved',
+    bgClass: 'bg-blue-50',
+    textClass: 'text-blue-700',
+    icon: 'loader',
+  },
+  VERIFIED: {
+    labelKey: 'community.post_status.verified',
+    bgClass: 'bg-primary-50',
+    textClass: 'text-primary-700',
+    icon: 'check-circle',
+  },
+  REJECTED: {
+    labelKey: 'community.post_status.rejected',
+    bgClass: 'bg-rose-50',
+    textClass: 'text-rose-700',
+    icon: 'x-circle',
+  },
+  FLAGGED: {
+    labelKey: 'community.post_status.flagged',
+    bgClass: 'bg-orange-50',
+    textClass: 'text-orange-700',
+    icon: 'flag',
+  },
+  REVOKED: {
+    labelKey: 'community.post_status.revoked',
+    bgClass: 'bg-gray-100',
+    textClass: 'text-gray-700',
+    icon: 'slash',
+  },
+  DRAFT: {
+    labelKey: 'community.post_status.draft',
+    bgClass: 'bg-gray-100',
+    textClass: 'text-gray-700',
+    icon: 'file',
+  },
 };
 
 type DecisionConfig = {
@@ -51,9 +76,21 @@ type DecisionConfig = {
 };
 
 const DECISION_CONFIG: Record<ReviewDecision, DecisionConfig> = {
-  APPROVE:           { labelKey: 'community.review_decision.approve',           bgClass: 'bg-primary-50', textClass: 'text-primary-700' },
-  REJECT:            { labelKey: 'community.review_decision.reject',            bgClass: 'bg-rose-50',    textClass: 'text-rose-500' },
-  REPORT_SUSPICIOUS: { labelKey: 'community.review_decision.report_suspicious', bgClass: 'bg-orange-50',  textClass: 'text-orange-600' },
+  APPROVE: {
+    labelKey: 'community.review_decision.approve',
+    bgClass: 'bg-primary-50',
+    textClass: 'text-primary-700',
+  },
+  REJECT: {
+    labelKey: 'community.review_decision.reject',
+    bgClass: 'bg-rose-50',
+    textClass: 'text-rose-500',
+  },
+  REPORT_SUSPICIOUS: {
+    labelKey: 'community.review_decision.report_suspicious',
+    bgClass: 'bg-orange-50',
+    textClass: 'text-orange-600',
+  },
 };
 
 export default function PostDetailScreen() {
@@ -65,34 +102,46 @@ export default function PostDetailScreen() {
   const { isCtv, userId } = useAuthRole();
 
   const { data: post, isLoading: isLoadingPost } = usePostDetail(id);
-  const { data: reviews = [], isLoading: isLoadingReviews } = usePostReviews(id);
   const { mutate: reviewPost, isPending: isReviewing } = useReviewPost(id);
 
   const rejectSheetRef = useRef<BottomSheetModal>(null);
 
-  const alreadyReviewed = reviews.some((r) => r.reviewer_id === userId && r.is_valid);
+  const reviews: PostReviewDto[] = post?.reviews ?? [];
+  const isLoadingReviews = isLoadingPost;
+  const alreadyReviewed = reviews.some((r) => r.reviewerId === userId);
   const canReview = isCtv && !alreadyReviewed && post?.status === 'PENDING_REVIEW';
 
   const handleApprove = useCallback(() => {
-    Alert.alert(t('community.post_detail.confirm_approve_title', 'Xác nhận duyệt'), t('community.post_detail.confirm_approve_message', 'Bạn muốn duyệt bài đăng này?'), [
-      { text: c('cancel', 'Hủy'), style: 'cancel' },
-      {
-        text: t('community.post_detail.approve_btn', 'Duyệt'),
-        onPress: () =>
-          reviewPost(
-            { decision: 'APPROVE' },
-            {
-              onSuccess: () => {
-                Alert.alert(c('success', 'Thành công'), t('community.post_detail.approve_success', 'Đã duyệt bài đăng.'));
-                router.back();
-              },
-              onError: (err: any) => {
-                Alert.alert(c('error', 'Lỗi'), err?.response?.data?.message ?? t('community.post_detail.approve_error', 'Không thể duyệt bài.'));
-              },
-            },
-          ),
-      },
-    ]);
+    Alert.alert(
+      t('community.post_detail.confirm_approve_title', 'Xác nhận duyệt'),
+      t('community.post_detail.confirm_approve_message', 'Bạn muốn duyệt bài đăng này?'),
+      [
+        { text: c('cancel', 'Hủy'), style: 'cancel' },
+        {
+          text: t('community.post_detail.approve_btn', 'Duyệt'),
+          onPress: () =>
+            reviewPost(
+              { decision: 'APPROVE' },
+              {
+                onSuccess: () => {
+                  Alert.alert(
+                    c('success', 'Thành công'),
+                    t('community.post_detail.approve_success', 'Đã duyệt bài đăng.')
+                  );
+                  router.back();
+                },
+                onError: (err: any) => {
+                  Alert.alert(
+                    c('error', 'Lỗi'),
+                    err?.response?.data?.message ??
+                      t('community.post_detail.approve_error', 'Không thể duyệt bài.')
+                  );
+                },
+              }
+            ),
+        },
+      ]
+    );
   }, [reviewPost, t, c]);
 
   const handleOpenRejectSheet = useCallback(() => {
@@ -119,7 +168,8 @@ export default function PostDetailScreen() {
         onError: (err: any) => {
           Alert.alert(
             c('error', 'Lỗi'),
-            err?.response?.data?.message ?? t('community.post_detail.reject_error', 'Không thể từ chối bài.')
+            err?.response?.data?.message ??
+              t('community.post_detail.reject_error', 'Không thể từ chối bài.')
           );
         },
       });
@@ -131,7 +181,7 @@ export default function PostDetailScreen() {
     (props: any) => (
       <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} />
     ),
-    [],
+    []
   );
 
   if (isLoadingPost || !post) {
@@ -146,46 +196,43 @@ export default function PostDetailScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      {/* ── Header (Fixed) ── */}
+      <View
+        className="z-10 flex-row items-center border-b border-primary-50 bg-background px-5 pb-4 dark:border-white/5"
+        style={{ paddingTop: insets.top + 16 }}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-primary-50"
+          hitSlop={8}>
+          <Feather name="chevron-left" size={20} color={colors.background} />
+        </TouchableOpacity>
+        <Text className="flex-1 font-inter-bold text-xl text-foreground">
+          {t('community.post_detail.header_title', 'Chi tiết bài đăng')}
+        </Text>
+        {statusCfg && (
+          <View className={`flex-row items-center rounded-full px-3 py-1.5 ${statusCfg.bgClass}`}>
+            <Feather
+              name={statusCfg.icon as any}
+              size={12}
+              color={statusCfg.textClass.replace('text-', '')}
+              style={{ marginRight: 4 }}
+            />
+            <Text
+              useDefaultColor={false}
+              className={`font-inter-semibold text-xs ${statusCfg.textClass}`}>
+              {t(statusCfg.labelKey)}
+            </Text>
+          </View>
+        )}
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + (canReview ? 140 : 40) }}
-      >
-        <View
-          className="flex-row items-center border-b border-primary-50 bg-background px-5 pb-4 dark:border-white/5"
-          style={{ paddingTop: insets.top + 16 }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-primary-50"
-            hitSlop={8}
-          >
-            <Feather name="chevron-left" size={20} color={colors.background} />
-          </TouchableOpacity>
-          <Text className="flex-1 font-inter-bold text-xl text-foreground">
-            {t('community.post_detail.header_title', 'Chi tiết bài đăng')}
-          </Text>
-          {statusCfg && (
-            <View className={`flex-row items-center rounded-full px-3 py-1.5 ${statusCfg.bgClass}`}>
-              <Feather
-                name={statusCfg.icon as any}
-                size={12}
-                color={statusCfg.textClass.replace('text-', '')}
-                style={{ marginRight: 4 }}
-              />
-              <Text
-                useDefaultColor={false}
-                className={`font-inter-semibold text-xs ${statusCfg.textClass}`}
-              >
-                {t(statusCfg.labelKey)}
-              </Text>
-            </View>
-          )}
-        </View>
-
+        contentContainerStyle={{ paddingBottom: insets.bottom + (canReview ? 140 : 40) }}>
         <View className="flex-row items-center px-5 py-4">
-          {post.user_avatar_url ? (
+          {post.authorAvatarUrl  ? (
             <Image
-              source={{ uri: post.user_avatar_url }}
+              source={{ uri: post.authorAvatarUrl  }}
               className="mr-3 h-12 w-12 rounded-full border border-primary"
             />
           ) : (
@@ -195,31 +242,40 @@ export default function PostDetailScreen() {
           )}
           <View className="flex-1">
             <Text className="font-inter-semibold text-base text-foreground">
-              {post.user_display_name ?? t('community.post_detail.anonymous_user', 'Người dùng ẩn danh')}
+              {post.authorDisplayName ??
+                t('community.post_detail.anonymous_user', 'Người dùng ẩn danh')}
             </Text>
-            <Text className="mt-0.5 font-inter text-sm text-foreground/50">
-              {getTimeAgo(post.created_at)}
+            <Text className="text-foreground/50 mt-0.5 font-inter text-sm">
+              {getTimeAgo(post.createdAt)}
             </Text>
           </View>
           {/* Approve count */}
           <View className="flex-row items-center rounded-full bg-primary-50 px-3 py-1.5">
             <Feather name="check-circle" size={13} color={colors.primary} />
             <Text className="ml-1.5 font-inter-semibold text-sm text-primary-700">
-              {t('community.post_detail.approve_count', { count: post.approve_count, defaultValue: `${post.approve_count} duyệt` })} · {t('community.post_detail.reject_count', { count: post.reject_count, defaultValue: `${post.reject_count} từ chối` })}
+              {t('community.post_detail.approve_count', {
+                count: post.approveCount,
+                defaultValue: `${post.approveCount} duyệt`,
+              })}{' '}
+              ·{' '}
+              {t('community.post_detail.reject_count', {
+                count: post.rejectCount,
+                defaultValue: `${post.rejectCount} từ chối`,
+              })}
             </Text>
           </View>
         </View>
 
         <Image
-          source={{ uri: post.media_url }}
+          source={{ uri: post.mediaUrl }}
           className="h-80 w-full bg-primary-100"
           resizeMode="cover"
         />
         <View className="px-5 pt-5">
-          {post.action_type && (
+          {post.actionTypeName && (
             <View className="mb-3 self-start rounded-full bg-primary-50 px-4 py-1.5">
               <Text className="font-inter-semibold text-sm text-primary-700">
-                {post.action_type.group_name} · {post.action_type.action_name}
+                {post.actionTypeName}
               </Text>
             </View>
           )}
@@ -231,19 +287,23 @@ export default function PostDetailScreen() {
           </View>
 
           {/* Location nếu có */}
-          {post.latitude && post.longitude && (
+          {post.location && (
             <View className="mt-3 flex-row items-center">
               <Feather name="map-pin" size={14} color={colors.neutral400} />
-              <Text className="ml-2 font-inter text-sm text-foreground/50">
-                {post.latitude.toFixed(5)}, {post.longitude.toFixed(5)}
+              <Text className="text-foreground/50 ml-2 font-inter text-sm">
+                {/* {post.latitude.toFixed(5)}, {post.longitude.toFixed(5)} */}
+                {post.location}
               </Text>
             </View>
           )}
 
           <View className="mt-1.5 flex-row items-center">
             <Feather name="calendar" size={14} color={colors.neutral400} />
-            <Text className="ml-2 font-inter text-sm text-foreground/50">
-              {t('community.post_detail.action_date', { date: post.action_date, defaultValue: `Ngày thực hiện: ${post.action_date}` })}
+            <Text className="text-foreground/50 ml-2 font-inter text-sm">
+              {t('community.post_detail.action_date', {
+                date: post.actionDate,
+                defaultValue: `Ngày thực hiện: ${post.actionDate}`,
+              })}
             </Text>
           </View>
         </View>
@@ -257,9 +317,9 @@ export default function PostDetailScreen() {
           {isLoadingReviews ? (
             <ActivityIndicator size="small" color={colors.primary} />
           ) : reviews.length === 0 ? (
-            <View className="rounded-2xl bg-primary-50 px-4 py-6 items-center dark:bg-card">
+            <View className="items-center rounded-2xl bg-primary-50 px-4 py-6 dark:bg-card">
               <Feather name="clock" size={24} color={colors.primary300} />
-              <Text className="mt-2 font-inter text-sm text-foreground/50">
+              <Text className="text-foreground/50 mt-2 font-inter text-sm">
                 {t('community.post_detail.no_reviews', 'Chưa có lượt duyệt nào.')}
               </Text>
             </View>
@@ -269,48 +329,43 @@ export default function PostDetailScreen() {
                 const decCfg = DECISION_CONFIG[review.decision];
                 return (
                   <View
-                    key={review.id}
-                    className="flex-row items-start rounded-2xl bg-white px-4 py-3 shadow-sm shadow-black/5 dark:bg-card"
-                  >
+                    key={review.reviewId}
+                    className="flex-row items-start rounded-2xl bg-white px-4 py-3 shadow-sm shadow-black/5 dark:bg-card">
                     {/* Index */}
                     <View className="mr-3 h-7 w-7 items-center justify-center rounded-full bg-primary-50">
-                      <Text className="font-inter-bold text-xs text-primary-700">
-                        {index + 1}
-                      </Text>
+                      <Text className="font-inter-bold text-xs text-primary-700">{index + 1}</Text>
                     </View>
 
                     <View className="flex-1">
                       <View className="flex-row items-center justify-between">
                         <Text className="font-inter-medium text-sm text-foreground">
-                          CTV #{review.reviewer_id.slice(0, 6)}
+                          CTV #{review.reviewerId.slice(0, 6)}
                         </Text>
                         <View className={`rounded-full px-2.5 py-0.5 ${decCfg.bgClass}`}>
                           <Text
                             useDefaultColor={false}
-                            className={`font-inter-semibold text-[10px] ${decCfg.textClass}`}
-                          >
+                            className={`font-inter-semibold text-[10px] ${decCfg.textClass}`}>
                             {t(decCfg.labelKey)}
                           </Text>
                         </View>
                       </View>
 
                       {/* Lý do từ chối */}
-                      {review.reject_reason_code && (
-                        <Text className="mt-1 font-inter text-xs text-foreground/50">
+                      {review.rejectReasonCode  && (
+                        <Text className="text-foreground/50 mt-1 font-inter text-xs">
                           {t('community.post_detail.reason', 'Lý do')}:{' '}
-                          {REJECT_REASONS.find(
-                            (r) => r.code === review.reject_reason_code,
-                          )?.label ?? review.reject_reason_code}
+                          {REJECT_REASONS.find((r) => r.code === review.rejectReasonCode)
+                            ?.label ?? review.rejectReasonCode}
                         </Text>
                       )}
-                      {review.reject_reason_note && (
-                        <Text className="mt-0.5 font-inter text-xs text-foreground/50 italic">
-                          "{review.reject_reason_note}"
+                      {review.rejectReasonNote && (
+                        <Text className="text-foreground/50 mt-0.5 font-inter text-xs italic">
+                          {review.rejectReasonNote}
                         </Text>
                       )}
 
-                      <Text className="mt-1 font-inter text-[11px] text-foreground/40">
-                        {getTimeAgo(review.created_at)}
+                      <Text className="text-foreground/40 mt-1 font-inter text-[11px]">
+                        {getTimeAgo(review.createdAt)}
                       </Text>
                     </View>
                   </View>
@@ -324,29 +379,30 @@ export default function PostDetailScreen() {
       {canReview && (
         <View
           className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-primary-50 bg-background px-5 pt-3 dark:border-white/5"
-          style={{ paddingBottom: insets.bottom + 12 }}
-        >
+          style={{ paddingBottom: insets.bottom + 12 }}>
           {/* Từ chối */}
           <TouchableOpacity
             onPress={handleOpenRejectSheet}
-            className="flex-1 flex-row items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 py-3.5 active:opacity-80"
-          >
+            className="flex-1 flex-row items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 py-3.5 active:opacity-80">
             <Feather name="x-circle" size={18} color={colors.error} />
-            <Text className="ml-2 font-inter-semibold text-base" style={{ color: colors.error }}>{t('community.post_detail.reject_btn', 'Từ chối')}</Text>
+            <Text className="ml-2 font-inter-semibold text-base" style={{ color: colors.error }}>
+              {t('community.post_detail.reject_btn', 'Từ chối')}
+            </Text>
           </TouchableOpacity>
 
           {/* Duyệt */}
           <TouchableOpacity
             onPress={handleApprove}
             disabled={isReviewing}
-            className="flex-1 flex-row items-center justify-center rounded-2xl bg-primary py-3.5 active:opacity-80"
-          >
+            className="flex-1 flex-row items-center justify-center rounded-2xl bg-primary py-3.5 active:opacity-80">
             {isReviewing ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
               <>
                 <Feather name="check-circle" size={18} color="white" />
-                <Text className="ml-2 font-inter-semibold text-base text-white">{t('community.post_detail.approve_btn', 'Duyệt')}</Text>
+                <Text className="ml-2 font-inter-semibold text-base text-white">
+                  {t('community.post_detail.approve_btn', 'Duyệt')}
+                </Text>
               </>
             )}
           </TouchableOpacity>
