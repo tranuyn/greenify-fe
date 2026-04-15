@@ -1,22 +1,15 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Ionicons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import React from 'react';
+import { View, Text, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useGardenArchives } from '@/hooks/queries/useGamification';
 import TopBar from './components/TopBar';
 
 const { width } = Dimensions.get('window');
 
 export default function NatureScreen() {
-  // Tạo mảng 70 phần tử cho grid 7x10
-  const [hasCheckedInToday, setHasCheckedInToday] = useState<boolean>(true);
-  const totalItems = 70;
-  // Todo: Thay thế bằng dữ liệu thực tế về các vật phẩm đã thu thập được, hiện tại chỉ là ví dụ với 3 vật phẩm đầu tiên
-  const collectedItems = [
-    { icon: 'tree', color: '#4ade80' }, // Cây
-    { icon: 'rose', color: '#f87171', type: 'entypo' }, // Hoa hồng
-    { icon: 'sunflower', color: '#fbbf24', type: 'material' }, // Hoa hướng dương
-  ];
+  const totalItems = 60;
+  const { data: archives = [] } = useGardenArchives();
+  const collectedItems = archives.slice(0, totalItems);
 
   return (
     // Màu nền xanh cực nhạt theo ảnh
@@ -36,17 +29,16 @@ export default function NatureScreen() {
         {/* Container cho Grid 7x10 */}
         <View className="flex-row flex-wrap justify-between ">
           {[...Array(totalItems)].map((_, index) => {
+            const archive = collectedItems[index];
+            const imageUrl = archive?.seed?.stage4_image_url || archive?.display_image_url;
+
             return (
               <View
                 key={index}
-                style={{ width: (width - 100) / 7 }}
+                style={{ width: (width - 80) / 7 }}
                 className="mb-4 aspect-square items-center justify-center">
-                {index === 0 ? (
-                  <Text style={{ fontSize: 24 }}>🌳</Text>
-                ) : index === 1 ? (
-                  <Text style={{ fontSize: 24 }}>🌹</Text>
-                ) : index === 2 ? (
-                  <Text style={{ fontSize: 24 }}>🌻</Text>
+                {imageUrl ? (
+                  <Image source={{ uri: imageUrl }} className="h-8 w-8" resizeMode="contain" />
                 ) : (
                   // Các dấu chấm xám cho ô trống
                   <View className="h-4 w-4 rounded-full bg-gray-600/80" />

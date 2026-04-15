@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
@@ -7,10 +7,13 @@ import WeekSection from './components/WeekSection';
 import UtilitiesSection from './components/UtilitiesSection';
 import GiftSection from './components/GiftSection';
 import ActivityHistorySection from './components/ActivityHistorySection';
+import MyGardenArchive from './components/MyGardenArchive';
 import { IMAGES } from '@/constants/linkMedia';
 import { router } from 'expo-router';
 
 export default function GreenCalendarScreen() {
+  const [isGardenArchiveMode, setIsGardenArchiveMode] = useState(false);
+
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-[var(--background)]">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -44,17 +47,23 @@ export default function GreenCalendarScreen() {
         {/* 2. Progress & Banner */}
         <ProgressSection />
 
-        {/* 3. Calendar & Utilities Section */}
-        <View className="mt-6 px-4">
-          <WeekSection />
-          <UtilitiesSection />
-        </View>
+        {isGardenArchiveMode ? (
+          <MyGardenArchive onBack={() => setIsGardenArchiveMode(false)} />
+        ) : (
+          <>
+            {/* 3. Calendar & Utilities Section */}
+            <View className="mt-6 px-4">
+              <WeekSection />
+              <UtilitiesSection onPressFarm={() => setIsGardenArchiveMode(true)} />
+            </View>
 
-        {/* 4. Gift Banner */}
-        <GiftSection />
+            {/* 4. Gift Banner */}
+            <GiftSection />
 
-        {/* 5. History List */}
-        <ActivityHistorySection />
+            {/* 5. History List */}
+            <ActivityHistorySection />
+          </>
+        )}
       </ScrollView>
 
       {/* 6. Sticky Bottom Button */}
