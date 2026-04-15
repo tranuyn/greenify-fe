@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import {
   useFonts,
@@ -13,9 +14,11 @@ import {
   Inter_900Black,
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { queryClient } from '../lib/queryClient';
 import '../global.css';
-
-// Ngăn không cho Splash Screen tự động ẩn trước khi font load xong
+import { StatusBar } from 'expo-status-bar';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -31,21 +34,32 @@ export default function RootLayout() {
     Inter_900Black,
   });
 
-  // Khi font đã load xong (hoặc có lỗi), tiến hành ẩn Splash Screen
   useEffect(() => {
     if (loaded || error) {
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
 
-  // Nếu font chưa nạp xong thì chưa render giao diện
   if (!loaded && !error) {
     return null;
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    // GestureHandlerRootView bắt buộc phải wrap toàn bộ app khi dùng gesture-handler
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <BottomSheetModalProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
+            <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="history" />
+            <Stack.Screen name="leaderboard" />
+            <Stack.Screen name="calendar" />
+          </Stack>
+        </BottomSheetModalProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

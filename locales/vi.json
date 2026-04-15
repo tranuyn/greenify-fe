@@ -1,7 +1,399 @@
 {
   "home": {
-    "welcome": "Greenify",
-    "description": "Cùng nhau xây dựng thói quen xanh mỗi ngày.",
-    "camera_btn": "Mở Camera Check-in"
+    "welcome": "Chào mừng",
+    "points": "Điểm tích lũy",
+    "menu_map": "Bản đồ Xanh",
+    "menu_market": "Chợ Voucher",
+    "menu_leaderboard": "Bảng xếp hạng",
+    "menu_calendar": "Lịch xanh",
+    "section_events": "Sự kiện Xanh",
+    "section_vouchers": "Đổi Voucher",
+    "section_streak_plant": "Hành trình Xanh",
+    "section_community": "Cộng đồng Xanh",
+    "voucher_food": "Ăn uống thả ga",
+    "voucher_entertainment": "Giải trí thả ga",
+    "btn_register": "Đăng ký",
+    "btn_registered": "Đã đăng ký",
+    "btn_full": "Hết chỗ",
+    "btn_processing": "Đang xử lý...",
+    "btn_collect": "Thu thập",
+    "btn_view_more": "Xem thêm",
+    "streak_days": "ngày liên tiếp",
+    "streak_record": "Kỷ lục: {{count}} ngày",
+    "streak_fire": "🔥",
+    "plant_growing": "Đang phát triển",
+    "plant_matured": "Đã trưởng thành",
+    "plant_progress": "Ngày {{current}}/{{total}}",
+    "plant_no_plant": "Chưa trồng cây nào",
+    "remaining_stock": "Còn {{count}}",
+    "valid_until": "HSD: {{date}}",
+    "feed_empty": "Chưa có hoạt động nào.",
+    "event_time": "{{date}} · {{time}}"
+  },
+  "onboarding": {
+    "skip": "Bỏ qua",
+    "cta": "Đăng nhập",
+    "slide_1": "Làm việc xanh\nSống nhẹ nhàng hơn",
+    "slide_2": "Biến mọi công việc\nthành một hành động xanh",
+    "slide_3": "Công việc hôm nay,\ntương lai xanh mai sau"
+  },
+  "common": {
+    "processing": "Đang xử lý...",
+    "gp_unit": "GP",
+    "cancel": "Hủy",
+    "done": "Xong",
+    "ok": "OK",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "create_new": "Tạo mới",
+    "scan_qr": "Quét mã",
+    "my_events_short": "Của tôi"
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập",
+      "subtitle": "Chào mừng bạn quay lại Greenify.",
+      "email_label": "Email",
+      "email_placeholder": "Nhập email của bạn",
+      "password_label": "Mật khẩu",
+      "password_placeholder": "Nhập mật khẩu",
+      "forgot_password": "Quên mật khẩu?",
+      "login_btn": "Đăng nhập",
+      "no_account": "Chưa có tài khoản?",
+      "register": "Đăng ký",
+      "error_fallback": "Đăng nhập thất bại, vui lòng thử lại."
+    },
+    "signup_email": {
+      "title": "Đăng ký tài khoản",
+      "subtitle": "Nhập email để nhận mã xác thực.",
+      "email_label": "Email",
+      "email_placeholder": "example@email.com",
+      "submit_btn": "Gửi mã xác thực",
+      "has_account": "Đã có tài khoản?"
+    },
+    "verify_email": {
+      "title": "Xác nhận Email",
+      "subtitle": "Chúng tôi đã gửi mã xác thực đến",
+      "resend": "Gửi lại mã",
+      "submit_btn": "Xác nhận"
+    },
+    "signup_password": {
+      "title": "Mật khẩu",
+      "subtitle": "Tạo mật khẩu mạnh để bảo vệ tài khoản của bạn.",
+      "password_label": "Mật khẩu",
+      "password_placeholder": "Nhập mật khẩu",
+      "confirm_label": "Nhập lại mật khẩu",
+      "confirm_placeholder": "Nhập lại mật khẩu",
+      "submit_btn": "Xác nhận"
+    },
+    "account_type": {
+      "title": "Chọn loại tài khoản",
+      "subtitle": "Bắt đầu với vai trò phù hợp với bạn.",
+      "role_org_title": "Tổ chức / NGO",
+      "role_org_desc": "Đại diện tổ chức, phát động chiến dịch và quản lý sự kiện.",
+      "role_citizen_title": "Công dân xanh",
+      "role_citizen_desc": "Tham gia hoạt động xanh, tích lũy điểm và nhận phần thưởng."
+    },
+    "complete_profile": {
+      "title": "Hoàn thiện thông tin",
+      "subtitle_org": "Loại tài khoản: Tổ chức / NGO",
+      "subtitle_citizen": "Loại tài khoản: Công dân xanh",
+      "email_label": "Email",
+      "name_label": "Họ và tên",
+      "name_placeholder": "Nhập họ và tên",
+      "province_label": "Tỉnh/Thành phố",
+      "ward_label": "Phường/Xã",
+      "terms_agree": "Tôi đồng ý với",
+      "terms_use": "Điều khoản sử dụng",
+      "terms_and": "và",
+      "terms_privacy": "Chính sách bảo mật",
+      "terms_of": "của Greenify.",
+      "terms_error": "Vui lòng đồng ý với điều khoản để tiếp tục.",
+      "submit_btn": "Tạo tài khoản"
+    }
+  },
+  "community": {
+    "title": "Cộng đồng",
+    "search": "Tìm kiếm",
+    "error": "Đã có lỗi xảy ra.",
+    "retry": "Thử lại",
+    "empty": "Không tìm thấy bài viết nào.",
+    "post_detail": {
+      "header_title": "Chi tiết bài đăng",
+      "confirm_approve_title": "Xác nhận duyệt",
+      "confirm_approve_message": "Bạn muốn duyệt bài đăng này?",
+      "approve_btn": "Duyệt",
+      "approve_success": "Đã duyệt bài đăng.",
+      "approve_error": "Không thể duyệt bài.",
+      "confirm_reject_title": "Đã ghi nhận",
+      "confirm_reject_message": "Bài đăng đã bị từ chối.",
+      "reject_error": "Không thể từ chối bài.",
+      "reject_btn": "Từ chối",
+      "confirm_reject_btn": "Xác nhận từ chối",
+      "anonymous_user": "Người dùng ẩn danh",
+      "approve_count": "{{count}} duyệt",
+      "reject_count": "{{count}} từ chối",
+      "action_date": "Ngày thực hiện: {{date}}",
+      "review_history": "Lịch sử duyệt bài",
+      "no_reviews": "Chưa có lượt duyệt nào.",
+      "reason": "Lý do",
+      "reject_reasons_title": "Lý do từ chối",
+      "additional_note": "Mô tả thêm *",
+      "additional_note_placeholder": "Nhập lý do cụ thể..."
+    },
+    "post_card": {
+      "approve_count": "{{count}} Lượt duyệt",
+      "view_detail": "Xem chi tiết & Duyệt bài"
+    },
+    "post_status": {
+      "pending_review": "Chờ duyệt",
+      "partially_approved": "Đang xét duyệt",
+      "verified": "Đã xác thực",
+      "rejected": "Bị từ chối",
+      "flagged": "Đang bị gắn cờ",
+      "revoked": "Đã thu hồi điểm",
+      "draft": "Nháp"
+    },
+    "review_decision": {
+      "approve": "Đã duyệt",
+      "reject": "Từ chối",
+      "report_suspicious": "Báo nghi vấn"
+    },
+    "filters": {
+      "title": "Bộ lọc tìm kiếm",
+      "clear": "Xóa bộ lọc",
+      "sortBy": "Sắp xếp theo",
+      "sort": {
+        "newest": "Mới nhất",
+        "popular": "Nổi bật (Nhiều lượt thích)"
+      },
+      "timeTitle": "Thời gian",
+      "time": {
+        "all": "Tất cả",
+        "week": "Tuần này",
+        "month": "Tháng này"
+      },
+      "actionTitle": "Hoạt động xanh",
+      "apply": "Áp dụng"
+    },
+    "tags": {
+      "location": "Vị trí",
+      "time": "Thời gian:",
+      "greenDaily": "Green Daily",
+      "seed": "Gieo hạt"
+    },
+    "post": {
+      "feeling": "Hôm nay thật tuyệt",
+      "caption": "Hôm nay đang chạy bộ thì bắt gặp bãi rác như trên, mong sẽ sớm có người đến dọn ạ"
+    }
+  },
+  "events": {
+    "ngo_events": {
+      "title": "Sự kiện",
+      "subtitle": "Quản lý sự kiện của tổ chức",
+      "create_new": "Tạo mới",
+      "scan_qr": "Quét mã",
+      "registered_count": "{{registered}}/{{max}} người đăng ký",
+      "tabs": {
+        "pending": "Chờ duyệt",
+        "registered": "Đã đăng",
+        "ongoing": "Đang diễn ra",
+        "ended": "Đã kết thúc",
+        "cancelled": "Đã hủy"
+      },
+      "status": {
+        "pending_approval": "Chờ duyệt",
+        "needs_revision": "Cần sửa",
+        "approved": "Đã duyệt",
+        "published": "Đã đăng",
+        "closed": "Đã kết thúc",
+        "cancelled": "Đã hủy",
+        "rejected": "Bị từ chối"
+      },
+      "empty": {
+        "title": "Chưa có sự kiện nào",
+        "subtitle": "Nhấn Tạo mới để tạo sự kiện đầu tiên."
+      }
+    },
+    "search": "Tìm kiếm sự kiện...",
+    "card": {
+      "registered": "Đã đăng ký",
+      "full": "Hết chỗ",
+      "processing": "Đang xử lý...",
+      "register": "Đăng ký",
+      "people": "người"
+    },
+    "list": {
+      "titlePrefix": "Sự kiện",
+      "titleHighlight": "Xanh",
+      "subtitle": "Tham gia và tích điểm GP",
+      "myEvents": "Của tôi",
+      "cancel": "Hủy",
+      "pickDate": "Chọn ngày",
+      "done": "Xong",
+      "empty": "Không tìm thấy sự kiện nào.",
+      "clearFilter": "Xóa bộ lọc"
+    },
+    "detail": {
+      "reward_label": "Điểm nhận",
+      "participants": "{{registered}}/{{total}} người đăng ký",
+      "description_title": "Mô tả sự kiện",
+      "conditions_title": "Điều kiện tham gia",
+      "actions": {
+        "scan_qr": "Quét mã QR",
+        "cancel_registration": "Hủy đăng ký",
+        "full": "Hết chỗ",
+        "processing": "Đang xử lý...",
+        "register": "Đăng ký tham gia"
+      },
+      "alert": {
+        "register_failed_title": "Đăng ký thất bại",
+        "register_failed_message": "Có lỗi xảy ra, vui lòng thử lại.",
+        "cancel_title": "Bạn muốn hủy tham gia?",
+        "cancel_message": "Sự kiện sắp bắt đầu rồi. Tụi mình đã chuẩn bị và rất mong có bạn tham gia.",
+        "keep_registration": "Giữ đăng ký",
+        "confirm_cancel_registration": "Hủy đăng ký",
+        "cancel_success": "Đã hủy đăng ký"
+      },
+      "qr": {
+        "title": "Mã QR check-in",
+        "empty": "Không có mã QR",
+        "back": "Quay lại"
+      }
+    },
+    "my_events": {
+      "title": "Sự kiện của tôi",
+      "subtitle": "Quản lý các sự kiện đã đăng ký",
+      "status": {
+        "registered": "Đã đăng ký",
+        "waitlisted": "Đang chờ",
+        "checked_in": "Đang tham gia",
+        "attended": "Đã tham gia",
+        "checked_out": "Đã hoàn thành",
+        "no_show": "Vắng mặt",
+        "cancelled": "Đã hủy"
+      },
+      "tabs": {
+        "pending": "Chờ duyệt",
+        "ongoing": "Đang tham gia",
+        "attended": "Đã tham gia"
+      },
+      "empty": {
+        "title": "Chưa có sự kiện nào",
+        "pending": "Không có sự kiện đang chờ duyệt.",
+        "ongoing": "Bạn chưa check-in sự kiện nào.",
+        "attended": "Bạn chưa tham gia sự kiện nào."
+      }
+    },
+    "create_event": {
+      "title": "Tạo sự kiện",
+      "sections": {
+        "info": "Thông tin sự kiện",
+        "location": "Địa điểm",
+        "time": "Thời gian",
+        "reward": "Điểm nhận được"
+      },
+      "cover_placeholder": "Thêm ảnh bìa",
+      "fields": {
+        "title": {
+          "label": "Tên sự kiện",
+          "placeholder": "Tên sự kiện"
+        },
+        "description": {
+          "label": "Mô tả",
+          "placeholder": "Thêm mô tả sự kiện"
+        },
+        "event_type": {
+          "label": "Loại sự kiện",
+          "placeholder": "Chọn loại sự kiện"
+        },
+        "city": {
+          "label": "Thành phố",
+          "placeholder": "Thành phố"
+        },
+        "address": {
+          "label": "Địa chỉ",
+          "placeholder": "Địa chỉ"
+        },
+        "start": "Bắt đầu",
+        "end": "Kết thúc",
+        "reward_points": {
+          "placeholder": "Nhập số điểm"
+        }
+      },
+      "event_types": {
+        "cleanup": "Dọn rác",
+        "tree_planting": "Trồng cây",
+        "workshop": "Workshop",
+        "campaign": "Chiến dịch",
+        "other": "Khác"
+      },
+      "modal": {
+        "cancel": "Hủy",
+        "done": "Xong"
+      },
+      "buttons": {
+        "cancel": "Hủy",
+        "submit": "Tạo sự kiện"
+      },
+      "terms": {
+        "prefix": "Tôi đồng ý với",
+        "use": "Điều khoản sử dụng",
+        "and": "và",
+        "privacy": "Chính sách bảo mật",
+        "suffix": "của Greenify."
+      },
+      "alerts": {
+        "success_title": "Đã gửi yêu cầu",
+        "success_message": "Sự kiện của bạn đang chờ admin duyệt.",
+        "error_title": "Tạo thất bại",
+        "error_fallback": "Có lỗi xảy ra, vui lòng thử lại.",
+        "ok": "OK"
+      },
+      "validation": {
+        "title": "Vui lòng nhập tên sự kiện.",
+        "description": "Vui lòng nhập mô tả.",
+        "event_type": "Vui lòng chọn loại sự kiện.",
+        "city": "Vui lòng nhập thành phố.",
+        "location_address": "Vui lòng nhập địa chỉ.",
+        "start_date": "Vui lòng chọn ngày bắt đầu.",
+        "start_time": "Vui lòng chọn giờ bắt đầu.",
+        "end_date": "Vui lòng chọn ngày kết thúc.",
+        "end_time": "Vui lòng chọn giờ kết thúc.",
+        "reward_points_required": "Vui lòng nhập điểm thưởng.",
+        "reward_points_positive": "Điểm phải là số dương.",
+        "accepted_terms": "Vui lòng đồng ý với điều khoản.",
+        "cover_image_url": "Vui lòng thêm ảnh bìa.",
+        "latitude": "Vĩ độ không hợp lệ.",
+        "longitude": "Kinh độ không hợp lệ.",
+        "max_participants": "Số người tham gia phải lớn hơn 0.",
+        "participation_conditions": "Vui lòng nhập điều kiện tham gia.",
+        "cancel_deadline_days": "Số ngày hủy phải từ 0 trở lên."
+      }
+    },
+    "scan_qr": {
+      "title": "Quét mã điểm danh",
+      "permission_title": "Cần quyền camera",
+      "permission_description": "Để quét mã QR điểm danh, vui lòng cấp quyền truy cập camera.",
+      "permission_button": "Cấp quyền camera",
+      "hint": "Đưa mã QR của người tham gia vào khung",
+      "invalid_qr": "Mã QR không hợp lệ.",
+      "result_success": "Điểm danh thành công: {{name}}",
+      "result_error": "{{message}}"
+    }
+  },
+  "map": {
+    "search_placeholder": "Tìm điểm thu gom...",
+    "today_hours": "Hôm nay ({{day}}): {{open}} - {{close}}",
+    "today_closed": "Hôm nay ({{day}}): Đóng cửa",
+    "days": {
+      "MON": "T2",
+      "TUE": "T3",
+      "WED": "T4",
+      "THU": "T5",
+      "FRI": "T6",
+      "SAT": "T7",
+      "SUN": "CN"
+    }
   }
 }

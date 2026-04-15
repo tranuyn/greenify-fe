@@ -9,6 +9,18 @@ module.exports = {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        'on-primary': 'var(--on-primary)',
+        card: 'var(--card)',
+        border: 'var(--border)',
+        'muted-foreground': 'var(--muted-foreground)',
+        accent: 'var(--accent)',
+        'danger-bg': 'var(--danger-bg)',
+        'danger-text': 'var(--danger-text)',
+        'primary-light': 'var(--primary-light)',
+        'primary-light-hover': 'var(--primary-light-hover)',
+        'status-pending': 'var(--status-pending)',
+        'status-approved': 'var(--status-approved)',
+        'status-text': 'var(--status-text)',
         primary: {
           DEFAULT: 'var(--primary)', // Màu mặc định khi gọi bg-primary
           50: '#f0fdf4',
