@@ -21,19 +21,19 @@ export default function SignupEmailScreen() {
 
   const { control, handleSubmit, setError } = useForm<SignupEmailFormData>({
     resolver: zodResolver(signupEmailSchema),
-    defaultValues: { email: '' },
+    defaultValues: { identifier: '' },
   });
 
   const onSubmit = (data: SignupEmailFormData) => {
     requestOtp(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         router.push({
           pathname: '/(auth)/verify-email',
-          params: { role: params.role ?? 'citizen', email: data.email },
+          params: { role: params.role ?? 'citizen', identifier: data.identifier },
         });
       },
       onError: (error: any) => {
-        setError('email', {
+        setError('identifier', {
           type: 'manual',
           message: error?.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.',
         });
@@ -51,7 +51,7 @@ export default function SignupEmailScreen() {
       <View className="gap-4">
         <Controller
           control={control}
-          name="email"
+          name="identifier"
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}

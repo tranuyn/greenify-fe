@@ -9,13 +9,14 @@ import {
   VerifyOtpRequest,
   SetPasswordRequest,
 } from 'types/user.type';
+import { QUERY_KEYS } from 'constants/queryKeys';
 
 /**
  * Gửi OTP về email.
  *
  * Cách dùng trong component:
  *   const { mutate: requestOtp, isPending } = useRequestOtp();
- *   requestOtp({ email }, {
+ *   requestOtp({ identifier: 'email@example.com' }, {
  *     onSuccess: () => router.push('/(auth)/verify-email'),
  *     onError: (err) => setError(parseApiError(err)),
  *   });
@@ -46,14 +47,6 @@ export const useSetPassword = () => {
 export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginRequest) => authService.login(payload),
-    onSuccess: (response) => {
-      // Sau login thành công → pre-populate cache với user data từ response
-      // Không cần gọi thêm /me nữa
-      queryClient.setQueryData(['auth', 'me'], {
-        user: response.data.user,
-        profile: response.data.profile,
-      });
-    },
   });
 };
 
@@ -62,7 +55,7 @@ export const useCompleteProfile = () => {
     mutationFn: (payload: CompleteProfileRequest) => authService.completeProfile(payload),
     onSuccess: () => {
       // Profile đã thay đổi → invalidate cache /me để refetch
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
     },
   });
 };
@@ -72,7 +65,7 @@ export const useUpdateProfile = () => {
     mutationFn: (payload: CompleteProfileRequest) => authService.updateProfile(payload),
     onSuccess: () => {
       // Profile đã thay đổi → invalidate cache /me để refetch
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
     },
   });
 };

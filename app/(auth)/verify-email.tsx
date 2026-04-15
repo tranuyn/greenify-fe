@@ -21,7 +21,7 @@ function maskEmail(email: string) {
 
 export default function VerifyEmailScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ role?: string; email?: string }>();
+  const params = useLocalSearchParams<{ role?: string; identifier?: string }>();
   const [otp, setOtp] = useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ''));
   const [errorMsg, setErrorMsg] = useState('');
   const inputRefs = useRef<(TextInput | null)[]>([]);
@@ -29,8 +29,8 @@ export default function VerifyEmailScreen() {
   const { mutate: verifyOtp, isPending } = useVerifyOtp();
 
   const destination = useMemo(() => {
-    return params.email ? maskEmail(params.email) : 'địa chỉ của bạn';
-  }, [params.email]);
+    return params.identifier ? maskEmail(params.identifier) : 'địa chỉ của bạn';
+  }, [params.identifier]);
 
   const updateOtpValue = (index: number, value: string) => {
     setErrorMsg(''); // Xóa lỗi khi gõ lại
@@ -57,12 +57,16 @@ export default function VerifyEmailScreen() {
     }
 
     verifyOtp(
-      { email: params.email ?? '', otp_code: code },
+      { identifier: params.identifier ?? '', otp: code },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           router.push({
             pathname: '/(auth)/signup-password',
-            params: { role: params.role ?? 'citizen', email: params.email ?? '', otp_code: code },
+            params: {
+              role: params.role ?? 'citizen',
+              identifier: params.identifier ?? '',
+              verificationToken: response.data.verificationToken,
+            },
           });
         },
         onError: (err: any) => {

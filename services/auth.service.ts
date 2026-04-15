@@ -4,7 +4,9 @@ import type {
   LoginResponse,
   RegisterEmailRequest,
   VerifyOtpRequest,
+  VerifyOtpResponse,
   SetPasswordRequest,
+  LogoutRequest,
   CompleteProfileRequest,
   UserProfile,
   AuthenticatedUser,
@@ -16,57 +18,109 @@ import { ApiResponse } from 'types/common.types';
 export const authService = {
   /**
    * Bước 1: Gửi email để nhận OTP
+   * POST /auth/register/send-otp
    */
   async requestOtp(payload: RegisterEmailRequest): Promise<ApiResponse<{ message: string }>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(800);
-      return mockSuccess({ message: 'OTP đã được gửi đến email của bạn.' });
+    try {
+      if (IS_MOCK_MODE) {
+        await mockDelay(800);
+        return mockSuccess({ message: 'OTP đã được gửi đến email của bạn.' });
+      }
+      const { data } = await apiClient.post('/auth/otp/request', payload);
+      return data;
+    } catch (error: any) {
+      throw error;
     }
-    const { data } = await apiClient.post('/auth/otp/request', payload);
-    return data;
   },
 
   /**
    * Bước 2: Xác minh OTP
+   * POST /auth/register/verify-otp
+   * Response: { verificationToken }
    */
-  async verifyOtp(payload: VerifyOtpRequest): Promise<ApiResponse<{ message: string }>> {
+  async verifyOtp(payload: VerifyOtpRequest): Promise<ApiResponse<VerifyOtpResponse>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
-      // Mock: bất kỳ mã 6 số nào đều pass
-      if (payload.otp_code.length !== 6) {
+      if (payload.otp.length !== 6) {
         throw {
           response: { data: { message: 'Mã OTP không hợp lệ.', error_code: 'OTP_INVALID' } },
         };
       }
-      return mockSuccess({ message: 'Xác minh OTP thành công.' });
+      return mockSuccess({ verificationToken: 'mock_verification_token_' + payload.identifier });
     }
-    const { data } = await apiClient.post('/auth/otp/verify', payload);
+    const { data } = await apiClient.post<ApiResponse<VerifyOtpResponse>>(
+      '/auth/register/verify-otp',
+      payload
+    );
     return data;
   },
 
   /**
    * Bước 3: Đặt mật khẩu (đăng ký)
+   * POST /auth/register
+   * Response: { access_token, refresh_token }
    */
-  async setPassword(payload: SetPasswordRequest): Promise<ApiResponse<{ message: string }>> {
+  async setPassword(payload: SetPasswordRequest): Promise<ApiResponse<LoginResponse>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
-      return mockSuccess({ message: 'Mật khẩu đã được đặt thành công.' });
+      const tokens = {
+        access_token: 'mock_access_token_' + Date.now(),
+        refresh_token: 'mock_refresh_token_' + Date.now(),
+      };
+      return mockSuccess(tokens);
     }
-    const { data } = await apiClient.post('/auth/register', payload);
+    const { data } = await apiClient.post<ApiResponse<LoginResponse>>('/auth/register', payload);
+    if (data.success) {
+      await tokenStorage.setAccess(data.data.access_token);
+      await tokenStorage.setRefresh(data.data.refresh_token);
+    }
     return data;
   },
 
   /**
    * Đăng nhập → nhận token
+   * POST /auth/authenticate
+   * Body: { identifier, password }
+   * Response: { access_token, refresh_token }
    */
   async login(payload: LoginRequest): Promise<ApiResponse<LoginResponse>> {
     if (IS_MOCK_MODE) {
       await mockDelay(800);
-      await tokenStorage.setAccess(MOCK_AUTH_RESPONSE.access_token);
-      await tokenStorage.setRefresh(MOCK_AUTH_RESPONSE.refresh_token);
-      return mockSuccess(MOCK_AUTH_RESPONSE);
+      const tokens = {
+        access_token: 'mock_access_token_' + Date.now(),
+        refresh_token: 'mock_refresh_token_' + Date.now(),
+      };
+      await tokenStorage.setAccess(tokens.access_token);
+      await tokenStorage.setRefresh(tokens.refresh_token);
+      return mockSuccess(tokens);
     }
-    const { data } = await apiClient.post<ApiResponse<LoginResponse>>('/auth/login', payload);
+    const { data } = await apiClient.post<ApiResponse<LoginResponse>>(
+      '/auth/authenticate',
+      payload
+    );
+    if (data.success) {
+      await tokenStorage.setAccess(data.data.access_token);
+      await tokenStorage.setRefresh(data.data.refresh_token);
+    }
+    return data;
+  },
+
+  /**
+   * Refresh token → nhận access token mới
+   * POST /auth/refresh-token
+   */
+  async refreshToken(refreshToken: string): Promise<ApiResponse<LoginResponse>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(300);
+      const tokens = {
+        access_token: 'mock_access_token_' + Date.now(),
+        refresh_token: 'mock_refresh_token_' + Date.now(),
+      };
+      return mockSuccess(tokens);
+    }
+    const { data } = await apiClient.post<ApiResponse<LoginResponse>>('/auth/refresh-token', {
+      refreshToken,
+    });
     if (data.success) {
       await tokenStorage.setAccess(data.data.access_token);
       await tokenStorage.setRefresh(data.data.refresh_token);
@@ -76,11 +130,17 @@ export const authService = {
 
   /**
    * Đăng xuất
+   * POST /auth/logout
+   * Headers: Authorization: Bearer {access_token}
+   * Body: { refreshToken }
    */
   async logout(): Promise<void> {
     if (!IS_MOCK_MODE) {
       try {
-        await apiClient.post('/auth/logout');
+        const refreshToken = await tokenStorage.getRefresh();
+        if (refreshToken) {
+          await apiClient.post('/auth/logout', { refreshToken });
+        }
       } catch {
         // Ignore logout API errors — vẫn clear local token
       }

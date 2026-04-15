@@ -65,24 +65,41 @@ export interface OtpRequest {
 
 // ---- API Request/Response shapes ----
 
-export type RegisterEmailRequest = Pick<User, 'email'>;
-
-export interface VerifyOtpRequest extends RegisterEmailRequest {
-  otp_code: string;
+export interface RegisterEmailRequest {
+  identifier: string;
 }
 
-export interface LoginRequest extends RegisterEmailRequest {
+export interface VerifyOtpRequest {
+  identifier: string;
+  otp: string;
+}
+
+export interface VerifyOtpResponse {
+  verificationToken: string;
+}
+
+export interface SetPasswordRequest {
+  verificationToken: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface LoginRequest {
+  identifier: string; // email hoặc phone
   password: string;
 }
-
-// Kế thừa CẢ 2 hàm => Sẽ tự động gộp thành { email, otp_code, password }
-export interface SetPasswordRequest extends VerifyOtpRequest, LoginRequest {}
 
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
-  user: User;
-  profile: UserProfile | NgoProfile | null;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;
 }
 
 export interface CompleteProfileRequest {
