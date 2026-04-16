@@ -7,9 +7,11 @@ import {
   Animated,
   Keyboard,
   Text,
+  Alert,
   Platform,
   // Thêm Platform để check OS nếu cần
 } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +19,7 @@ import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // SỬA: Import đúng các component cần dùng
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 import ExpandingInput from './components/ExpandingInput';
 import ActionBottomSheet from './components/ActionBottomSheet';
 import LocationBottomSheet from './components/LocationBottomSheet';
@@ -24,9 +27,11 @@ import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { IMAGES } from '@/constants/linkMedia';
 
 export default function PreviewScreen() {
+  const { t } = useTranslation();
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isSavingImage, setIsSavingImage] = useState(false);
   // 1. Khai báo Ref cho Modal
   const { data: userProfile } = useCurrentUser();
   const animWidth = useRef(new Animated.Value(150)).current;
@@ -53,6 +58,44 @@ export default function PreviewScreen() {
     const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
     setTime((prev) => (prev ? null : timeStr)); // Toggle thời gian
   };
+
+  const handleDownloadImage = async () => {
+    if (!imageUri || typeof imageUri !== 'string') {
+      Alert.alert(
+        t('photograph.preview.download.unavailable_title'),
+        t('photograph.preview.download.unavailable_message')
+      );
+      return;
+    }
+
+    try {
+      setIsSavingImage(true);
+      const permission = await MediaLibrary.requestPermissionsAsync();
+
+      if (permission.status !== 'granted') {
+        Alert.alert(
+          t('photograph.preview.download.permission_title'),
+          t('photograph.preview.download.permission_message')
+        );
+        return;
+      }
+
+      await MediaLibrary.saveToLibraryAsync(imageUri);
+      Alert.alert(
+        t('photograph.preview.download.success_title'),
+        t('photograph.preview.download.success_message')
+      );
+    } catch (error) {
+      console.error('Lỗi khi lưu ảnh:', error);
+      Alert.alert(
+        t('photograph.preview.download.error_title'),
+        t('photograph.preview.download.error_message')
+      );
+    } finally {
+      setIsSavingImage(false);
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1, marginBottom: 100 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -70,7 +113,10 @@ export default function PreviewScreen() {
               className="flex-1"
             />
 
-            <TouchableOpacity className="rounded-2xl bg-white/10 p-3 shadow-sm">
+            <TouchableOpacity
+              onPress={handleDownloadImage}
+              disabled={isSavingImage}
+              className={`rounded-2xl bg-white/10 p-3 shadow-sm ${isSavingImage ? 'opacity-60' : ''}`}>
               <Feather name="download" size={24} color="white" />
             </TouchableOpacity>
           </View>
@@ -94,7 +140,9 @@ export default function PreviewScreen() {
                 {location && (
                   <View className="mr-2 flex-row items-center rounded-full bg-amber-500 px-3 py-1">
                     <Ionicons name="location" size={14} color="white" />
-                    <Text className="ml-1 text-xs text-white">Vị trí: {location}</Text>
+                    <Text className="ml-1 text-xs text-white">
+                      {t('photograph.preview.location_prefix')} {location}
+                    </Text>
                   </View>
                 )}
                 {time && (
@@ -107,7 +155,9 @@ export default function PreviewScreen() {
                   <View
                     key={tag}
                     className="mr-2 justify-center rounded-full bg-green-50 px-3 py-1">
-                    <Text className="text-xs text-[var(--primary)]">{tag}</Text>
+                    <Text className="text-xs text-[var(--primary)]">
+                      {t(`photograph.action_sheet.tags.${tag}`)}
+                    </Text>
                   </View>
                 ))}
               </ScrollView>

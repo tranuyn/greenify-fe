@@ -49,6 +49,197 @@
     "scan_qr": "Quét mã",
     "my_events_short": "Của tôi"
   },
+  "photograph": {
+    "permission_required": "Ứng dụng cần quyền truy cập camera để bạn có thể check-in.",
+    "permission_button": "Cấp quyền Camera",
+    "expanding_input": {
+      "placeholder": "Thêm mô tả"
+    },
+    "nature": {
+      "collection_title": "Bộ sưu tập"
+    },
+    "preview": {
+      "location_prefix": "Vị trí:",
+      "download": {
+        "unavailable_title": "Không thể tải ảnh",
+        "unavailable_message": "Không tìm thấy ảnh để lưu.",
+        "permission_title": "Chưa có quyền thư viện ảnh",
+        "permission_message": "Vui lòng cấp quyền thư viện ảnh để lưu ảnh.",
+        "success_title": "Thành công",
+        "success_message": "Ảnh đã được lưu vào thư viện.",
+        "error_title": "Có lỗi xảy ra",
+        "error_message": "Không thể lưu ảnh. Vui lòng thử lại."
+      }
+    },
+    "location_sheet": {
+      "title": "Chọn vị trí"
+    },
+    "action_sheet": {
+      "sections": {
+        "notes": "Chú thích",
+        "action_tags": "Tag hành động"
+      },
+      "tags": {
+        "location": "Thêm vị trí",
+        "time": "Thêm thời gian",
+        "seed": "Gieo hạt",
+        "green_daily": "Green Daily",
+        "pollution": "Ô nhiễm",
+        "community": "Cộng đồng",
+        "action_4": "Hành động 4"
+      }
+    }
+  },
+  "calendar": {
+    "header_title": "Lịch Xanh",
+    "green_action_button": "Hành động xanh",
+    "progress": {
+      "stage": {
+        "seed": "Hạt giống",
+        "sprout": "Nảy mầm",
+        "growing": "Phát triển",
+        "blooming": "Ra hoa",
+        "matured": "Trưởng thành",
+        "not_started": "Chưa bắt đầu"
+      },
+      "stage_label": "Giai đoạn: ",
+      "no_seed_selected": "Chưa có hạt giống",
+      "green_streak_label": "Chuỗi xanh: ",
+      "today_no_action": "Hôm nay bạn vẫn chưa thực hiện hành động xanh"
+    },
+    "week": {
+      "title": "Tuần 1",
+      "updating": "Đang cập nhật lịch xanh...",
+      "restore_streak": "Khôi phục chuỗi",
+      "restore_count": "Số lần khôi phục {{current}}/{{total}}",
+      "pick_date": "Chọn ngày"
+    },
+    "utilities": {
+      "title": "Tiện ích",
+      "planting": "Gieo trồng",
+      "farm": "Nông trại"
+    },
+    "gift": {
+      "your_gift_title": "Quà tặng của bạn",
+      "total": "Số lượng quà: {{count}}",
+      "today_gift_title": "Quà tặng hôm nay",
+      "description": "Mô tả",
+      "required_points": "Điểm cần",
+      "remaining_usage": "Lượt dùng còn lại",
+      "usage_conditions": "Điều kiện sử dụng",
+      "expire_date": "Hết hạn: {{date}}",
+      "empty_title": "Chưa có quà tặng cho hôm nay",
+      "empty_message": "Hãy hoàn thành hoạt động chăm cây để nhận voucher."
+    },
+    "history": {
+      "title": "Lịch sử hoạt động",
+      "green_post_title": "Bài xanh",
+      "green_post_description": "Bạn đã đăng một bài Xanh",
+      "status_pending": "Đang chờ duyệt",
+      "status_approved": "Đã duyệt"
+    },
+    "archive": {
+      "title": "Bộ sưu tập",
+      "loading": "Đang tải nông trại...",
+      "empty": "Bạn chưa có cây nào trong kho lưu trữ."
+    },
+    "seed_modal": {
+      "duration_days": "Thời gian: {{days}} ngày",
+      "select_seed_title": "Chọn giống cây trồng",
+      "long_term_section": "Cây dài hạn",
+      "short_term_section": "Cây ngắn hạn",
+      "loading_seeds": "Đang tải giống cây...",
+      "has_growing_seed": "Có hạt giống đang phát triển",
+      "warning_seed_progress_lost": "Nếu tiếp tục tiến trình hạt giống hiện tại sẽ mất",
+      "confirm_new_planting": "Bạn có chắc chắn muốn trồng mới?",
+      "exit": "Thoát",
+      "plant_button": "Trồng cây",
+      "info": {
+        "title": "Lưu ý",
+        "growth_cycle_title": "Chu kỳ phát triển",
+        "notes_label": "Lưu ý khi gieo trồng:",
+        "stage": {
+          "seed": "Hạt giống",
+          "sprout": "Nảy mầm",
+          "growing": "Phát triển",
+          "matured": "Trưởng thành"
+        },
+        "short_term_title": "Cây ngắn hạn",
+        "short_term_subtitle": "Phù hợp cho người muốn thấy kết quả sớm",
+        "short_term_note_1": "- Cần chăm sóc mỗi ngày để cây phát triển đúng tiến độ",
+        "short_term_note_2": "- Bỏ lỡ 1-2 ngày có thể khiến cây chậm lớn",
+        "short_term_note_3": "- Thời gian trưởng thành nhanh (7 ngày)",
+        "short_term_note_4": "- Phần thưởng nhỏ nhưng nhận nhanh và đều đặn",
+        "long_term_title": "Cây dài hạn",
+        "long_term_subtitle": "Dành cho người kiên trì và muốn phần thưởng lớn",
+        "long_term_note_1": "- Không cần chăm sóc liên tục mỗi ngày, nhưng nên quay lại thường xuyên",
+        "long_term_note_2": "- Có thể chịu được việc bỏ lỡ vài ngày, nhưng sẽ giảm tốc độ phát triển",
+        "long_term_note_3": "- Thời gian trưởng thành dài (30 ngày)",
+        "long_term_note_4": "- Phần thưởng lớn hơn khi cây trưởng thành"
+      }
+    }
+  },
+  "point_history": {
+    "header_title": "Ví & Điểm",
+    "points_label": "Điểm",
+    "expiring_points_text": "{{points}} GP sẽ hết hạn vào ngày {{date}}",
+    "history_title": "Lịch sử điểm",
+    "search_placeholder": "Tìm kiếm",
+    "applied_filters": "Đang áp dụng {{count}} bộ lọc:",
+    "loading": "Đang tải lịch sử điểm...",
+    "empty_result": "Không tìm thấy kết quả phù hợp",
+    "unknown_activity": "Hoạt động không xác định",
+    "subtitle_positive": "Bạn nhận được điểm từ hoạt động",
+    "subtitle_negative": "Hoạt động của bạn bị trừ điểm",
+    "source_type": {
+      "green_action": "Bài xanh",
+      "event_attend": "Sự kiện",
+      "review_reward": "Duyệt bài",
+      "leaderboard": "Bảng xếp hạng",
+      "leaderboard_reward": "Thưởng BXH",
+      "voucher_redeem": "Đổi voucher"
+    },
+    "filter": {
+      "title": "Bộ lọc",
+      "by_time": "Theo thời gian",
+      "detail": "Chi tiết",
+      "other": "Khác",
+      "reset": "Thiết lập lại",
+      "apply": "Áp dụng",
+      "time": {
+        "week": "Tuần",
+        "month": "Tháng",
+        "all": "Tất cả"
+      }
+    }
+  },
+  "leaderboard": {
+    "title": "Bảng xếp hạng",
+    "error_load": "Không tải được bảng xếp hạng.",
+    "retry": "Thử lại",
+    "empty": "Chưa có dữ liệu xếp hạng.",
+    "anonymous": "Ẩn danh",
+    "scope": {
+      "provincial": "Khu vực",
+      "national": "Toàn quốc"
+    },
+    "countdown": {
+      "days": "{{count}} ngày",
+      "hours": "{{count}} giờ",
+      "minutes": "{{count}} phút"
+    },
+    "reward": {
+      "not_found": "Không tìm thấy thông tin giải thưởng",
+      "title": "Thông tin giải thưởng",
+      "top5_subtitle": "Giải thưởng dành cho Top 5",
+      "provider": "Nhà cung cấp",
+      "validity": "Hạn sử dụng",
+      "validity_note": "Có hiệu lực trong 7 ngày kể từ ngày nhận",
+      "expire_date": "Hết hạn sau: {{date}}",
+      "terms_and_conditions": "Điều khoản và điều kiện",
+      "claim_now": "Nhận thưởng ngay"
+    }
+  },
   "auth": {
     "login": {
       "title": "Đăng nhập",

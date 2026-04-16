@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-na
 import { Feather } from '@expo/vector-icons';
 import { useGardenArchives } from '@/hooks/queries/useGamification';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { useTranslation } from 'react-i18next';
 
 type MyGardenArchiveProps = {
   onBack: () => void;
@@ -11,6 +12,7 @@ type MyGardenArchiveProps = {
 const MyGardenArchive = ({ onBack }: MyGardenArchiveProps) => {
   const { data: archives = [], isLoading } = useGardenArchives();
   const colors = useThemeColor();
+  const { t } = useTranslation();
 
   return (
     <View className="mt-6 px-4 pb-24">
@@ -20,21 +22,25 @@ const MyGardenArchive = ({ onBack }: MyGardenArchiveProps) => {
           className="h-9 w-9 items-center justify-center rounded-full bg-[var(--primary-light)]">
           <Feather name="arrow-left" size={18} color={colors.foreground} />
         </TouchableOpacity>
-        <Text className="font-inter-bold text-lg text-[var(--foreground)]">Bộ sưu tập</Text>
+        <Text className="font-inter-bold text-lg text-[var(--foreground)]">
+          {t('calendar.archive.title')}
+        </Text>
         <View className="h-9 w-9" />
       </View>
 
       {isLoading ? (
         <View className="items-center py-8">
           <ActivityIndicator />
-          <Text className="mt-2 text-sm text-[var(--muted-foreground)]">Đang tải nông trại...</Text>
+          <Text className="mt-2 text-sm text-[var(--muted-foreground)]">
+            {t('calendar.archive.loading')}
+          </Text>
         </View>
       ) : null}
 
       {!isLoading && archives.length === 0 ? (
         <View className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-5">
           <Text className="text-center text-sm text-[var(--muted-foreground)]">
-            Bạn chưa có cây nào trong kho lưu trữ.
+            {t('calendar.archive.empty')}
           </Text>
         </View>
       ) : null}

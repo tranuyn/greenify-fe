@@ -5,12 +5,14 @@ import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { usePlantDailyLogs, useSeeds } from '@/hooks/queries/useGamification';
 import SeedSelectionModal from './SeedSelectionModal';
 import { CycleType } from '@/types/gamification.types';
+import { useTranslation } from 'react-i18next';
 
 type UtilitiesSectionProps = {
   onPressFarm?: () => void;
 };
 
 const UtilitiesSection = ({ onPressFarm }: UtilitiesSectionProps) => {
+  const { t } = useTranslation();
   const [isSeedModalVisible, setIsSeedModalVisible] = useState(false);
   const [selectedSeedId, setSelectedSeedId] = useState<string | null>(null);
 
@@ -56,19 +58,25 @@ const UtilitiesSection = ({ onPressFarm }: UtilitiesSectionProps) => {
 
   return (
     <>
-      <Text className="mb-3 font-inter-bold text-[var(--foreground)]">Tiện ích</Text>
+      <Text className="mb-3 font-inter-bold text-[var(--foreground)]">
+        {t('calendar.utilities.title')}
+      </Text>
       <View className="mb-6 flex-row justify-between">
         <TouchableOpacity
           onPress={() => setIsSeedModalVisible(true)}
           className="mr-2 flex-1 flex-row items-center justify-center rounded-xl border border-[var(--primary)] bg-[var(--primary-light)] p-3">
-          <Text className="mr-3 font-inter-bold text-[var(--foreground)]">Gieo trồng</Text>
+          <Text className="mr-3 font-inter-bold text-[var(--foreground)]">
+            {t('calendar.utilities.planting')}
+          </Text>
           <Image source={{ uri: IMAGES.saveWater }} className="h-6 w-6" />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={onPressFarm}
           className="ml-2 flex-1 flex-row items-center justify-center rounded-xl border border-[var(--primary)] bg-[var(--primary-light)] p-3">
-          <Text className="mr-3 font-inter-bold text-[var(--foreground)]">Nông trại</Text>
+          <Text className="mr-3 font-inter-bold text-[var(--foreground)]">
+            {t('calendar.utilities.farm')}
+          </Text>
           <Image source={{ uri: IMAGES.house }} className="h-6 w-6" />
         </TouchableOpacity>
       </View>

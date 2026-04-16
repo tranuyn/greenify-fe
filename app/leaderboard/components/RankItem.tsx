@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { IMAGES } from '@/constants/linkMedia';
 import { LeaderboardEntry } from '@/types/gamification.types';
+import { useTranslation } from 'react-i18next';
 
 interface RankItemProps {
   item: LeaderboardEntry;
 }
 
 const RankItem = ({ item }: RankItemProps) => {
+  const { t } = useTranslation();
   // Đổi màu số thứ tự cho Top 3
   const rankColor =
     item.rank === 1
@@ -27,7 +29,8 @@ const RankItem = ({ item }: RankItemProps) => {
   };
 
   const frameSource = getFrameSource(item.rank);
-  const displayName = item?.display_name || item.user_profiles?.display_name || 'Ẩn danh';
+  const displayName =
+    item?.display_name || item.user_profiles?.display_name || t('leaderboard.anonymous');
   const avatarUrl = item?.avatar_url || item.user_profiles?.avatar_url || IMAGES.treeAvatar;
 
   return (

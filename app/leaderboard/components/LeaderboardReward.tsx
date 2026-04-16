@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { VoucherTemplate } from '@/types/gamification.types';
 import { IMAGES } from '@/constants/linkMedia';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { useTranslation } from 'react-i18next';
 
 interface RewardDetailProps {
   data?: VoucherTemplate;
@@ -12,6 +13,7 @@ interface RewardDetailProps {
 }
 
 export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetailProps) {
+  const { t, i18n } = useTranslation();
   const rewardData = data;
   const colors = useThemeColor();
   if (!rewardData) {
@@ -19,18 +21,21 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
       <View className="flex-1 items-center justify-center gap-3">
         <Image source={{ uri: IMAGES.germination }} className="h-32 w-32" />
         <Text className="font-inter-medium text-base text-foreground">
-          Không tìm thấy thông tin giải thưởng
+          {t('leaderboard.reward.not_found')}
         </Text>
       </View>
     );
   }
 
   // Format ngày tháng từ chuỗi ISO sang định dạng dd/mm/yyyy
-  const formattedDate = new Date(rewardData.valid_until).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  const formattedDate = new Date(rewardData.valid_until).toLocaleDateString(
+    i18n.resolvedLanguage === 'vi' ? 'vi-VN' : 'en-US',
+    {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }
+  );
 
   // Tách chuỗi điều kiện thành mảng và loại bỏ dấu "-" ở đầu nếu có
   const conditions = rewardData.usage_conditions
@@ -41,9 +46,11 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
     <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
       {/* Header Titles */}
       <View className="mb-4 items-center">
-        <Text className="mb-1 font-inter-bold text-2xl text-primary">Thông tin giải thưởng</Text>
+        <Text className="mb-1 font-inter-bold text-2xl text-primary">
+          {t('leaderboard.reward.title')}
+        </Text>
         <Text className="font-inter-medium text-base text-foreground">
-          Giải thưởng dành cho Top 5
+          {t('leaderboard.reward.top5_subtitle')}
         </Text>
       </View>
 
@@ -61,7 +68,9 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
 
         {/* Provider Section */}
         <View className="mb-4">
-          <Text className="mb-2 font-inter-bold text-base text-foreground">Nhà cung cấp</Text>
+          <Text className="mb-2 font-inter-bold text-base text-foreground">
+            {t('leaderboard.reward.provider')}
+          </Text>
           <View className="flex-row items-center">
             <View className="mr-2 h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-green-600 p-0.5">
               <Image
@@ -76,14 +85,16 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
 
         {/* Validity Section */}
         <View className="mb-4">
-          <Text className="mb-2 font-inter-bold text-base text-foreground">Hạn sử dụng</Text>
+          <Text className="mb-2 font-inter-bold text-base text-foreground">
+            {t('leaderboard.reward.validity')}
+          </Text>
           <Text className="font-inter-regular mb-2 text-foreground">
-            Có hiệu lực trong 7 ngày kể từ ngày nhận
+            {t('leaderboard.reward.validity_note')}
           </Text>
           <View className="flex-row items-center">
             <Feather name="clock" size={16} color={colors.foreground} className="mr-2" />
             <Text className="font-inter-regular ml-1 text-foreground">
-              Hết hạn sau: {formattedDate}
+              {t('leaderboard.reward.expire_date', { date: formattedDate })}
             </Text>
           </View>
         </View>
@@ -91,7 +102,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
         {/* Terms & Conditions Section */}
         <View>
           <Text className="mb-2 font-inter-bold text-base text-foreground">
-            Điều khoản và điều kiện
+            {t('leaderboard.reward.terms_and_conditions')}
           </Text>
           <View className="flex-col gap-1.5 pl-1">
             {conditions.map((item, index) => (
@@ -112,7 +123,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
           {isClaiming ? (
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
-            <Text className="font-semibold text-white">Nhận thưởng ngay</Text>
+            <Text className="font-semibold text-white">{t('leaderboard.reward.claim_now')}</Text>
           )}
         </TouchableOpacity>
       </View>

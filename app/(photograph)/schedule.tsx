@@ -62,6 +62,8 @@ export default function ScheduleScreen() {
     >((acc, log) => {
       if (!log?.is_active_day) return acc;
 
+      console.log('Active day log:', log); // Debug log để kiểm tra dữ liệu
+
       const sourceType = log.image_url ? 'image_url' : log.green_post_url ? 'green_post_url' : null;
       const image = log.image_url || log.green_post_url;
       if (!image) return acc;
