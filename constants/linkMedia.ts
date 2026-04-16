@@ -27,27 +27,28 @@ export const IMAGES = {
   recycle:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/recycle.png?updatedAt=1775669299342',
   saveWater:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/save-water.png?updatedAt=1775669299297',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/hat%202.png?updatedAt=1776237615245',
   house: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/house.png?updatedAt=1775669299347',
   growingPlant:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/growing-plant.png?updatedAt=1775669299246',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/nay%20mam.png?updatedAt=1776237615268',
   leafPlant:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/leaf-plant.png?updatedAt=1775669299189',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/leaf-plant.png?updatedAt=1776237615257',
   cherryBlossom:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/cherry-blossom-tree.png?updatedAt=1775669299230',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/anh%20dao.png?updatedAt=1776237615253',
   palmTree:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/palm-trees.png?updatedAt=1775669299243',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/Cay%20dua.png?updatedAt=1776237615246',
   windowTree:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/tree.png?updatedAt=1775669299238',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/Cay%20phong.png?updatedAt=1776237615249',
   christmasTree:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/christmas-tree.png?updatedAt=1775669299196',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/Cay%20thong.png?updatedAt=1776237615270',
   sunflower:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/sunflower.png?updatedAt=1775669299171',
-  lotus: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/lotus.png?updatedAt=1775669299121',
-  rose: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/rose.png?updatedAt=1775669299187',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/huong%20duong.png?updatedAt=1776237615262',
+  lotus: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/sen.png?updatedAt=1776237615287',
+  rose: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/hoa%20hong.png?updatedAt=1776237615255',
   carnation:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/carnation.png?updatedAt=1775669299129',
-  acorn: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/acorn.png?updatedAt=1775669299231',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/Cam%20chuong.png?updatedAt=1776237615259',
+  acorn:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/hat%201.png?updatedAt=1776237615298',
   baobab:
-    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Flower/baobab.png?updatedAt=1775669299325',
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/baobab.png?updatedAt=1776237615275',
 };

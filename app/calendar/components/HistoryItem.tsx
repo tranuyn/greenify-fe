@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/Badge';
 import React from 'react';
 import { View, Text, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface HistoryItemProps {
   title: string;
@@ -10,6 +11,8 @@ interface HistoryItemProps {
 }
 
 const HistoryItem = ({ title, description, status, imageUrl }: HistoryItemProps) => {
+  const { t } = useTranslation();
+
   return (
     <View className="flex-row items-center border-b border-[var(--border)] py-3">
       <Image source={{ uri: imageUrl }} className="h-12 w-12 rounded-lg bg-[var(--card)]" />
@@ -19,7 +22,14 @@ const HistoryItem = ({ title, description, status, imageUrl }: HistoryItemProps)
           {description}
         </Text>
       </View>
-      <Badge label={status === 'pending' ? 'Đang chờ duyệt' : 'Đã duyệt'} variant={status} />
+      <Badge
+        label={
+          status === 'pending'
+            ? t('calendar.history.status_pending')
+            : t('calendar.history.status_approved')
+        }
+        variant={status}
+      />
     </View>
   );
 };

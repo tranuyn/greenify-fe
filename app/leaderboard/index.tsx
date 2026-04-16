@@ -23,8 +23,10 @@ import RankItem from './components/RankItem';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import RewardDetail from './components/LeaderboardReward';
+import { useTranslation } from 'react-i18next';
 
 const LeaderboardScreen = () => {
+  const { t } = useTranslation();
   const [scope, setScope] = React.useState<LeaderboardScope>(LeaderboardScope.NATIONAL);
   const [showLeaderboardReward, setShowLeaderboardReward] = React.useState(false);
 
@@ -81,7 +83,7 @@ const LeaderboardScreen = () => {
                   resizeMode="contain"
                 />
               </TouchableOpacity>
-              <Text className="text-lg font-medium text-foreground">Bảng xếp hạng</Text>
+              <Text className="text-lg font-medium text-foreground">{t('leaderboard.title')}</Text>
             </View>
 
             <View className="flex-row gap-3">
@@ -136,11 +138,11 @@ const LeaderboardScreen = () => {
               </View>
             ) : isError ? (
               <View className="flex-1 items-center justify-center gap-3">
-                <Text className="text-sm text-gray-500">Không tải được bảng xếp hạng.</Text>
+                <Text className="text-sm text-gray-500">{t('leaderboard.error_load')}</Text>
                 <TouchableOpacity
                   onPress={() => refetch()}
                   className="rounded-full bg-[#359B63] px-4 py-2">
-                  <Text className="font-semibold text-white">Thử lại</Text>
+                  <Text className="font-semibold text-white">{t('leaderboard.retry')}</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -158,7 +160,7 @@ const LeaderboardScreen = () => {
                 }
                 ListEmptyComponent={
                   <View className="items-center justify-center py-10">
-                    <Text className="text-sm text-gray-500">Chưa có dữ liệu xếp hạng.</Text>
+                    <Text className="text-sm text-gray-500">{t('leaderboard.empty')}</Text>
                   </View>
                 }
                 contentContainerStyle={{ paddingBottom: 20 }}

@@ -6,9 +6,10 @@ import { LedgerTimeFilter } from 'hooks/queries/useWallet';
 import {
   DETAIL_SOURCE_TYPES,
   OTHER_SOURCE_TYPES,
-  SOURCE_TYPE_LABELS,
+  getSourceTypeLabels,
 } from '@/constants/sourceTypeLabel';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { useTranslation } from 'react-i18next';
 
 interface CheckboxRowProps {
   label: string;
@@ -49,12 +50,14 @@ interface FilterModalProps {
 }
 
 const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModalProps) => {
+  const { t } = useTranslation();
   const [selectedTime, setSelectedTime] = useState<LedgerTimeFilter[]>(value.time);
   const [selectedSourceTypes, setSelectedSourceTypes] = useState<PointSourceType[]>(
     value.sourceTypes
   );
 
   const colors = useThemeColor();
+  const sourceTypeLabels = getSourceTypeLabels(t);
 
   useEffect(() => {
     if (isVisible) {
@@ -103,7 +106,9 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
           style={{ maxHeight: '80%' }}>
           <View className="mb-5 flex-row items-center justify-between">
             <View className="w-8" />
-            <Text className="text-xl font-bold text-foreground">Bộ lọc</Text>
+            <Text className="text-xl font-bold text-foreground">
+              {t('point_history.filter.title')}
+            </Text>
             <TouchableOpacity onPress={onClose} className="p-1">
               <AntDesign name="close" size={22} color={colors.foreground} />
             </TouchableOpacity>
@@ -114,25 +119,27 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             {/* Nhóm 1: Thời gian */}
             <View className="mb-6 border-b border-gray-100 pb-4">
               <View className="mb-2 flex-row items-center justify-between">
-                <Text className="text-base font-semibold text-foreground">Theo thời gian</Text>
+                <Text className="text-base font-semibold text-foreground">
+                  {t('point_history.filter.by_time')}
+                </Text>
                 <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.foreground} />
               </View>
               <CheckboxRow
-                label="Tuần"
+                label={t('point_history.filter.time.week')}
                 isChecked={selectedTimeSet.has('week')}
                 onPress={() => toggleTime('week')}
                 checkedColor={colors.primary}
                 uncheckedColor={colors.mutedForeground}
               />
               <CheckboxRow
-                label="Tháng"
+                label={t('point_history.filter.time.month')}
                 isChecked={selectedTimeSet.has('month')}
                 onPress={() => toggleTime('month')}
                 checkedColor={colors.primary}
                 uncheckedColor={colors.mutedForeground}
               />
               <CheckboxRow
-                label="Tất cả"
+                label={t('point_history.filter.time.all')}
                 isChecked={selectedTime.length === 0}
                 onPress={clearTime}
                 checkedColor={colors.primary}
@@ -143,13 +150,15 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             {/* Nhóm 2: Chi tiết */}
             <View className="mb-6 border-b border-gray-100 pb-4">
               <View className="mb-2 flex-row items-center justify-between">
-                <Text className="text-base font-semibold text-foreground">Chi tiết</Text>
+                <Text className="text-base font-semibold text-foreground">
+                  {t('point_history.filter.detail')}
+                </Text>
                 <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.foreground} />
               </View>
               {DETAIL_SOURCE_TYPES.map((sourceType) => (
                 <CheckboxRow
                   key={sourceType}
-                  label={SOURCE_TYPE_LABELS[sourceType]}
+                  label={sourceTypeLabels[sourceType]}
                   isChecked={selectedSet.has(sourceType)}
                   onPress={() => toggleSourceType(sourceType)}
                   checkedColor={colors.primary}
@@ -161,13 +170,15 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             {/* Nhóm 3: Khác */}
             <View className="mb-6 border-b border-gray-100 pb-4">
               <View className="mb-2 flex-row items-center justify-between">
-                <Text className="text-base font-semibold text-foreground">Khác</Text>
+                <Text className="text-base font-semibold text-foreground">
+                  {t('point_history.filter.other')}
+                </Text>
                 <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.foreground} />
               </View>
               {OTHER_SOURCE_TYPES.map((sourceType) => (
                 <CheckboxRow
                   key={sourceType}
-                  label={SOURCE_TYPE_LABELS[sourceType]}
+                  label={sourceTypeLabels[sourceType]}
                   isChecked={selectedSet.has(sourceType)}
                   onPress={() => toggleSourceType(sourceType)}
                   checkedColor={colors.primary}
@@ -182,12 +193,16 @@ const FilterModal = ({ isVisible, onClose, value, onApply, onReset }: FilterModa
             <TouchableOpacity
               onPress={handleReset}
               className="flex-1 items-center rounded-2xl border border-primary py-4">
-              <Text className="text-base font-bold text-primary">Thiết lập lại</Text>
+              <Text className="text-base font-bold text-primary">
+                {t('point_history.filter.reset')}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleApply}
               className="flex-1 items-center rounded-2xl bg-primary py-4">
-              <Text className="text-base font-bold text-white">Áp dụng</Text>
+              <Text className="text-base font-bold text-white">
+                {t('point_history.filter.apply')}
+              </Text>
             </TouchableOpacity>
           </View>
         </Pressable>
