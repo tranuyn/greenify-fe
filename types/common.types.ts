@@ -1,10 +1,5 @@
-// ============================================================
-// SHARED / COMMON TYPES
-// ============================================================
+import { SortOption } from "@/constants/enums/sortOptions.enum";
 
-/**
- * Standard API response wrapper.
- */
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -12,36 +7,31 @@ export interface ApiResponse<T> {
 }
 
 /**
- * Standard paginated list response.
+ * Standard paginated list response
  */
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
+export interface PageResponse<T> {
+  content: T[];
   page: number;
-  page_size: number;
-  has_next: boolean;
+  size: number;
+  totalElements: number;
+  totalPages: number;
 }
 
-/**
- * Generic API error shape.
- */
 export interface ApiError {
   success: false;
   message: string;
-  error_code?: string; // e.g. "OTP_EXPIRED", "INSUFFICIENT_POINTS"
+  error_code?: string;
 }
 
-/**
- * Pagination query params — dùng chung cho mọi list API.
- */
 export interface PaginationParams {
   page?: number;
-  page_size?: number;
+  size?: number;
 }
-
-export interface FeedQueryParams extends PaginationParams {
-  search?: string;
-  action_type_id?: string;
-  sort?: string;
-  time?: string;
+export interface DateRangeParams {
+  fromDate?: string; // ISO 8601: YYYY-MM-DD
+  toDate?: string;
 }
+export interface SortParams<T = string> {
+  sort?: T; 
+}
+export interface BaseQueryParams extends PaginationParams, DateRangeParams {}

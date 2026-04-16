@@ -42,6 +42,10 @@
   "common": {
     "processing": "Processing...",
     "gp_unit": "GP",
+    "all": "All",
+    "from_date": "From date",
+    "to_date": "To date",
+    "select_date": "Select date",
     "cancel": "Cancel",
     "done": "Done",
     "ok": "OK",
