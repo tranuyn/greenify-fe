@@ -60,11 +60,11 @@ export default function HomeScreen() {
   const { mutate: redeemVoucher } = useRedeemVoucher();
 
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
-  const currentProfile = authData?.profile;
+  const currentProfile = authData?.userProfile;
   let userName = t('home.welcome_guest', 'Công dân xanh');
 
   if (currentProfile) {
-    userName = 'org_name' in currentProfile ? currentProfile.org_name : currentProfile.display_name;
+    userName = 'org_name' in currentProfile ? currentProfile.org_name : currentProfile.displayName;
   }
   const events = eventsData?.items ?? [];
   const allVouchers = vouchers ?? [];
@@ -72,8 +72,7 @@ export default function HomeScreen() {
   const collectedVoucherIds = new Set(
     (myVouchers ?? [])
       .filter(
-        (v) =>
-          v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
+        (v) => v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
       )
       .map((v) => v.voucher_template_id)
   );
@@ -96,7 +95,7 @@ export default function HomeScreen() {
       {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
       <HomeHeader
         userName={userName}
-        avatarUrl={authData?.profile?.avatar_url}
+        avatarUrl={authData?.userProfile?.avatar_url}
         points={wallet?.available_points ?? 0}
       />
 

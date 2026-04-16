@@ -268,7 +268,10 @@
       "title": "Verify Email",
       "subtitle": "We have sent a verification code to",
       "resend": "Resend code",
-      "submit_btn": "Verify"
+      "submit_btn": "Verify",
+      "incomplete_code": "Please enter the full verification code.",
+      "invalid_code": "Invalid verification code.",
+      "invalid_response": "Unable to read verification token. Please try again."
     },
     "signup_password": {
       "title": "Password",

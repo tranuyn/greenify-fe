@@ -61,9 +61,6 @@ export default function ScheduleScreen() {
       Record<string, { uri: string; sourceType: 'image_url' | 'green_post_url' }>
     >((acc, log) => {
       if (!log?.is_active_day) return acc;
-
-      console.log('Active day log:', log); // Debug log để kiểm tra dữ liệu
-
       const sourceType = log.image_url ? 'image_url' : log.green_post_url ? 'green_post_url' : null;
       const image = log.image_url || log.green_post_url;
       if (!image) return acc;
@@ -150,7 +147,7 @@ export default function ScheduleScreen() {
           <View className="aspect-square w-14 overflow-hidden rounded-[40px] border border-neutral-500">
             <Image
               source={{
-                uri: userProfile?.profile?.avatar_url || IMAGES.treeAvatar,
+                uri: userProfile?.userProfile?.avatar_url || IMAGES.treeAvatar,
               }}
               className="flex-1"
             />

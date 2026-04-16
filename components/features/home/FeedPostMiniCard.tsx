@@ -28,7 +28,7 @@ export function FeedPostMiniCard({ item }: Props) {
         ) : (
           <View className="h-full w-full items-center justify-center bg-primary-200">
             <Text className="font-inter-bold text-sm text-primary-800">
-              {(item.user_display_name ?? '?')[0]}
+              {(item.user_displayName ?? '?')[0]}
             </Text>
           </View>
         )}
@@ -39,7 +39,7 @@ export function FeedPostMiniCard({ item }: Props) {
         {/* Name + Action Type */}
         <View className="mb-1 flex-row items-center">
           <Text className="mr-2 font-inter-semibold text-[13px] text-foreground">
-            {item.user_display_name ?? 'Ẩn danh'}
+            {item.user_displayName ?? 'Ẩn danh'}
           </Text>
           {item.action_type && (
             <View className="rounded-md bg-primary-100 px-2 py-0.5 dark:bg-primary-900/40">
@@ -51,7 +51,7 @@ export function FeedPostMiniCard({ item }: Props) {
         </View>
 
         {/* Caption */}
-        <Text className="line-clamp-2 font-inter text-xs leading-[18px] text-foreground/70">
+        <Text className="text-foreground/70 line-clamp-2 font-inter text-xs leading-[18px]">
           {item.caption}
         </Text>
       </View>

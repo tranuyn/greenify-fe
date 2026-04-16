@@ -203,6 +203,6 @@ export interface LeaderboardEntry {
   reward_status: RewardStatus;
   status: SnapshotStatus;
   // Joined
-  display_name?: string;
+  displayName?: string;
   avatar_url?: string | null;
 }

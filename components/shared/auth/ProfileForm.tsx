@@ -45,7 +45,7 @@ export function ProfileForm({
   } = useForm<CompleteProfileFormData>({
     resolver: zodResolver(completeProfileSchema),
     defaultValues: {
-      display_name: initialValues?.display_name || '',
+      displayName: initialValues?.displayName || '',
       province: initialValues?.province || '',
       ward: initialValues?.ward || '',
     },
@@ -94,7 +94,7 @@ export function ProfileForm({
         {/* Name Input */}
         <Controller
           control={control}
-          name="display_name"
+          name="displayName"
           render={({ field: { onChange, onBlur, value, ref } }) => (
             <AuthInput
               ref={ref}
@@ -103,7 +103,7 @@ export function ProfileForm({
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              errorText={errors.display_name?.message}
+              errorText={errors.displayName?.message}
             />
           )}
         />

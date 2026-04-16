@@ -45,7 +45,7 @@ export const signupPasswordSchema = z
 export type SignupPasswordFormData = z.infer<typeof signupPasswordSchema>;
 
 export const completeProfileSchema = z.object({
-  display_name: z
+  displayName: z
     .string()
     .min(1, 'Vui lòng nhập họ và tên.')
     .min(2, 'Họ và tên phải có ít nhất 2 ký tự.'),

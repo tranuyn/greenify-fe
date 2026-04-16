@@ -15,7 +15,7 @@ const Podium = ({ topThree }: PodiumProps) => {
   const rank3 = topThree.find((item) => item.rank === 3);
 
   const getName = (item?: LeaderboardEntry) =>
-    item?.display_name || item?.user_profiles?.display_name || t('leaderboard.anonymous');
+    item?.displayName || item?.user_profiles?.displayName || t('leaderboard.anonymous');
 
   const getAvatar = (item?: LeaderboardEntry) =>
     item?.avatar_url || item?.user_profiles?.avatar_url || IMAGES.treeAvatar;

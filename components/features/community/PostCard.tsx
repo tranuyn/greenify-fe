@@ -88,7 +88,7 @@ export function PostCard({ post }: { post: GreenActionPost }) {
 
           <View>
             <Text className="font-inter-medium text-lg text-foreground">
-              {post.user_display_name ||
+              {post.user_displayName ||
                 t('community.post_detail.anonymous_user', 'Người dùng ẩn danh')}
             </Text>
             <Text className="text-foreground/60 mt-0.5 font-inter text-sm">
@@ -101,8 +101,7 @@ export function PostCard({ post }: { post: GreenActionPost }) {
           <View className={`rounded-xl px-3 py-1 ${statusCfg.bgClass}`}>
             <Text
               useDefaultColor={false}
-              className={`font-inter-semibold text-xs ${statusCfg.textClass}`}
-            >
+              className={`font-inter-semibold text-xs ${statusCfg.textClass}`}>
               {t(statusCfg.labelKey)}
             </Text>
           </View>

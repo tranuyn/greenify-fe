@@ -4,24 +4,27 @@ import { authService } from 'services/auth.service';
 import { AuthenticatedUser } from 'types/user.type'; // Import type để typescript support
 
 /**
- * Lấy thông tin user hiện tại. 
+ * Lấy thông tin user hiện tại.
  * Đã được pre-populate từ `index.tsx` khi restart app hoặc `useLogin` khi đăng nhập.
  */
 export const useCurrentUser = () => {
   return useQuery({
     queryKey: QUERY_KEYS.auth.me(),
-    queryFn: () => authService.getMe().then((res) => res.data),
+    queryFn: async () => {
+      const res = await authService.getMe();
+      return res.data;
+    },
     // Data sống được 10 phút. Trong 10 phút này nếu component mount,
     // nó lấy thẳng từ cache (Sync 100%, không loading)
-    staleTime: 10 * 60 * 1000, 
+    staleTime: 10 * 60 * 1000,
   });
 };
 
 export const useAuthRole = () => {
   const queryClient = useQueryClient();
   const authData = queryClient.getQueryData<AuthenticatedUser>(QUERY_KEYS.auth.me());
-  
-return {
+
+  return {
     userId: authData?.user?.id ?? null,
     role: authData?.user?.role ?? null,
     isNgo: authData?.user?.role === 'NGO',

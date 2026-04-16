@@ -9,8 +9,8 @@ import { ProfileForm } from '@/components/shared/auth/ProfileForm';
 export default function EditProfileScreen() {
   const { data: meData, isLoading: isLoadingUser } = useCurrentUser();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
-  const currentProfile = meData?.profile;
-  const isCitizenProfile = currentProfile && 'display_name' in currentProfile;
+  const currentProfile = meData?.userProfile;
+  const isCitizenProfile = currentProfile && 'displayName' in currentProfile;
   const handleUpdateProfile = (data: CompleteProfileFormData) => {
     updateProfile(data, {
       onSuccess: () => {
@@ -41,9 +41,9 @@ export default function EditProfileScreen() {
         <ProfileForm
           email={meData?.user?.email ?? ''}
           initialValues={{
-            display_name: isCitizenProfile ? currentProfile.display_name || '' : '',
-            province: meData?.profile?.province ?? '',
-            ward: meData?.profile?.ward ?? '',
+            displayName: isCitizenProfile ? currentProfile.displayName || '' : '',
+            province: meData?.userProfile?.province ?? '',
+            ward: meData?.userProfile?.ward ?? '',
           }}
           isEditMode={true}
           isLoading={isPending || isLoadingUser}

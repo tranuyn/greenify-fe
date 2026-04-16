@@ -322,7 +322,7 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     is_winner: true,
     reward_status: 'REWARDED',
     status: 'PUBLISHED',
-    display_name: 'Hoàng Minh',
+    displayName: 'Hoàng Minh',
     avatar_url: 'https://i.pravatar.cc/150?img=3',
   },
   {
@@ -337,7 +337,7 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     is_winner: true,
     reward_status: 'REWARDED',
     status: 'PUBLISHED',
-    display_name: 'Thu Hà',
+    displayName: 'Thu Hà',
     avatar_url: 'https://i.pravatar.cc/150?img=25',
   },
   {
@@ -352,7 +352,7 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     is_winner: true,
     reward_status: 'REWARDED',
     status: 'PUBLISHED',
-    display_name: 'Bảo Châu',
+    displayName: 'Bảo Châu',
     avatar_url: 'https://i.pravatar.cc/150?img=32',
   },
   {
@@ -367,7 +367,7 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     is_winner: false,
     reward_status: 'PENDING_REWARD',
     status: 'PUBLISHED',
-    display_name: 'Nhã Uyên',
+    displayName: 'Nhã Uyên',
     avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
   },
   {
@@ -382,7 +382,7 @@ export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
     is_winner: false,
     reward_status: 'PENDING_REWARD',
     status: 'PUBLISHED',
-    display_name: 'Thanh Long',
+    displayName: 'Thanh Long',
     avatar_url: 'https://i.pravatar.cc/150?img=8',
   },
 ];

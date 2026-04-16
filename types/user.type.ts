@@ -25,7 +25,7 @@ export interface User {
 export interface UserProfile {
   id: string;
   user_id: string;
-  display_name: string;
+  displayName: string;
   avatar_url: string | null;
   province: string;
   ward: string | null;
@@ -103,7 +103,7 @@ export interface LogoutRequest {
 }
 
 export interface CompleteProfileRequest {
-  display_name: string;
+  displayName: string;
   avatar_url?: string;
   province: string;
   district?: string;
@@ -113,7 +113,7 @@ export interface CompleteProfileRequest {
 // User với profile gộp lại — dùng ở phần lớn màn hình
 export interface AuthenticatedUser {
   user: User;
-  profile: UserProfile | NgoProfile | null;
+  userProfile: UserProfile | NgoProfile | null;
 }
 
 export interface CreateUserInput {

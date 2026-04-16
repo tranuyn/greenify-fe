@@ -47,7 +47,7 @@ export interface GreenActionPost {
   created_at: string;
   // Joined fields (API may include these)
   action_type?: GreenActionType;
-  user_display_name?: string;
+  user_displayName?: string;
   user_avatar_url?: string | null;
 }
 
@@ -61,7 +61,6 @@ export interface PostReview {
   is_valid: boolean;
   created_at: string;
 }
-
 
 export interface PostAppeal {
   id: string;
