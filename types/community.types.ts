@@ -3,6 +3,10 @@
 // Mapped from: events, event_registrations, event_predictions
 // ============================================================
 
+import { SortOption } from '@/constants/enums/sortOptions.enum';
+import { BaseQueryParams, SortParams } from './common.types';
+import { MediaDto } from './media.types';
+
 export type EventStatus =
   | 'DRAFT'
   | 'PENDING_APPROVAL'
@@ -23,36 +27,57 @@ export const REGISTRATION_STATUS = {
   NO_SHOW: 'NO_SHOW',
 } as const;
 
-export type RegistrationStatus =
-  (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
+export type RegistrationStatus = (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
 
 export type RegistrationRewardStatus = 'PENDING_REWARD' | 'REWARDED' | 'REVERSED';
 
-export type KnownEventType = 'Dọn rác' | 'Trồng cây' | 'Workshop' | 'Thu gom/Tái chế' | 'Khác';
-export type EventType = KnownEventType | (string & {});
-
-export interface Event {
-  id: string;
-  ngo_id: string;
-  title: string;
-  description: string;
-  event_type: EventType;
-  cover_image_url: string;
-  location_address: string;
+export type EventType = 'CLEANUP' | 'PLANTING' | 'RECYCLING' | 'EDUCATION' | 'OTHER';
+export interface EventAddress {
+  id?: string;
+  province: string;
+  ward: string;
+  addressDetail: string;
   latitude: number;
   longitude: number;
-  start_time: string;
-  end_time: string;
-  max_participants: number;
-  reward_points: number;
-  participation_conditions: string;
-  cancel_deadline_days: number;
+}
+export interface EventImage extends MediaDto {
+  id?: string;
+  imageType: 'THUMBNAIL' | 'GALLERY' | string;
+}
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  eventType: EventType;
+  startTime: string; // ISO 8601
+  endTime: string;
+  maxParticipants: number;
+  minParticipants: number;
+  cancelDeadlineHoursBefore: number;
+  signUpDeadlineHoursBefore: number;
+  reminderHoursBefore: number;
+  thankYouHoursAfter: number;
+  rewardPoints: number;
   status: EventStatus;
-  admin_note: string | null;
-  created_at: string;
-  // Joined
-  ngo_name?: string;
-  registered_count?: number;
+  rejectReason?: string | null;
+  rejectedCount: number;
+  address: EventAddress;
+  images: EventImage[];
+  createdAt: string;
+  lastModifiedAt: string;
+}
+export interface EventQueryParams extends BaseQueryParams, SortParams<SortOption> {
+  title?: string;
+  eventType?: EventType | 'all';
+  status?: EventStatus | 'all';
+}
+export interface EventApiRequestParams extends Omit<
+  EventQueryParams,
+  'eventType' | 'status' | 'sort'
+> {
+  eventType?: string;
+  status?: string;
+  sort?: string[];
 }
 
 export interface EventRegistration {
@@ -85,10 +110,31 @@ export interface EventPrediction {
   created_at: string;
 }
 
-export type CreateEventRequest = Omit<
-  Event,
-  'id' | 'ngo_id' | 'status' | 'admin_note' | 'created_at' | 'ngo_name' | 'registered_count'
->;
+export interface CreateEventRequest {
+  title: string;
+  description: string;
+  eventType: EventType;
+  startTime: string; // ISO 8601
+  endTime: string;
+  maxParticipants: number;
+  minParticipants: number;
+  cancelDeadlineHoursBefore: number;
+  signUpDeadlineHoursBefore: number;
+  reminderHoursBefore: number;
+  thankYouHoursAfter: number;
+  rewardPoints: number;
+  status: EventStatus; // Thường là 'DRAFT' hoặc 'APPROVAL_WAITING'
+  thumbnailUrl: string; // URL của ảnh bìa
+  galleryUrls?: string[]; // Mảng URL của ảnh chi tiết
+  address: Omit<EventAddress, 'id'>;
+}
+export interface CreateEventApiRequest extends Omit<
+  CreateEventRequest,
+  'thumbnailUrl' | 'galleryUrls'
+> {
+  thumbnail: MediaDto;
+  images: MediaDto[];
+}
 
 // ============================================================
 // MAP / RECYCLING STATION TYPES

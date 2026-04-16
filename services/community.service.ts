@@ -6,9 +6,11 @@ import type {
   TrashSpotReport,
   CreateTrashReportRequest,
   CreateEventRequest,
+  CreateEventApiRequest,
+  EventApiRequestParams,
+  EventQueryParams,
 } from 'types/community.types';
-import { ApiResponse, PaginatedResponse, PaginationParams } from 'types/common.types';
-
+import { ApiResponse, PageResponse, PaginationParams } from 'types/common.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import {
   MOCK_EVENTS,
@@ -16,27 +18,78 @@ import {
   MOCK_STATIONS,
   MOCK_TRASH_REPORTS,
 } from './mock/community.mock';
+import { SortOption } from '@/constants/enums/sortOptions.enum';
 
 // ============================================================
 // EVENT SERVICE
 // ============================================================
 export const eventService = {
-  async getPublishedEvents(
-    params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<Event>>> {
+  async getEvents(params?: EventQueryParams): Promise<ApiResponse<PageResponse<Event>>> {
+    // 1. ADAPTER: CHUYỂN ĐỔI PARAMS TỪ UI -> BE
+    // Truyền thẳng fromDate và toDate vào đây luôn cho gọn
+    const apiParams: EventApiRequestParams = {
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+      fromDate: params?.fromDate,
+      toDate: params?.toDate,
+    };
+
+    if (params?.title) apiParams.title = params.title;
+
+    if (params?.eventType && params.eventType !== 'all') {
+      apiParams.eventType = params.eventType;
+    }
+
+    if (params?.status && params.status !== 'all') {
+      apiParams.status = params.status;
+    }
+
+    if (params?.sort === SortOption.POPULAR) {
+      // Ví dụ: sort theo số người tham gia (nếu API có hỗ trợ)
+      apiParams.sort = ['maxParticipants,desc'];
+    } else if (params?.sort === SortOption.NEWEST) {
+      apiParams.sort = ['startTime,desc'];
+    }
+
     if (IS_MOCK_MODE) {
       await mockDelay(600);
-      const published = MOCK_EVENTS.filter((e) => e.status === 'PUBLISHED');
+      let filteredEvents = [...MOCK_EVENTS];
+
+      if (params?.title) {
+        const lowerSearch = params.title.toLowerCase();
+        filteredEvents = filteredEvents.filter((e) => e.title.toLowerCase().includes(lowerSearch));
+      }
+      if (params?.eventType && params.eventType !== 'all') {
+        filteredEvents = filteredEvents.filter((e) => e.eventType === params.eventType);
+      }
+      if (params?.status && params.status !== 'all') {
+        filteredEvents = filteredEvents.filter((e) => e.status === params.status);
+      }
+      if (params?.fromDate) {
+        const fromTime = new Date(params.fromDate).getTime();
+        filteredEvents = filteredEvents.filter((e) => new Date(e.startTime).getTime() >= fromTime);
+      }
+      if (params?.toDate) {
+        const toTime = new Date(params.toDate).setHours(23, 59, 59, 999);
+        filteredEvents = filteredEvents.filter((e) => new Date(e.startTime).getTime() <= toTime);
+      }
+
+      const pageIndex = params?.page ?? 1;
+      const pageSize = params?.size ?? 10;
+      const start = (pageIndex - 1) * pageSize;
+      const paginatedEvents = filteredEvents.slice(start, start + pageSize);
+
       return mockSuccess({
-        items: published,
-        total: published.length,
-        page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
+        content: paginatedEvents,
+        page: pageIndex,
+        size: pageSize,
+        totalElements: filteredEvents.length,
+        totalPages: Math.ceil(filteredEvents.length / pageSize),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/events', {
-      params,
+
+    const { data } = await apiClient.get<ApiResponse<PageResponse<Event>>>('/events', {
+      params: apiParams,
     });
     return data;
   },
@@ -88,39 +141,109 @@ export const eventService = {
     return data;
   },
 
-  async getNgoEvents(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Event>>> {
+  async getNgoEvents(params?: PaginationParams): Promise<ApiResponse<PageResponse<Event>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
       return mockSuccess({
-        items: MOCK_EVENTS,
-        total: MOCK_EVENTS.length,
+        content: MOCK_EVENTS,
+        totalElements: MOCK_EVENTS.length,
         page: params?.page ?? 1,
-        page_size: params?.page_size ?? 20,
-        has_next: false,
+        size: params?.size ?? 20,
+        totalPages: Math.ceil(MOCK_EVENTS.length / (params?.size ?? 20)),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/ngo/events', {
-      params,
+    const { data } = await apiClient.get<ApiResponse<PageResponse<Event>>>('/ngo/events', {
+      params: {
+        page: params?.page,
+        size: params?.size,
+      },
     });
     return data;
   },
 
   async createEvent(payload: CreateEventRequest): Promise<ApiResponse<Event>> {
+    // 1. ADAPTER: CHUYỂN ĐỔI BODY TỪ UI -> BE
+    const apiPayload: CreateEventApiRequest = {
+      title: payload.title,
+      description: payload.description,
+      eventType: payload.eventType,
+      startTime: payload.startTime,
+      endTime: payload.endTime,
+      maxParticipants: payload.maxParticipants,
+      minParticipants: payload.minParticipants,
+      cancelDeadlineHoursBefore: payload.cancelDeadlineHoursBefore,
+      signUpDeadlineHoursBefore: payload.signUpDeadlineHoursBefore,
+      reminderHoursBefore: payload.reminderHoursBefore,
+      thankYouHoursAfter: payload.thankYouHoursAfter,
+      rewardPoints: payload.rewardPoints,
+      status: payload.status,
+      address: payload.address,
+
+      // Xử lý Media: Biến chuỗi URL thành Object MediaDto
+      thumbnail: {
+        bucketName: 'greenify-events', // Hoặc lấy từ file upload config
+        objectKey: `thumb-${Date.now()}`,
+        imageUrl: payload.thumbnailUrl,
+      },
+      images: payload.galleryUrls
+        ? payload.galleryUrls.map((url, index) => ({
+            bucketName: 'greenify-events',
+            objectKey: `gal-${Date.now()}-${index}`,
+            imageUrl: url,
+          }))
+        : [],
+    };
+
     if (IS_MOCK_MODE) {
       await mockDelay(900);
+
       const newEvent: Event = {
         id: `evt-${Date.now()}`,
-        ngo_id: 'usr-003',
-        status: 'PENDING_APPROVAL',
-        admin_note: null,
-        created_at: new Date().toISOString(),
-        ngo_name: 'Green Future Vietnam',
-        registered_count: 0,
-        ...payload,
+        title: payload.title,
+        description: payload.description,
+        eventType: payload.eventType,
+        startTime: payload.startTime,
+        endTime: payload.endTime,
+        maxParticipants: payload.maxParticipants,
+        minParticipants: payload.minParticipants,
+        cancelDeadlineHoursBefore: payload.cancelDeadlineHoursBefore,
+        signUpDeadlineHoursBefore: payload.signUpDeadlineHoursBefore,
+        reminderHoursBefore: payload.reminderHoursBefore,
+        thankYouHoursAfter: payload.thankYouHoursAfter,
+        rewardPoints: payload.rewardPoints,
+        status: payload.status === 'DRAFT' ? 'DRAFT' : 'PENDING_APPROVAL',
+        rejectReason: null,
+        rejectedCount: 0,
+        address: {
+          id: `addr-${Date.now()}`,
+          ...payload.address,
+        },
+        // MOCK LOGIC: Gộp thumbnail và images lại thành 1 mảng như BE
+        images: [
+          {
+            id: `img-${Date.now()}-thumb`,
+            objectKey: apiPayload.thumbnail.objectKey || '',
+            bucketName: apiPayload.thumbnail.bucketName || '',
+            imageUrl: apiPayload.thumbnail.imageUrl,
+            imageType: 'THUMBNAIL',
+          },
+          ...apiPayload.images.map((img, idx) => ({
+            id: `img-${Date.now()}-gal-${idx}`,
+            objectKey: img.objectKey || '',
+            bucketName: img.bucketName || '',
+            imageUrl: img.imageUrl,
+            imageType: 'GALLERY',
+          })),
+        ],
+        createdAt: new Date().toISOString(),
+        lastModifiedAt: new Date().toISOString(),
       };
+
+      MOCK_EVENTS.unshift(newEvent);
+
       return mockSuccess(newEvent);
     }
-    const { data } = await apiClient.post<ApiResponse<Event>>('/ngo/events', payload);
+    const { data } = await apiClient.post<ApiResponse<Event>>('/events', apiPayload);
     return data;
   },
 
@@ -159,22 +282,25 @@ export const mapService = {
 // COMMUNITY / TRASH REPORT SERVICE
 // ============================================================
 export const trashService = {
-  async getReports(
-    params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<TrashSpotReport>>> {
+  async getReports(params?: PaginationParams): Promise<ApiResponse<PageResponse<TrashSpotReport>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
       return mockSuccess({
-        items: MOCK_TRASH_REPORTS,
-        total: MOCK_TRASH_REPORTS.length,
+        content: MOCK_TRASH_REPORTS,
+        totalElements: MOCK_TRASH_REPORTS.length,
         page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
+        size: params?.size ?? 10,
+        totalPages: Math.ceil(MOCK_TRASH_REPORTS.length / (params?.size ?? 10)),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<TrashSpotReport>>>(
+    const { data } = await apiClient.get<ApiResponse<PageResponse<TrashSpotReport>>>(
       '/trash-reports',
-      { params }
+      {
+        params: {
+          page: params?.page,
+          size: params?.size,
+        },
+      }
     );
     return data;
   },
