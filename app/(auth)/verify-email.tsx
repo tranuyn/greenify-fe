@@ -52,7 +52,7 @@ export default function VerifyEmailScreen() {
   const onVerify = () => {
     const code = otp.join('');
     if (code.length < OTP_LENGTH) {
-      setErrorMsg('Vui lòng nhập đủ mã xác nhận.');
+      setErrorMsg(t('auth.verify_email.incomplete_code'));
       return;
     }
 
@@ -60,17 +60,26 @@ export default function VerifyEmailScreen() {
       { identifier: params.identifier ?? '', otp: code },
       {
         onSuccess: (response) => {
+          const verificationToken =
+            response?.data?.verificationToken ?? (response as any)?.verificationToken;
+
+          if (!verificationToken) {
+            setErrorMsg(t('auth.verify_email.invalid_response'));
+            return;
+          }
+
           router.push({
             pathname: '/(auth)/signup-password',
             params: {
               role: params.role ?? 'citizen',
               identifier: params.identifier ?? '',
-              verificationToken: response.data.verificationToken,
+              verificationToken,
             },
           });
         },
         onError: (err: any) => {
-          setErrorMsg(err?.response?.data?.message || 'Mã xác nhận không đúng.');
+          console.log('Lỗi khi verify OTP:', err, err?.response?.data);
+          setErrorMsg(err?.response?.data?.message || t('auth.verify_email.invalid_code'));
         },
       }
     );
@@ -104,7 +113,7 @@ export default function VerifyEmailScreen() {
 
       {errorMsg ? <Text className="mt-2 text-center text-sm text-red-500">{errorMsg}</Text> : null}
 
-      <Pressable className="mt-4 self-center" hitSlop={8}>
+      <Pressable className="mt-4 self-center" hitSlop={8} onPress={() => router.back()}>
         <Text className="font-inter-medium text-sm text-primary-700">
           {t('auth.verify_email.resend')}
         </Text>

@@ -41,7 +41,7 @@ export default function LoginScreen() {
         try {
           await queryClient.prefetchQuery({
             queryKey: QUERY_KEYS.auth.me(),
-            queryFn: () => authService.getMe().then((res) => res.data),
+            queryFn: () => authService.getMe().then((res) => res),
           });
         } catch (error) {
           console.warn('Failed to fetch user data:', error);

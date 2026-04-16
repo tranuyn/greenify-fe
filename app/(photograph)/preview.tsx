@@ -108,7 +108,7 @@ export default function PreviewScreen() {
 
             <Image
               source={{
-                uri: userProfile?.profile?.avatar_url || IMAGES.treeAvatar,
+                uri: userProfile?.userProfile?.avatar_url || IMAGES.treeAvatar,
               }}
               className="flex-1"
             />

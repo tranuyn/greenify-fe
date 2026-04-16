@@ -33,7 +33,7 @@ export const MOCK_NGO_USER: User = {
 export const MOCK_USER_PROFILE: UserProfile = {
   id: 'prof-001',
   user_id: 'usr-001',
-  display_name: 'Nhã Uyên',
+  displayName: 'Nhã Uyên',
   avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
   province: 'TP. Hồ Chí Minh',
   // district: 'Quận 1',

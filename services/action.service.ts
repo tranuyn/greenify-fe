@@ -143,7 +143,7 @@ export const actionService = {
         reject_count: 0,
         created_at: new Date().toISOString(),
         action_type: actionType,
-        user_display_name: 'Nhã Uyên',
+        user_displayName: 'Nhã Uyên',
         user_avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
         latitude: payload.latitude ?? null,
         longitude: payload.longitude ?? null,

@@ -12,7 +12,7 @@ import { ProfileForm } from '@/components/shared/auth/ProfileForm';
 
 export default function CompleteProfileScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ role?: string; email?: string }>();
+  const params = useLocalSearchParams<{ role?: string; identifier?: string }>();
 
   const { mutate: completeProfile, isPending } = useCompleteProfile();
 
@@ -22,7 +22,7 @@ export default function CompleteProfileScreen() {
         router.replace('/(tabs)');
       },
       onError: (err: any) => {
-        console.error('Complete profile error:', err);
+        console.error('Complete profile error:', err?.response?.data || err);
       },
     });
   };
@@ -38,7 +38,7 @@ export default function CompleteProfileScreen() {
 
       {/* Tái sử dụng ProfileForm */}
       <ProfileForm
-        email={params.email ?? ''}
+        email={params.identifier ?? ''}
         isEditMode={false}
         isLoading={isPending}
         onSubmitForm={handleCompleteProfile}

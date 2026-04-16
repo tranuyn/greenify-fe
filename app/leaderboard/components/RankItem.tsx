@@ -30,7 +30,7 @@ const RankItem = ({ item }: RankItemProps) => {
 
   const frameSource = getFrameSource(item.rank);
   const displayName =
-    item?.display_name || item.user_profiles?.display_name || t('leaderboard.anonymous');
+    item?.displayName || item.user_profiles?.displayName || t('leaderboard.anonymous');
   const avatarUrl = item?.avatar_url || item.user_profiles?.avatar_url || IMAGES.treeAvatar;
 
   return (

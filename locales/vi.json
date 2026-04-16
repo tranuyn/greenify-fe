@@ -266,7 +266,10 @@
       "title": "Xác nhận Email",
       "subtitle": "Chúng tôi đã gửi mã xác thực đến",
       "resend": "Gửi lại mã",
-      "submit_btn": "Xác nhận"
+      "submit_btn": "Xác nhận",
+      "incomplete_code": "Vui lòng nhập đủ mã xác nhận.",
+      "invalid_code": "Mã xác nhận không đúng.",
+      "invalid_response": "Không đọc được mã xác thực. Vui lòng thử lại."
     },
     "signup_password": {
       "title": "Mật khẩu",

@@ -22,13 +22,15 @@ export const authService = {
    */
   async requestOtp(payload: RegisterEmailRequest): Promise<ApiResponse<{ message: string }>> {
     try {
-      if (IS_MOCK_MODE) {
-        await mockDelay(800);
-        return mockSuccess({ message: 'OTP đã được gửi đến email của bạn.' });
-      }
-      const { data } = await apiClient.post('/auth/otp/request', payload);
+      // if (IS_MOCK_MODE) {
+      //   await mockDelay(800);
+      //   return mockSuccess({ message: 'OTP đã được gửi đến email của bạn.' });
+      // }
+
+      const { data } = await apiClient.post('/auth/register/send-otp', payload);
       return data;
     } catch (error: any) {
+      console.error('Lỗi khi request OTP:', error, error.response?.data);
       throw error;
     }
   },
@@ -39,20 +41,25 @@ export const authService = {
    * Response: { verificationToken }
    */
   async verifyOtp(payload: VerifyOtpRequest): Promise<ApiResponse<VerifyOtpResponse>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      if (payload.otp.length !== 6) {
-        throw {
-          response: { data: { message: 'Mã OTP không hợp lệ.', error_code: 'OTP_INVALID' } },
-        };
-      }
-      return mockSuccess({ verificationToken: 'mock_verification_token_' + payload.identifier });
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(600);
+    //   if (payload.otp.length !== 6) {
+    //     throw {
+    //       response: { data: { message: 'Mã OTP không hợp lệ.', error_code: 'OTP_INVALID' } },
+    //     };
+    //   }
+    //   return mockSuccess({ verificationToken: 'mock_verification_token_' + payload.identifier });
+    // }
+    try {
+      const { data } = await apiClient.post<ApiResponse<VerifyOtpResponse>>(
+        '/auth/register/verify-otp',
+        payload
+      );
+      return data;
+    } catch (error: any) {
+      console.error('Lỗi khi verify OTP:', error, error.response?.data);
+      throw error;
     }
-    const { data } = await apiClient.post<ApiResponse<VerifyOtpResponse>>(
-      '/auth/register/verify-otp',
-      payload
-    );
-    return data;
   },
 
   /**
@@ -60,20 +67,22 @@ export const authService = {
    * POST /auth/register
    * Response: { access_token, refresh_token }
    */
-  async setPassword(payload: SetPasswordRequest): Promise<ApiResponse<LoginResponse>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      const tokens = {
-        access_token: 'mock_access_token_' + Date.now(),
-        refresh_token: 'mock_refresh_token_' + Date.now(),
-      };
-      return mockSuccess(tokens);
+  async setPassword(payload: SetPasswordRequest): Promise<LoginResponse> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   const tokens = {
+    //     access_token: 'mock_access_token_' + Date.now(),
+    //     refresh_token: 'mock_refresh_token_' + Date.now(),
+    //   };
+    //   return mockSuccess(tokens);
+    // }
+    const { data } = await apiClient.post<LoginResponse>('/auth/register', payload);
+    if (!data.access_token || !data.refresh_token) {
+      throw new Error('Missing tokens in /auth/register response');
     }
-    const { data } = await apiClient.post<ApiResponse<LoginResponse>>('/auth/register', payload);
-    if (data.success) {
-      await tokenStorage.setAccess(data.data.access_token);
-      await tokenStorage.setRefresh(data.data.refresh_token);
-    }
+
+    await tokenStorage.setAccess(data.access_token);
+    await tokenStorage.setRefresh(data.refresh_token);
     return data;
   },
 
@@ -83,25 +92,24 @@ export const authService = {
    * Body: { identifier, password }
    * Response: { access_token, refresh_token }
    */
-  async login(payload: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(800);
-      const tokens = {
-        access_token: 'mock_access_token_' + Date.now(),
-        refresh_token: 'mock_refresh_token_' + Date.now(),
-      };
-      await tokenStorage.setAccess(tokens.access_token);
-      await tokenStorage.setRefresh(tokens.refresh_token);
-      return mockSuccess(tokens);
+  async login(payload: LoginRequest): Promise<LoginResponse> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(800);
+    //   const tokens = {
+    //     access_token: 'mock_access_token_' + Date.now(),
+    //     refresh_token: 'mock_refresh_token_' + Date.now(),
+    //   };
+    //   await tokenStorage.setAccess(tokens.access_token);
+    //   await tokenStorage.setRefresh(tokens.refresh_token);
+    //   return mockSuccess(tokens);
+    // }
+    const { data } = await apiClient.post<LoginResponse>('/auth/authenticate', payload);
+    if (!data.access_token || !data.refresh_token) {
+      throw new Error('Missing tokens in /auth/authenticate response');
     }
-    const { data } = await apiClient.post<ApiResponse<LoginResponse>>(
-      '/auth/authenticate',
-      payload
-    );
-    if (data.success) {
-      await tokenStorage.setAccess(data.data.access_token);
-      await tokenStorage.setRefresh(data.data.refresh_token);
-    }
+
+    await tokenStorage.setAccess(data.access_token);
+    await tokenStorage.setRefresh(data.refresh_token);
     return data;
   },
 
@@ -109,22 +117,24 @@ export const authService = {
    * Refresh token → nhận access token mới
    * POST /auth/refresh-token
    */
-  async refreshToken(refreshToken: string): Promise<ApiResponse<LoginResponse>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(300);
-      const tokens = {
-        access_token: 'mock_access_token_' + Date.now(),
-        refresh_token: 'mock_refresh_token_' + Date.now(),
-      };
-      return mockSuccess(tokens);
-    }
-    const { data } = await apiClient.post<ApiResponse<LoginResponse>>('/auth/refresh-token', {
+  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(300);
+    //   const tokens = {
+    //     access_token: 'mock_access_token_' + Date.now(),
+    //     refresh_token: 'mock_refresh_token_' + Date.now(),
+    //   };
+    //   return mockSuccess(tokens);
+    // }
+    const { data } = await apiClient.post<LoginResponse>('/auth/refresh-token', {
       refreshToken,
     });
-    if (data.success) {
-      await tokenStorage.setAccess(data.data.access_token);
-      await tokenStorage.setRefresh(data.data.refresh_token);
+    if (!data.access_token || !data.refresh_token) {
+      throw new Error('Missing tokens in /auth/refresh-token response');
     }
+
+    await tokenStorage.setAccess(data.access_token);
+    await tokenStorage.setRefresh(data.refresh_token);
     return data;
   },
 
@@ -152,18 +162,18 @@ export const authService = {
    * Hoàn thiện hồ sơ sau đăng ký
    */
   async completeProfile(payload: CompleteProfileRequest): Promise<ApiResponse<UserProfile>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(700);
-      const profile: UserProfile = {
-        ...MOCK_USER_PROFILE,
-        display_name: payload.display_name,
-        province: payload.province,
-        ward: payload.ward ?? null,
-        avatar_url: payload.avatar_url ?? null,
-      };
-      return mockSuccess(profile);
-    }
-    const { data } = await apiClient.post<ApiResponse<UserProfile>>('/users/me/profile', payload);
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(700);
+    //   const profile: UserProfile = {
+    //     ...MOCK_USER_PROFILE,
+    //     displayName: payload.displayName,
+    //     province: payload.province,
+    //     ward: payload.ward ?? null,
+    //     avatar_url: payload.avatar_url ?? null,
+    //   };
+    //   return mockSuccess(profile);
+    // }
+    const { data } = await apiClient.post<ApiResponse<UserProfile>>('/profiles', payload);
     return data;
   },
 
@@ -171,10 +181,10 @@ export const authService = {
    * Lấy thông tin user hiện tại (dùng khi app khởi động)
    */
   async getMe(): Promise<ApiResponse<AuthenticatedUser>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      return mockSuccess(MOCK_AUTHENTICATED_USER);
-    }
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   return mockSuccess(MOCK_AUTHENTICATED_USER);
+    // }
     const { data } = await apiClient.get<ApiResponse<AuthenticatedUser>>('/users/me');
     return data;
   },
@@ -184,7 +194,7 @@ export const authService = {
       await mockDelay(700);
       const profile: UserProfile = {
         ...MOCK_USER_PROFILE,
-        display_name: payload.display_name,
+        displayName: payload.displayName,
         province: payload.province,
         ward: payload.ward ?? null,
         avatar_url: payload.avatar_url ?? null,

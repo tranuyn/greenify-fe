@@ -32,7 +32,7 @@ export default function StartPage() {
 
         // Có token -> fetch user info để populate React Query Cache
         const res = await authService.getMe();
-        queryClient.setQueryData(QUERY_KEYS.auth.me(), res.data);
+        queryClient.setQueryData(QUERY_KEYS.auth.me(), res);
         setRoute('app');
       } catch (error) {
         // Token hết hạn hoặc có lỗi gọi api -> clear local token và đẩy về màn đăng nhập
