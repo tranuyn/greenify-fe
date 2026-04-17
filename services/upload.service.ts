@@ -10,17 +10,24 @@ export interface UploadFilePayload {
 
 export const uploadService = {
   async uploadFile(payload: UploadFilePayload): Promise<MediaDto> {
-    const formData = new FormData();
-    formData.append('file', {
-      uri: payload.uri,
-      name: payload.name ?? `upload-${Date.now()}.jpg`,
-      type: payload.type ?? 'image/jpeg',
-    } as any);
-    const { data } = await apiClient.post<MediaDto>('/files/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return data;
+    try {
+      const formData = new FormData();
+      formData.append('files', {
+        uri: payload.uri,
+        name: payload.name ?? `upload-${Date.now()}.jpg`,
+        type: payload.type ?? 'image/jpeg',
+      } as any);
+
+      const { data } = await apiClient.post<MediaDto>('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        transformRequest: (data) => data,
+      });
+      return data;
+    } catch (error: any) {
+      console.error('Upload file failed:', error?.response?.data || error.message || error);
+      throw error;
+    }
   },
 };

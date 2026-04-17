@@ -87,8 +87,8 @@ export default function PreviewScreen() {
 
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
       router.back();
-    } catch (error) {
-      console.error('Create post error:', error);
+    } catch (error: any) {
+      console.error('Create post error:', error.response || error);
       Alert.alert('Không thể đăng bài', 'Vui lòng thử lại sau.');
     }
   };
@@ -119,8 +119,8 @@ export default function PreviewScreen() {
         t('photograph.preview.download.success_title'),
         t('photograph.preview.download.success_message')
       );
-    } catch (error) {
-      console.error('Lỗi khi lưu ảnh:', error);
+    } catch (error: any) {
+      console.error('Lỗi khi lưu ảnh:', error.response || error);
       Alert.alert(
         t('photograph.preview.download.error_title'),
         t('photograph.preview.download.error_message')
