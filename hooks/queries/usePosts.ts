@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
-import { FeedQueryParams, PaginationParams } from 'types/common.types';
+import { PaginationParams } from 'types/common.types';
 import { actionService } from 'services/action.service';
+import { FeedQueryParams } from '@/types/action.types';
 
 export const useFeedPosts = (params?: FeedQueryParams) => {
   return useQuery({

@@ -93,7 +93,6 @@ export const MOCK_POSTS: GreenActionPostDetailDto[] = [
         reviewerDisplayName: 'Minh CTV',
         decision: 'APPROVE',
         createdAt: '2026-03-30T09:30:00Z',
-        rejectReasonCode: null,
         rejectReasonNote: null,
       },
     ],

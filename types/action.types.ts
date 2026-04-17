@@ -4,6 +4,10 @@
 //              post_reviews, post_appeals
 // ============================================================
 
+import { SortOption } from '@/constants/enums/sortOptions.enum';
+import { BaseQueryParams, PaginationParams } from './common.types';
+import { MediaDto } from './media.types';
+
 export type PostStatus =
   | 'DRAFT'
   | 'PENDING_REVIEW'
@@ -75,12 +79,57 @@ export interface PostAppeal {
 }
 
 // ---- API Request shapes ----
+// FEED PARAMS
+export interface FeedQueryParams extends BaseQueryParams {
+  search?: string;
+  action_type_id?: string;
+  sort?: SortOption;
+}
 
-export type CreatePostRequest = Pick<
-  GreenActionPost,
-  'action_type_id' | 'caption' | 'media_url' | 'action_date'
-> &
-  Partial<Pick<GreenActionPost, 'latitude' | 'longitude'>>;
+export interface FeedApiRequestParams {
+  page?: number;
+  size?: number;
+  sort?: string[];
+  authorDisplayName?: string;
+  actionTypeId?: string;
+  fromDate?: string;
+  toDate?: string;
+}
+//ui
+export interface MyPostsQueryParams extends BaseQueryParams {
+  status?: PostStatus | 'all';
+  sort?: SortOption;
+}
+//api
+export interface MyPostsApiRequestParams extends Omit<MyPostsQueryParams, 'status' | 'sort'> {
+  status?: string; // Convert 'all' thành undefined trước khi gửi
+  sort?: string[]; // Convert SortOption object thành ["createdAt,desc"]
+}
+
+// -------------------------------------
+// 3. CREATE POST PARAMS
+// -------------------------------------
+
+// [UI State] - Gọn nhẹ, chỉ cần những thứ UI có
+export interface CreatePostRequest {
+  action_type_id: string;
+  caption: string;
+  media_url: string; // Lúc upload ảnh xong thì có link này
+  media_bucket?: string; // (Tùy chọn) Nếu API upload trả về
+  media_key?: string; // (Tùy chọn) Nếu API upload trả về
+  latitude?: number;
+  longitude?: number;
+  action_date: string; // YYYY-MM-DD
+}
+
+export interface CreatePostApiRequest {
+  actionTypeId: string;
+  caption: string;
+  media: MediaDto;
+  latitude?: number;
+  longitude?: number;
+  actionDate: string;
+}
 
 export interface ReviewPostRequest {
   decision: ReviewDecision;
@@ -94,7 +143,6 @@ export interface PostReviewDto {
   reviewerDisplayName: string;
   decision: ReviewDecision;
   createdAt: string;
-  rejectReasonCode?: string | null;
   rejectReasonNote?: string | null;
 }
 

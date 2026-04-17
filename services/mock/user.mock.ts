@@ -68,11 +68,11 @@ export const MOCK_AUTH_RESPONSE: LoginResponse = {
   profile: MOCK_USER_PROFILE,
 };
 
-// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-//   user: MOCK_USER,
-//   profile: MOCK_USER_PROFILE,
-// };
 export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-  user: MOCK_NGO_USER,
-  profile: MOCK_NGO_PROFILE,
+  user: MOCK_USER,
+  profile: MOCK_USER_PROFILE,
 };
+// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
+//   user: MOCK_NGO_USER,
+//   profile: MOCK_NGO_PROFILE,
+// };

@@ -40,6 +40,10 @@
   "common": {
     "processing": "Đang xử lý...",
     "gp_unit": "GP",
+    "all": "Tất cả",
+    "from_date": "Từ ngày",
+    "to_date": "Đến ngày",
+    "select_date": "Chọn ngày",
     "cancel": "Hủy",
     "done": "Xong",
     "ok": "OK",
