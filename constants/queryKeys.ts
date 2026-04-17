@@ -66,13 +66,15 @@ export const QUERY_KEYS = {
     all: ['vouchers'] as const,
     available: () => ['vouchers', 'available'] as const,
     mine: (params?: object) => ['vouchers', 'me', params] as const,
+    bySeed: (seedId: string) => ['vouchers', 'by-seed', seedId] as const,
   },
 
   // Leaderboard
   leaderboard: {
     all: ['leaderboard'] as const,
-    scope: (scope: LeaderboardScope, province?: string) =>
-      ['leaderboard', scope, province] as const,
+    scope: (scope: LeaderboardScope, weekStartDate: string, province?: string) =>
+      ['leaderboard', scope, weekStartDate, province] as const,
+    weeklyPrizes: (weekStartDate: string) => ['leaderboard', 'weekly-prizes', weekStartDate] as const,
     claim: (periodId: string) => ['leaderboard', 'claim', periodId] as const,
   },
 

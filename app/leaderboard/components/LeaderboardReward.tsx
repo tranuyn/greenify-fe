@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { VoucherTemplate } from '@/types/gamification.types';
+import { SeedRewardVoucher } from '@/types/gamification.types';
 import { IMAGES } from '@/constants/linkMedia';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { useTranslation } from 'react-i18next';
 
 interface RewardDetailProps {
-  data?: VoucherTemplate;
+  data?: SeedRewardVoucher;
   onClaim: () => void;
   isClaiming: boolean;
 }
@@ -28,7 +28,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
   }
 
   // Format ngày tháng từ chuỗi ISO sang định dạng dd/mm/yyyy
-  const formattedDate = new Date(rewardData.valid_until).toLocaleDateString(
+  const formattedDate = new Date(rewardData.validUntil).toLocaleDateString(
     i18n.resolvedLanguage === 'vi' ? 'vi-VN' : 'en-US',
     {
       day: '2-digit',
@@ -38,7 +38,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
   );
 
   // Tách chuỗi điều kiện thành mảng và loại bỏ dấu "-" ở đầu nếu có
-  const conditions = rewardData.usage_conditions
+  const conditions = rewardData.usageConditions
     .split('\n')
     .map((cond) => cond.trim().replace(/^- /, ''));
 
@@ -58,7 +58,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
       <View className="rounded-lg border border-green-600 p-3">
         {/* Banner Image */}
         <Image
-          source={{ uri: rewardData.thumbnail_url ?? '' }}
+          source={{ uri: rewardData.thumbnailUrl ?? '' }}
           className="mb-4 h-44 w-full rounded-md"
           resizeMode="cover"
         />
@@ -74,12 +74,12 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
           <View className="flex-row items-center">
             <View className="mr-2 h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-green-600 p-0.5">
               <Image
-                source={{ uri: rewardData.partner_logo_url ?? '' }}
+                source={{ uri: rewardData.partnerLogoUrl ?? '' }}
                 className="h-full w-full rounded-full bg-white"
                 resizeMode="contain"
               />
             </View>
-            <Text className="font-inter-medium text-foreground">{rewardData.partner_name}</Text>
+            <Text className="font-inter-medium text-foreground">{rewardData.partnerName}</Text>
           </View>
         </View>
 

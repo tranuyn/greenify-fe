@@ -7,12 +7,14 @@ import {
   PlantDailyLogQueryParams,
   CreatePlantDailyLogRequest,
   Seed,
+  SeedRewardVoucher,
   VoucherTemplate,
   UserVoucher,
   UserVoucherQueryParams,
   RedeemVoucherRequest,
-  LeaderboardEntry,
   LeaderboardScope,
+  WeeklyLeaderboard,
+  WeeklyLeaderboardPrizes,
 } from 'types/gamification.types';
 import { ApiResponse, PageResponse } from 'types/common.types';
 
@@ -23,6 +25,7 @@ import {
   MOCK_GARDEN_ARCHIVES,
   MOCK_PLANT_DAILY_LOGS,
   MOCK_SEEDS,
+  MOCK_SEED_REWARD_VOUCHERS,
   MOCK_VOUCHER_TEMPLATES,
   MOCK_USER_VOUCHERS,
   MOCK_LEADERBOARD_NATIONAL,
@@ -140,6 +143,17 @@ export const gamificationService = {
     return data;
   },
 
+  async getVoucherBySeed(seedId: string): Promise<SeedRewardVoucher> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      return MOCK_SEED_REWARD_VOUCHERS;
+    }
+    const { data } = await apiClient.get<SeedRewardVoucher>(
+      `/garden/seeds/${seedId}/reward-voucher`
+    );
+    return data;
+  },
+
   async getMyVouchers(params?: UserVoucherQueryParams): Promise<PageResponse<UserVoucher>> {
     if (IS_MOCK_MODE) {
       await mockDelay(400);
@@ -196,27 +210,78 @@ export const gamificationService = {
 export const leaderboardService = {
   async getLeaderboard(
     scope: LeaderboardScope,
+    weekStartDate: string,
     province?: string
-  ): Promise<ApiResponse<LeaderboardEntry[]>> {
+  ): Promise<WeeklyLeaderboard> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
-      return mockSuccess(MOCK_LEADERBOARD_NATIONAL);
+      return {
+        ...MOCK_LEADERBOARD_NATIONAL,
+        scope,
+        province: province ?? MOCK_LEADERBOARD_NATIONAL.province,
+        weekStartDate,
+      };
     }
-    const { data } = await apiClient.get<ApiResponse<LeaderboardEntry[]>>('/leaderboard', {
-      params: { scope, province },
+    const { data } = await apiClient.get<WeeklyLeaderboard>('/leaderboard/weekly', {
+      params: { scope, province, weekStartDate },
     });
     return data;
   },
 
-  async claimLeaderboardReward(period_id: string): Promise<ApiResponse<VoucherTemplate>> {
+  async claimLeaderboardReward(weekStartDate: string): Promise<WeeklyLeaderboardPrizes> {
+    return this.getWeeklyPrizes(weekStartDate);
+  },
+
+  async getWeeklyPrizes(weekStartDate: string): Promise<WeeklyLeaderboardPrizes> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
-      const rewardVoucher = MOCK_VOUCHER_TEMPLATES.find((voucher) => voucher.id === 'vt-004');
-      if (!rewardVoucher) throw new Error('Reward voucher template not found');
-      return mockSuccess(rewardVoucher);
+      const nationalTemplate = MOCK_VOUCHER_TEMPLATES.find((voucher) => voucher.id === 'vt-004');
+      const provincialTemplate = MOCK_VOUCHER_TEMPLATES.find((voucher) => voucher.id === 'vt-001');
+      if (!nationalTemplate || !provincialTemplate) {
+        throw new Error('Leaderboard weekly prizes mock data not found');
+      }
+
+      return {
+        prizeConfigId: 'prize-config-001',
+        weekStartDate,
+        lockAt: `${weekStartDate}T23:59:59Z`,
+        status: 'CONFIGURED',
+        nationalReservedCount: 5,
+        provincialReservedCount: 63,
+        distributedAt: null,
+        nationalVoucher: {
+          id: nationalTemplate.id,
+          name: nationalTemplate.name,
+          partnerName: nationalTemplate.partner_name,
+          description: nationalTemplate.description,
+          requiredPoints: nationalTemplate.required_points,
+          totalStock: nationalTemplate.total_stock,
+          remainingStock: nationalTemplate.remaining_stock,
+          usageConditions: nationalTemplate.usage_conditions,
+          validUntil: nationalTemplate.valid_until,
+          partnerLogoUrl: nationalTemplate.partner_logo_url,
+          thumbnailUrl: nationalTemplate.thumbnail_url,
+          status: nationalTemplate.status,
+        },
+        provincialVoucher: {
+          id: provincialTemplate.id,
+          name: provincialTemplate.name,
+          partnerName: provincialTemplate.partner_name,
+          description: provincialTemplate.description,
+          requiredPoints: provincialTemplate.required_points,
+          totalStock: provincialTemplate.total_stock,
+          remainingStock: provincialTemplate.remaining_stock,
+          usageConditions: provincialTemplate.usage_conditions,
+          validUntil: provincialTemplate.valid_until,
+          partnerLogoUrl: provincialTemplate.partner_logo_url,
+          thumbnailUrl: provincialTemplate.thumbnail_url,
+          status: provincialTemplate.status,
+        },
+      };
     }
-    const { data } = await apiClient.post<ApiResponse<VoucherTemplate>>('/leaderboard/claim', {
-      period_id,
+
+    const { data } = await apiClient.get<WeeklyLeaderboardPrizes>('/leaderboard/weekly/prizes', {
+      params: { weekStartDate },
     });
     return data;
   },

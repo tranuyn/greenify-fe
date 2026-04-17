@@ -60,10 +60,23 @@ export const useMyVouchers = (params?: UserVoucherQueryParams) => {
   });
 };
 
-export const useLeaderboard = (scope: LeaderboardScope, province?: string) => {
+export const useVoucherBySeed = (seedId?: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.leaderboard.scope(scope, province),
-    queryFn: () => leaderboardService.getLeaderboard(scope, province).then((r) => r.data),
+    queryKey: QUERY_KEYS.vouchers.bySeed(seedId ?? ''),
+    queryFn: () => gamificationService.getVoucherBySeed(seedId ?? ''),
+    enabled: Boolean(seedId),
+  });
+};
+
+export const useLeaderboard = (
+  scope: LeaderboardScope,
+  weekStartDate: string,
+  province?: string
+) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.leaderboard.scope(scope, weekStartDate, province),
+    queryFn: () => leaderboardService.getLeaderboard(scope, weekStartDate, province),
+    enabled: Boolean(weekStartDate),
     // Leaderboard update theo tuần, không cần fresh liên tục
     staleTime: 5 * 60 * 1000,
   });

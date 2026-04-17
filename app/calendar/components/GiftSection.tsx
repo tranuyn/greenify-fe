@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,44 +11,15 @@ import {
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { IMAGES } from '@/constants/linkMedia';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { useMyVouchers } from '@/hooks/queries/useGamification';
+import { useMyPlant, useVoucherBySeed } from '@/hooks/queries/useGamification';
 import { useTranslation } from 'react-i18next';
-import { USER_VOUCHER_STATUS } from '@/types/gamification.types';
 
 const GiftSection = () => {
   const { t, i18n } = useTranslation();
   const colors = useThemeColor();
   const [isVoucherModalVisible, setIsVoucherModalVisible] = useState(false);
-  const [selectedVoucherIndex, setSelectedVoucherIndex] = useState(0);
-  const { data: myVouchers } = useMyVouchers({
-    page: 0,
-    size: 100,
-    status: USER_VOUCHER_STATUS.AVAILABLE,
-  });
-  const voucherList = useMemo(() => myVouchers ?? [], [myVouchers]);
-  const voucher = voucherList[selectedVoucherIndex];
-
-  useEffect(() => {
-    if (selectedVoucherIndex >= voucherList.length) {
-      setSelectedVoucherIndex(0);
-    }
-  }, [selectedVoucherIndex, voucherList.length]);
-
-  const hasMultipleVouchers = voucherList.length > 1;
-
-  const goPreviousVoucher = () => {
-    if (!voucherList.length) return;
-    setSelectedVoucherIndex((currentIndex) =>
-      currentIndex === 0 ? voucherList.length - 1 : currentIndex - 1
-    );
-  };
-
-  const goNextVoucher = () => {
-    if (!voucherList.length) return;
-    setSelectedVoucherIndex((currentIndex) =>
-      currentIndex === voucherList.length - 1 ? 0 : currentIndex + 1
-    );
-  };
+  const { data: myPlant } = useMyPlant();
+  const { data: voucher } = useVoucherBySeed(myPlant?.seedId);
 
   return (
     <>
@@ -63,12 +34,12 @@ const GiftSection = () => {
             {t('calendar.gift.your_gift_title')}
           </Text>
           <Text className="mb-4 font-inter-medium text-sm text-[var(--on-primary)]">
-            {t('calendar.gift.total', { count: voucherList.length })}
+            {t('calendar.gift.total', { count: voucher ? 1 : 0 })}
           </Text>
           <View className="w-full flex-row items-center justify-center">
             <TouchableOpacity
-              onPress={() => voucherList.length && setIsVoucherModalVisible(true)}
-              activeOpacity={voucherList.length ? 0.8 : 1}
+              onPress={() => voucher && setIsVoucherModalVisible(true)}
+              activeOpacity={voucher ? 0.8 : 1}
               className="items-center justify-center">
               <Image source={{ uri: IMAGES.giftColor }} className="h-20 w-20" />
             </TouchableOpacity>
@@ -95,26 +66,6 @@ const GiftSection = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
               {voucher ? (
                 <>
-                  {hasMultipleVouchers ? (
-                    <View className="mb-4 flex-row items-center justify-between">
-                      <TouchableOpacity
-                        onPress={goPreviousVoucher}
-                        className="h-10 w-10 items-center justify-center rounded-full border border-[var(--border)]">
-                        <Feather name="chevron-left" size={20} color={colors.foreground} />
-                      </TouchableOpacity>
-
-                      <Text className="font-inter-medium text-xs text-[var(--muted-foreground)]">
-                        {selectedVoucherIndex + 1}/{voucherList.length}
-                      </Text>
-
-                      <TouchableOpacity
-                        onPress={goNextVoucher}
-                        className="h-10 w-10 items-center justify-center rounded-full border border-[var(--border)]">
-                        <Feather name="chevron-right" size={20} color={colors.foreground} />
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-
                   <View className="bg-[var(--primary-light)]/20 mb-4 overflow-hidden rounded-2xl">
                     {voucher.thumbnailUrl ? (
                       <Image
@@ -130,12 +81,20 @@ const GiftSection = () => {
                   </View>
 
                   <Text className="mb-1 font-inter-bold text-xl text-[var(--foreground)]">
-                    {voucher.voucherName}
+                    {voucher.name}
                   </Text>
                   <View className="mb-3 flex-row items-center gap-2">
-                    <View className="h-12 w-12 items-center justify-center rounded-full bg-[var(--border)]">
-                      <FontAwesome5 name="store" size={20} color={colors.primary} />
-                    </View>
+                    {voucher.partnerLogoUrl ? (
+                      <Image
+                        source={{ uri: voucher.partnerLogoUrl }}
+                        className="h-12 w-12 rounded-full"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View className="h-12 w-12 items-center justify-center rounded-full bg-[var(--border)]">
+                        <FontAwesome5 name="store" size={20} color={colors.primary} />
+                      </View>
+                    )}
                     <Text className="font-inter-medium text-sm text-[var(--muted-foreground)]">
                       {voucher.partnerName}
                     </Text>
@@ -146,7 +105,7 @@ const GiftSection = () => {
                       {t('calendar.gift.description')}
                     </Text>
                     <Text className="text-sm leading-5 text-[var(--foreground)]">
-                      {voucher.source}
+                      {voucher.description}
                     </Text>
                   </View>
 
@@ -156,7 +115,7 @@ const GiftSection = () => {
                         {t('calendar.gift.required_points')}
                       </Text>
                       <Text className="mt-1 font-inter-bold text-base text-[var(--foreground)]">
-                        {voucher.status}
+                        {voucher.requiredPoints}
                       </Text>
                     </View>
                     <View className="min-w-[48%] flex-1 rounded-2xl border border-[var(--border)] p-3">
@@ -164,7 +123,7 @@ const GiftSection = () => {
                         {t('calendar.gift.remaining_usage')}
                       </Text>
                       <Text className="mt-1 font-inter-bold text-base text-[var(--foreground)]">
-                        {voucher.voucherCode}
+                        {voucher.remainingStock}
                       </Text>
                     </View>
                   </View>
@@ -174,11 +133,11 @@ const GiftSection = () => {
                       {t('calendar.gift.usage_conditions')}
                     </Text>
                     <Text className="text-sm leading-5 text-[var(--foreground)]">
-                      {voucher.voucherTemplateId}
+                      {voucher.usageConditions}
                     </Text>
                     <Text className="mt-3 text-xs text-[var(--muted-foreground)]">
                       {t('calendar.gift.expire_date', {
-                        date: voucher.expiresAt.toLocaleDateString(
+                        date: new Date(voucher.validUntil).toLocaleDateString(
                           i18n.resolvedLanguage === 'vi' ? 'vi-VN' : 'en-US'
                         ),
                       })}
