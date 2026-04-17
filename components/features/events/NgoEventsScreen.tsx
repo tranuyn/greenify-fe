@@ -30,7 +30,7 @@ function getFilteredEvents(events: Event[], tabKey: NgoEventTab, search: string 
   if (tabKey === 'ongoing') {
     filtered = events.filter(
       (e) =>
-        e.status === 'PUBLISHED' && new Date(e.start_time) <= now && new Date(e.end_time) >= now
+        e.status === 'PUBLISHED' && new Date(e.startTime) <= now && new Date(e.endTime) >= now
     );
   } else {
     filtered = events.filter((e) => tab.statuses.includes(e.status));
@@ -77,18 +77,18 @@ function NgoEventCard({
   const badge = STATUS_BADGE[item.status];
   const isOngoing =
     item.status === 'PUBLISHED' &&
-    new Date(item.start_time) <= new Date() &&
-    new Date(item.end_time) >= new Date();
+    new Date(item.startTime) <= new Date() &&
+    new Date(item.endTime) >= new Date();
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.92}
-      className="mb-3 overflow-hidden rounded-2xl bg-white shadow-sm shadow-black/5 dark:bg-card">
+      className="mb-3 overflow-hidden rounded-2xl bg-white shadow-sm shadow-black/50 dark:bg-card">
       <View className="flex-row">
         {/* Thumbnail */}
         <Image
-          source={{ uri: item.cover_image_url }}
+          source={{ uri: item.thumbnail.imageUrl }}
           className="h-full w-24 bg-primary-100"
           resizeMode="cover"
         />
@@ -111,15 +111,15 @@ function NgoEventCard({
             <View className="flex-row items-center">
               <Feather name="calendar" size={10} color={colors.neutral400} />
               <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
-                {formatDate(item.start_time)}
+                {formatDate(item.startTime)}
               </Text>
             </View>
             <View className="flex-row items-center">
               <Feather name="users" size={10} color={colors.neutral400} />
               <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
                 {t('events.ngo_events.registered_count', {
-                  registered: item.registered_count ?? 0,
-                  max: item.max_participants,
+                  registered: item.registeredCount ?? 0,
+                  max: item.maxParticipants,
                 })}
               </Text>
             </View>
@@ -154,8 +154,8 @@ export function NgoEventsScreen() {
   const [activeTab, setActiveTab] = useState<NgoEventTab>('pending');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: eventsData, isLoading } = useNgoEvents({ page: 1, page_size: 50 });
-  const allEvents = eventsData?.items ?? [];
+  const { data: eventsData, isLoading } = useNgoEvents({ page: 1, size: 50 });
+  const allEvents = eventsData?.content ?? [];
 
   const filtered = useMemo(
     () => getFilteredEvents(allEvents, activeTab, searchQuery),

@@ -42,7 +42,7 @@ export function UserEventsScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
 
-  const { data: eventsData, isLoading } = usePublishedEvents({ page: 1, page_size: 20 });
+  const { data: eventsData, isLoading } = usePublishedEvents({ page: 1, size: 20 });
   const { data: registrations = [] } = useMyRegistrations();
   const { mutate: registerEvent } = useRegisterEvent();
 
@@ -56,7 +56,7 @@ export function UserEventsScreen() {
     [registrations]
   );
 
-  const allEvents = useMemo(() => eventsData?.items ?? [], [eventsData?.items]);
+  const allEvents = useMemo(() => eventsData?.content ?? [], [eventsData?.content]);
 
   const eventTypeOptions = useMemo(() => getEventTypeOptions(allEvents), [allEvents]);
 

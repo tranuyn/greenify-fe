@@ -54,7 +54,7 @@ export default function EventDetailScreen() {
     myRegistration?.status === REGISTRATION_STATUS.REGISTERED ||
     myRegistration?.status === REGISTRATION_STATUS.CHECKED_IN;
 
-  const isFull = (event?.registered_count ?? 0) >= (event?.max_participants ?? 0);
+  const isFull = (event?.registeredCount ?? 0) >= (event?.maxParticipants ?? 0);
 
   const handleRegister = useCallback(() => {
     if (!event) return;
@@ -105,7 +105,7 @@ export default function EventDetailScreen() {
         {/* Cover image */}
         <View className="relative h-56">
           <Image
-            source={{ uri: event.cover_image_url }}
+            source={{ uri: event.thumbnail.imageUrl }}
             className="h-full w-full bg-primary-100"
             resizeMode="cover"
           />
@@ -121,13 +121,13 @@ export default function EventDetailScreen() {
 
         <View className="px-5 pt-5">
           {/* NGO */}
-          {event.ngo_name && (
+          {event.ngoName && (
             <View className="mb-2 flex-row items-center">
               <View className="mr-2 h-6 w-6 items-center justify-center rounded-full bg-primary-100">
                 <Feather name="shield" size={12} color={colors.primary700} />
               </View>
               <Text className="font-inter-semibold text-xs uppercase tracking-wider text-primary-700">
-                {event.ngo_name}
+                {event.ngoName}
               </Text>
             </View>
           )}
@@ -144,7 +144,7 @@ export default function EventDetailScreen() {
                 {t('events.detail.reward_label')}
               </Text>
               <Text className="font-inter-bold text-2xl text-primary">
-                {event.reward_points}
+                {event.rewardPoints}
                 <Text className="font-inter-semibold text-sm text-primary-700"> GP</Text>
               </Text>
             </View>
@@ -157,7 +157,7 @@ export default function EventDetailScreen() {
                 <Feather name="map-pin" size={15} color={colors.primary700} />
               </View>
               <Text className="text-foreground/70 flex-1 font-inter text-sm">
-                {event.location_address}
+                {event.address.addressDetail}
               </Text>
             </View>
 
@@ -167,8 +167,8 @@ export default function EventDetailScreen() {
               </View>
               <Text className="text-foreground/70 font-inter text-sm">
                 {t('events.detail.participants', {
-                  registered: event.registered_count ?? 0,
-                  total: event.max_participants,
+                  registered: event.registeredCount ?? 0,
+                  total: event.maxParticipants,
                 })}
               </Text>
             </View>
@@ -178,8 +178,8 @@ export default function EventDetailScreen() {
                 <Feather name="clock" size={15} color={colors.primary700} />
               </View>
               <Text className="text-foreground/70 font-inter text-sm">
-                {formatTime(event.start_time)} – {formatTime(event.end_time)} ·{' '}
-                {formatDate(event.start_time)}
+                {formatTime(event.startTime)} – {formatTime(event.endTime)} ·{' '}
+                {formatDate(event.startTime)}
               </Text>
             </View>
           </View>
@@ -196,17 +196,15 @@ export default function EventDetailScreen() {
           </Text>
 
           {/* Participation conditions */}
-          {event.participation_conditions && (
-            <>
-              <View className="my-5 h-px bg-primary-50 dark:bg-white/5" />
-              <Text className="mb-3 font-inter-bold text-base text-foreground">
-                {t('events.detail.conditions_title')}
-              </Text>
-              <Text className="text-foreground/70 font-inter text-sm leading-6">
-                {event.participation_conditions}
-              </Text>
-            </>
-          )}
+          {/* Participation conditions currently not in the new Event type, keeping logic but it might be null */}
+          <View className="my-5 h-px bg-primary-50 dark:bg-white/5" />
+          <Text className="mb-3 font-inter-bold text-base text-foreground">
+            {t('events.detail.conditions_title')}
+          </Text>
+          <Text className="text-foreground/70 font-inter text-sm leading-6">
+            {/* Using description as fallback or a placeholder if conditions are separated in the future */}
+            Cần tuân thủ quy định của ban tổ chức.
+          </Text>
         </View>
       </ScrollView>
 
