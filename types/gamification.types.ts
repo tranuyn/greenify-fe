@@ -36,20 +36,25 @@ export interface VoucherTemplate {
 
 export interface UserVoucher {
   id: string;
-  user_id: string;
-  voucher_template_id: string;
-  voucher_code: string;
-  source: VoucherSource;
+  voucherCode: string;
+  voucherTemplateId: string;
+  voucherName: string;
+  partnerName: string;
+  thumbnailUrl: string;
+  expiresAt: Date;
+  usedAt: Date | null;
   status: UserVoucherStatus;
-  expires_at: string;
-  used_at: string | null;
-  created_at: string;
-  // Joined
-  template?: VoucherTemplate;
+  source: VoucherSource;
 }
 
 export interface RedeemVoucherRequest {
   voucher_template_id: string;
+}
+
+export interface UserVoucherQueryParams {
+  status?: UserVoucherStatus;
+  page?: number;
+  size?: number;
 }
 
 // ============================================================
@@ -68,67 +73,70 @@ export enum PlantStatus {
 }
 
 export enum CycleType {
-  SHORT_TERM = 'SHORT_TERM',
-  LONG_TERM = 'LONG_TERM',
+  EASY = 'EASY',
+  MEDIUM = 'MEDIUM',
+  HARD = 'HARD',
 }
 
 export type GardenRewardStatus = 'MATURED' | 'REWARDED';
 
 export interface Streak {
-  id: string;
-  user_id: string;
-  current_streak: number;
-  longest_streak: number;
-  last_valid_date: string | null; // "YYYY-MM-DD"
+  currentStreak: number;
+  longestStreak: number;
+  lastValidDate: string | null;
   status: StreakStatus;
-  restore_used_this_month: number;
-  restore_month: string | null;
-  last_break_date: string | null;
-  broken_streak: number;
-  updated_at: string;
+  restoreUsedThisMonth: number;
+  restoreAvailable: true;
+  // restore_month: string | null;
+  // last_break_date: string | null;
+  // broken_streak: number;
+  // updated_at: string;
 }
 
 export interface Seed {
   id: string;
   name: string;
-  stage1_image_url: string;
-  stage2_image_url: string;
-  stage3_image_url: string;
-  stage4_image_url: string;
-  days_to_mature: number;
-  stage2_from_day: number;
-  stage3_from_day: number;
-  stage4_from_day: number;
-  reward_voucher_template_id: string | null;
-  reward_voucher_template?: VoucherTemplate;
-  cycle_type: CycleType;
+  stage1ImageUrl: string;
+  stage2ImageUrl: string;
+  stage3ImageUrl: string;
+  stage4ImageUrl: string;
+  daysToMature: number;
+  stage2FromDay: number;
+  stage3FromDay: number;
+  stage4FromDay: number;
+  rewardVoucherTemplateId: string | null;
+  rewardVoucherName: string;
+  //reward_voucher_template?: VoucherTemplate;
+  cycleType: CycleType;
   is_active: boolean;
 }
 
 export interface PlantProgress {
-  id: string;
-  user_id: string;
-  seed_id: string;
+  seedId: string;
+  seedName: string;
   progress_days: number;
+  daysToMature: number;
   status: PlantStatus;
+  cycleType: CycleType;
+  currentStage: PlantStatus;
+  currentStageImageUrl: string;
   started_at: string;
-  matured_at: string | null;
-  // Joined
-  seed?: Seed;
+  percentComplete: number;
 }
 
 export interface PlantDailyLog {
-  id: string;
-  user_id: string;
-  user: UserProfile;
-  plant_progress_id: string;
-  plant_progress: PlantProgress;
-  log_date: Date;
+  //id: string;
+  //user_id: string;
+  //user: UserProfile;
+  //plant_progress_id: string;
+  //plant_progress: PlantProgress;
+  logDate: Date;
   stage: PlantStatus;
   is_active_day: boolean;
-  green_post_url: string;
-  image_url: string;
-  created_at: string;
+  isChangeState: boolean;
+  greenPostUrl: string;
+  imageUrl: string;
+  //created_at: string;
 }
 
 export interface PlantDailyLogQueryParams {

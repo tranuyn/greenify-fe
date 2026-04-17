@@ -34,7 +34,7 @@ export default function NatureScreen() {
         <View className="flex-row flex-wrap justify-between ">
           {[...Array(totalItems)].map((_, index) => {
             const archive = collectedItems[index];
-            const imageUrl = archive?.seed?.stage4_image_url || archive?.display_image_url;
+            const imageUrl = archive?.seed?.stage4ImageUrl || archive?.display_image_url;
 
             return (
               <View

@@ -65,7 +65,7 @@ export const QUERY_KEYS = {
   vouchers: {
     all: ['vouchers'] as const,
     available: () => ['vouchers', 'available'] as const,
-    mine: () => ['vouchers', 'me'] as const,
+    mine: (params?: object) => ['vouchers', 'me', params] as const,
   },
 
   // Leaderboard
