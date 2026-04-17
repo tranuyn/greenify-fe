@@ -2,11 +2,22 @@ import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { eventService } from 'services/community.service';
 import { PaginationParams } from 'types/common.types';
+import { EventQueryParams } from 'types/community.types';
 
-export const usePublishedEvents = (params?: PaginationParams) => {
+export const useEvents = (params?: EventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.list(params),
-    queryFn: () => eventService.getPublishedEvents(params).then((r) => r.data),
+    queryFn: () => eventService.getEvents(params).then((r) => r.data),
+  });
+};
+
+export const usePublishedEvents = (params?: EventQueryParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.events.list({ ...params, status: 'PUBLISHED' }),
+    queryFn: () =>
+      eventService
+        .getEvents({ ...params, status: 'PUBLISHED' })
+        .then((r) => r.data),
   });
 };
 
