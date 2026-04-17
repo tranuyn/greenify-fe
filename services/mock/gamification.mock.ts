@@ -5,13 +5,13 @@ import {
   GardenArchive,
   PlantDailyLog,
   VoucherTemplate,
+  SeedRewardVoucher,
   UserVoucher,
-  LeaderboardEntry,
   LeaderboardScope,
+  WeeklyLeaderboard,
   PlantStatus,
   CycleType,
 } from 'types/gamification.types';
-import { MOCK_USER_PROFILE } from './user.mock';
 import { IMAGES } from '@/constants/linkMedia';
 import { tr } from 'zod/v4/locales';
 
@@ -82,6 +82,21 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
     status: 'ACTIVE',
   },
 ];
+
+export const MOCK_SEED_REWARD_VOUCHERS: SeedRewardVoucher = {
+  id: 'vt-002',
+  name: 'Voucher Cocoon 50.000đ',
+  partnerName: 'Cocoon Vietnam',
+  description: 'Voucher mua sản phẩm Cocoon trị giá 50.000đ.',
+  requiredPoints: 50,
+  totalStock: 200,
+  remainingStock: 89,
+  usageConditions: 'Đơn hàng tối thiểu 200.000đ. Chỉ áp dụng trên website cocoonvietnam.com.',
+  validUntil: '2026-05-31T23:59:59Z',
+  partnerLogoUrl: 'https://moonchicorder.com.vn/wp-content/uploads/2024/09/Cocoon.png',
+  thumbnailUrl: 'https://channel.mediacdn.vn/2020/1/7/photo-1-15783942747491282238021.jpg',
+  status: 'ACTIVE',
+};
 
 // ---- Streak ----
 
@@ -319,80 +334,50 @@ export const MOCK_USER_VOUCHERS: UserVoucher[] = [
 
 // ---- Leaderboard ----
 
-export const MOCK_LEADERBOARD_NATIONAL: LeaderboardEntry[] = [
-  {
-    id: 'lb-001',
-    period_id: 'per-001',
-    user_id: 'usr-010',
-    user_profiles: MOCK_USER_PROFILE,
-    scope: LeaderboardScope.NATIONAL,
-    province: null,
-    rank: 1,
-    weekly_points: 420,
-    is_winner: true,
-    reward_status: 'REWARDED',
-    status: 'PUBLISHED',
-    displayName: 'Hoàng Minh',
-    avatar_url: 'https://i.pravatar.cc/150?img=3',
-  },
-  {
-    id: 'lb-002',
-    period_id: 'per-001',
-    user_id: 'usr-011',
-    user_profiles: MOCK_USER_PROFILE,
-    scope: LeaderboardScope.NATIONAL,
-    province: null,
-    rank: 2,
-    weekly_points: 380,
-    is_winner: true,
-    reward_status: 'REWARDED',
-    status: 'PUBLISHED',
-    displayName: 'Thu Hà',
-    avatar_url: 'https://i.pravatar.cc/150?img=25',
-  },
-  {
-    id: 'lb-003',
-    period_id: 'per-001',
-    user_id: 'usr-012',
-    user_profiles: MOCK_USER_PROFILE,
-    scope: LeaderboardScope.NATIONAL,
-    province: null,
-    rank: 3,
-    weekly_points: 310,
-    is_winner: true,
-    reward_status: 'REWARDED',
-    status: 'PUBLISHED',
-    displayName: 'Bảo Châu',
-    avatar_url: 'https://i.pravatar.cc/150?img=32',
-  },
-  {
-    id: 'lb-004',
-    period_id: 'per-001',
-    user_id: 'usr-001',
-    user_profiles: MOCK_USER_PROFILE,
-    scope: LeaderboardScope.NATIONAL,
-    province: null,
-    rank: 4,
-    weekly_points: 290,
-    is_winner: false,
-    reward_status: 'PENDING_REWARD',
-    status: 'PUBLISHED',
-    displayName: 'Nhã Uyên',
-    avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
-  },
-  {
-    id: 'lb-005',
-    period_id: 'per-001',
-    user_id: 'usr-013',
-    user_profiles: MOCK_USER_PROFILE,
-    scope: LeaderboardScope.NATIONAL,
-    province: null,
-    rank: 5,
-    weekly_points: 275,
-    is_winner: false,
-    reward_status: 'PENDING_REWARD',
-    status: 'PUBLISHED',
-    displayName: 'Thanh Long',
-    avatar_url: 'https://i.pravatar.cc/150?img=8',
-  },
-];
+export const MOCK_LEADERBOARD_NATIONAL: WeeklyLeaderboard = {
+  weekStartDate: '2026-04-13',
+  scope: LeaderboardScope.NATIONAL,
+  province: null,
+  entries: [
+    {
+      rank: 1,
+      userId: 'usr-010',
+      displayName: 'Hoàng Minh',
+      avatarUrl: 'https://i.pravatar.cc/150?img=3',
+      province: 'HCM',
+      weeklyPoints: 420,
+    },
+    {
+      rank: 2,
+      userId: 'usr-011',
+      displayName: 'Thu Hà',
+      avatarUrl: 'https://i.pravatar.cc/150?img=25',
+      province: 'HN',
+      weeklyPoints: 380,
+    },
+    {
+      rank: 3,
+      userId: 'usr-012',
+      displayName: 'Bảo Châu',
+      avatarUrl: 'https://i.pravatar.cc/150?img=32',
+      province: 'DN',
+      weeklyPoints: 310,
+    },
+    {
+      rank: 4,
+      userId: 'usr-001',
+      displayName: 'Nhã Uyên',
+      avatarUrl: 'https://i.redd.it/ya8qikz9kn0f1.png',
+      province: 'CT',
+      weeklyPoints: 290,
+    },
+    {
+      rank: 5,
+      userId: 'usr-013',
+      displayName: 'Thanh Long',
+      avatarUrl: 'https://i.pravatar.cc/150?img=8',
+      province: 'HP',
+      weeklyPoints: 275,
+    },
+  ],
+};

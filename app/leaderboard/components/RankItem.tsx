@@ -29,9 +29,8 @@ const RankItem = ({ item }: RankItemProps) => {
   };
 
   const frameSource = getFrameSource(item.rank);
-  const displayName =
-    item?.displayName || item.user_profiles?.displayName || t('leaderboard.anonymous');
-  const avatarUrl = item?.avatar_url || item.user_profiles?.avatar_url || IMAGES.treeAvatar;
+  const displayName = item?.displayName || t('leaderboard.anonymous');
+  const avatarUrl = item?.avatarUrl || IMAGES.treeAvatar;
 
   return (
     <View className="flex-row items-center justify-between py-3">
@@ -65,7 +64,7 @@ const RankItem = ({ item }: RankItemProps) => {
       </View>
 
       <Text className="text-base font-bold text-foreground">
-        {item.weekly_points} <Text className="text-[#359B63]">GP</Text>
+        {item.weeklyPoints} <Text className="text-[#359B63]">GP</Text>
       </Text>
     </View>
   );

@@ -34,6 +34,21 @@ export interface VoucherTemplate {
   status: VoucherTemplateStatus;
 }
 
+export interface SeedRewardVoucher {
+  id: string;
+  name: string;
+  partnerName: string;
+  description: string;
+  requiredPoints: number;
+  totalStock: number;
+  remainingStock: number;
+  usageConditions: string;
+  validUntil: string;
+  partnerLogoUrl: string | null;
+  thumbnailUrl: string | null;
+  status: VoucherTemplateStatus;
+}
+
 export interface UserVoucher {
   id: string;
   voucherCode: string;
@@ -198,19 +213,31 @@ export interface LeaderboardPeriod {
 }
 
 export interface LeaderboardEntry {
-  id: string;
-  period_id: string;
-  // period: LeaderboardPeriod;
-  user_id: string;
-  user_profiles: UserProfile;
+  rank: number;
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  province: string;
+  weeklyPoints: number;
+}
+
+export interface WeeklyLeaderboard {
+  weekStartDate: string; // YYYY-MM-DD
   scope: LeaderboardScope;
   province: string | null;
-  rank: number;
-  weekly_points: number;
-  is_winner: boolean;
-  reward_status: RewardStatus;
-  status: SnapshotStatus;
-  // Joined
-  displayName?: string;
-  avatar_url?: string | null;
+  entries: LeaderboardEntry[];
+}
+
+export type LeaderboardPrizeStatus = 'CONFIGURED' | 'LOCKED' | 'DISTRIBUTED';
+
+export interface WeeklyLeaderboardPrizes {
+  prizeConfigId: string;
+  weekStartDate: string; // YYYY-MM-DD
+  lockAt: string;
+  status: LeaderboardPrizeStatus;
+  nationalReservedCount: number;
+  provincialReservedCount: number;
+  distributedAt: string | null;
+  nationalVoucher: SeedRewardVoucher;
+  provincialVoucher: SeedRewardVoucher;
 }

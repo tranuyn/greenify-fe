@@ -15,12 +15,11 @@ const Podium = ({ topThree }: PodiumProps) => {
   const rank3 = topThree.find((item) => item.rank === 3);
 
   const getName = (item?: LeaderboardEntry) =>
-    item?.displayName || item?.user_profiles?.displayName || t('leaderboard.anonymous');
+    item?.displayName || t('leaderboard.anonymous');
 
-  const getAvatar = (item?: LeaderboardEntry) =>
-    item?.avatar_url || item?.user_profiles?.avatar_url || IMAGES.treeAvatar;
+  const getAvatar = (item?: LeaderboardEntry) => item?.avatarUrl || IMAGES.treeAvatar;
 
-  const getPoints = (item?: LeaderboardEntry) => item?.weekly_points ?? 0;
+  const getPoints = (item?: LeaderboardEntry) => item?.weeklyPoints ?? 0;
 
   return (
     <View className="mb-4 mt-6 flex-row items-end justify-center gap-8">

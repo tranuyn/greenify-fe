@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { queryClient } from 'lib/queryClient';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
@@ -15,15 +15,17 @@ export const useRedeemVoucher = () => {
   });
 };
 
-export const useClaimLeaderboardReward = () => {
-  return useMutation({
-    mutationFn: (periodId: string) => leaderboardService.claimLeaderboardReward(periodId),
-    onSuccess: (_response, periodId) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.leaderboard.claim(periodId) });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.leaderboard.all });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.vouchers.mine() });
-    },
+export const useClaimLeaderboardReward = (weekStartDate: string, enabled = true) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.leaderboard.weeklyPrizes(weekStartDate),
+    queryFn: () => leaderboardService.getWeeklyPrizes(weekStartDate),
+    enabled: enabled && Boolean(weekStartDate),
+    staleTime: 5 * 60 * 1000,
   });
+};
+
+export const useWeeklyLeaderboardPrizes = (weekStartDate: string, enabled = true) => {
+  return useClaimLeaderboardReward(weekStartDate, enabled);
 };
 
 export const useCreatePlantDailyLog = () => {

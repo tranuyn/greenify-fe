@@ -11,7 +11,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { IMAGES } from '@/constants/linkMedia';
 import { useLeaderboard } from '@/hooks/queries/useGamification';
-import { useClaimLeaderboardReward } from '@/hooks/mutations/useGamification';
+import { useWeeklyLeaderboardPrizes } from '@/hooks/mutations/useGamification';
 import { LeaderboardEntry, LeaderboardScope } from '@/types/gamification.types';
 
 // Import các component vừa tạo (nhớ trỏ đúng đường dẫn của bạn)
@@ -25,23 +25,43 @@ import { router } from 'expo-router';
 import RewardDetail from './components/LeaderboardReward';
 import { useTranslation } from 'react-i18next';
 
+const getWeekStartDate = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  const year = monday.getFullYear();
+  const month = String(monday.getMonth() + 1).padStart(2, '0');
+  const date = String(monday.getDate()).padStart(2, '0');
+  return `${year}-${month}-${date}`;
+};
+
 const LeaderboardScreen = () => {
   const { t } = useTranslation();
   const [scope, setScope] = React.useState<LeaderboardScope>(LeaderboardScope.NATIONAL);
   const [showLeaderboardReward, setShowLeaderboardReward] = React.useState(false);
+  const weekStartDate = React.useMemo(() => getWeekStartDate(), []);
 
   const {
-    data: leaderboardData = [],
+    data: leaderboardData,
     isLoading,
     isFetching,
     isError,
     refetch,
-  } = useLeaderboard(scope);
-  const claimLeaderboardReward = useClaimLeaderboardReward();
+  } = useLeaderboard(scope, weekStartDate);
+  const {
+    data: weeklyPrizes,
+    isLoading: isLoadingWeeklyPrizes,
+    isFetching: isFetchingWeeklyPrizes,
+    refetch: refetchWeeklyPrizes,
+  } = useWeeklyLeaderboardPrizes(weekStartDate, showLeaderboardReward);
+
+  const entries = leaderboardData?.entries ?? [];
 
   const sortedLeaderboard = React.useMemo(
-    () => [...leaderboardData].sort((a, b) => a.rank - b.rank),
-    [leaderboardData]
+    () => [...entries].sort((a, b) => a.rank - b.rank),
+    [entries]
   );
 
   const topThree = React.useMemo(
@@ -54,13 +74,10 @@ const LeaderboardScreen = () => {
     [sortedLeaderboard]
   );
 
-  const rewardPeriodId = sortedLeaderboard[0]?.period_id ?? '';
-
-  React.useEffect(() => {
-    if (!showLeaderboardReward || !rewardPeriodId) return;
-    if (claimLeaderboardReward.isPending || claimLeaderboardReward.data) return;
-    claimLeaderboardReward.mutate(rewardPeriodId);
-  }, [showLeaderboardReward, rewardPeriodId]);
+  const rewardVoucher =
+    scope === LeaderboardScope.PROVINCIAL
+      ? weeklyPrizes?.provincialVoucher
+      : weeklyPrizes?.nationalVoucher;
 
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
@@ -83,7 +100,7 @@ const LeaderboardScreen = () => {
                   resizeMode="contain"
                 />
               </TouchableOpacity>
-              <Text className="text-lg font-medium text-foreground">{t('leaderboard.title')}</Text>
+              <Text className="text-lg font-medium text-white">{t('leaderboard.title')}</Text>
             </View>
 
             <View className="flex-row gap-3">
@@ -121,13 +138,13 @@ const LeaderboardScreen = () => {
       <View className="-mt-24 flex-1 rounded-t-[32px] bg-background px-5 pt-6 shadow-lg">
         {showLeaderboardReward ? (
           <RewardDetail
-            data={claimLeaderboardReward.data?.data}
-            isClaiming={claimLeaderboardReward.isPending}
+            data={rewardVoucher}
+            isClaiming={isLoadingWeeklyPrizes || isFetchingWeeklyPrizes}
             onClaim={() => {
-              if (!rewardPeriodId) {
+              if (!weekStartDate) {
                 return;
               }
-              claimLeaderboardReward.mutate(rewardPeriodId);
+              refetchWeeklyPrizes();
             }}
           />
         ) : (
@@ -148,7 +165,7 @@ const LeaderboardScreen = () => {
             ) : (
               <FlatList
                 data={rankList}
-                keyExtractor={(item: LeaderboardEntry) => item.id}
+                keyExtractor={(item: LeaderboardEntry) => `${item.userId}-${item.rank}`}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => <RankItem item={item} />}
                 ListHeaderComponent={
