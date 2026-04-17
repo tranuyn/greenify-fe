@@ -39,7 +39,7 @@ export default function HomeScreen() {
   const { data: wallet } = useMyWallet();
   const { data: eventsData, isLoading: isLoadingEvents } = usePublishedEvents({
     page: 1,
-    page_size: 5,
+    size: 5,
   });
   const { data: myRegistrations } = useMyRegistrations();
   const { mutate: registerEvent } = useRegisterEvent();
@@ -66,7 +66,7 @@ export default function HomeScreen() {
   if (currentProfile) {
     userName = currentProfile.displayName;
   }
-  const events = eventsData?.items ?? [];
+  const events = eventsData?.content ?? [];
   const allVouchers = vouchers ?? [];
 
   const collectedVoucherIds = new Set(

@@ -7,7 +7,7 @@ import type {
   CreateTrashReportRequest,
   CreateEventRequest,
 } from 'types/community.types';
-import { ApiResponse, PaginatedResponse, PaginationParams } from 'types/common.types';
+import { ApiResponse, PageResponse, PaginationParams } from '@/types/common.types';
 
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import {
@@ -21,21 +21,19 @@ import {
 // EVENT SERVICE
 // ============================================================
 export const eventService = {
-  async getPublishedEvents(
-    params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<Event>>> {
+  async getPublishedEvents(params?: PaginationParams): Promise<ApiResponse<PageResponse<Event>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
       const published = MOCK_EVENTS.filter((e) => e.status === 'PUBLISHED');
       return mockSuccess({
-        items: published,
-        total: published.length,
+        content: published,
+        totalElements: published.length,
         page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
+        size: params?.size ?? 10,
+        totalPages: Math.ceil(published.length / (params?.size ?? 10)),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/events', {
+    const { data } = await apiClient.get<ApiResponse<PageResponse<Event>>>('/events', {
       params,
     });
     return data;
@@ -88,18 +86,18 @@ export const eventService = {
     return data;
   },
 
-  async getNgoEvents(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Event>>> {
+  async getNgoEvents(params?: PaginationParams): Promise<ApiResponse<PageResponse<Event>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
       return mockSuccess({
-        items: MOCK_EVENTS,
-        total: MOCK_EVENTS.length,
+        content: MOCK_EVENTS,
+        totalElements: MOCK_EVENTS.length,
         page: params?.page ?? 1,
-        page_size: params?.page_size ?? 20,
-        has_next: false,
+        size: params?.size ?? 20,
+        totalPages: Math.ceil(MOCK_EVENTS.length / (params?.size ?? 20)),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/ngo/events', {
+    const { data } = await apiClient.get<ApiResponse<PageResponse<Event>>>('/ngo/events', {
       params,
     });
     return data;
@@ -159,20 +157,18 @@ export const mapService = {
 // COMMUNITY / TRASH REPORT SERVICE
 // ============================================================
 export const trashService = {
-  async getReports(
-    params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<TrashSpotReport>>> {
+  async getReports(params?: PaginationParams): Promise<ApiResponse<PageResponse<TrashSpotReport>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
       return mockSuccess({
-        items: MOCK_TRASH_REPORTS,
-        total: MOCK_TRASH_REPORTS.length,
+        content: MOCK_TRASH_REPORTS,
+        totalElements: MOCK_TRASH_REPORTS.length,
         page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
+        size: params?.size ?? 10,
+        totalPages: Math.ceil(MOCK_TRASH_REPORTS.length / (params?.size ?? 10)),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<TrashSpotReport>>>(
+    const { data } = await apiClient.get<ApiResponse<PageResponse<TrashSpotReport>>>(
       '/trash-reports',
       { params }
     );
