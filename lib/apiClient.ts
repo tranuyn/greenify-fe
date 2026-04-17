@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ---- Constants ----
-const BASE_URL = 'http://192.168.1.3:8080/api/v1';
+const BASE_URL = 'http://172.16.155.90:8080/api/v1';
 const ACCESS_TOKEN_KEY = 'auth.access_token';
 const REFRESH_TOKEN_KEY = 'auth.refresh_token';
 
@@ -17,6 +17,15 @@ export const tokenStorage = {
 
 // ---- Axios instance ----
 export const apiClient = axios.create({
+  baseURL: BASE_URL,
+  timeout: 100_000,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
+
+export const publicApiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 100_000,
   headers: {

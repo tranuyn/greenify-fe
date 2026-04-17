@@ -41,7 +41,7 @@ export default function LoginScreen() {
         try {
           await queryClient.prefetchQuery({
             queryKey: QUERY_KEYS.auth.me(),
-            queryFn: () => authService.getMe().then((res) => res),
+            queryFn: () => authService.getMe(),
           });
         } catch (error) {
           console.warn('Failed to fetch user data:', error);
@@ -54,6 +54,7 @@ export default function LoginScreen() {
         const errorCode = error?.response?.data?.error_code;
         const message = error?.response?.data?.message || t('auth.login.error_fallback');
 
+        console.error('Login error:', error?.response || error);
         if (errorCode === 'INVALID_CREDENTIALS' || error?.response?.status === 401) {
           // Highlight ô identifier bị lỗi nhưng không hiện text (cho đỡ rối)
           setError('identifier', { type: 'manual', message: '' });
