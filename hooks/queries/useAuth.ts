@@ -11,8 +11,7 @@ export const useCurrentUser = () => {
   return useQuery({
     queryKey: QUERY_KEYS.auth.me(),
     queryFn: async () => {
-      const res = await authService.getMe();
-      return res.data;
+      return authService.getMe();
     },
     // Data sống được 10 phút. Trong 10 phút này nếu component mount,
     // nó lấy thẳng từ cache (Sync 100%, không loading)

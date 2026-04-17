@@ -39,7 +39,7 @@ export default function HomeScreen() {
   const { data: wallet } = useMyWallet();
   const { data: eventsData, isLoading: isLoadingEvents } = usePublishedEvents({
     page: 1,
-    page_size: 5,
+    size: 5,
   });
   const { data: myRegistrations } = useMyRegistrations();
   const { mutate: registerEvent } = useRegisterEvent();
@@ -64,9 +64,9 @@ export default function HomeScreen() {
   let userName = t('home.welcome_guest', 'Công dân xanh');
 
   if (currentProfile) {
-    userName = 'org_name' in currentProfile ? currentProfile.org_name : currentProfile.displayName;
+    userName = currentProfile.displayName;
   }
-  const events = eventsData?.items ?? [];
+  const events = eventsData?.content ?? [];
   const allVouchers = vouchers ?? [];
 
   const collectedVoucherIds = new Set(
@@ -95,7 +95,7 @@ export default function HomeScreen() {
       {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
       <HomeHeader
         userName={userName}
-        avatarUrl={authData?.userProfile?.avatar_url}
+        avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatarUrl}
         points={wallet?.available_points ?? 0}
       />
 

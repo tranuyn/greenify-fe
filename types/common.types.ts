@@ -1,4 +1,4 @@
-import { SortOption } from "@/constants/enums/sortOptions.enum";
+import { SortOption } from '@/constants/enums/sortOptions.enum';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -32,6 +32,6 @@ export interface DateRangeParams {
   toDate?: string;
 }
 export interface SortParams<T = string> {
-  sort?: T; 
+  sort?: T;
 }
 export interface BaseQueryParams extends PaginationParams, DateRangeParams {}
