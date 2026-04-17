@@ -1,6 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { queryClient } from 'lib/queryClient';
+import { QUERY_KEYS } from 'constants/queryKeys';
 
 import { AuthBrandHeader } from '@/components/shared/auth/AuthBrandHeader';
 import { AuthScaffold } from '@/components/shared/auth/AuthScaffold';
@@ -9,6 +11,7 @@ import { Text } from '@/components/ui/Text';
 import { useCompleteProfile } from '@/hooks/mutations/useAuth';
 import type { CompleteProfileFormData } from '@/validations/auth.schema';
 import { ProfileForm } from '@/components/shared/auth/ProfileForm';
+import { authService } from 'services/auth.service';
 
 export default function CompleteProfileScreen() {
   const { t } = useTranslation();
@@ -18,7 +21,18 @@ export default function CompleteProfileScreen() {
 
   const handleCompleteProfile = (data: CompleteProfileFormData) => {
     completeProfile(data, {
-      onSuccess: () => {
+      onSuccess: async () => {
+        try {
+          await queryClient.fetchQuery({
+            queryKey: QUERY_KEYS.auth.me(),
+            queryFn: async () => {
+              return authService.getMe();
+            },
+          });
+        } catch (error) {
+          console.warn('Failed to fetch user data:', error);
+        }
+
         router.replace('/(tabs)');
       },
       onError: (err: any) => {

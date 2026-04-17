@@ -1,4 +1,4 @@
-import { apiClient, tokenStorage } from 'lib/apiClient';
+import { apiClient, publicApiClient, tokenStorage } from 'lib/apiClient';
 import type {
   LoginRequest,
   LoginResponse,
@@ -10,6 +10,7 @@ import type {
   CompleteProfileRequest,
   UserProfile,
   AuthenticatedUser,
+  UserRole,
 } from 'types/user.type';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import { MOCK_AUTH_RESPONSE, MOCK_AUTHENTICATED_USER, MOCK_USER_PROFILE } from './mock/user.mock';
@@ -27,7 +28,7 @@ export const authService = {
       //   return mockSuccess({ message: 'OTP đã được gửi đến email của bạn.' });
       // }
 
-      const { data } = await apiClient.post('/auth/register/send-otp', payload);
+      const { data } = await publicApiClient.post('/auth/register/send-otp', payload);
       return data;
     } catch (error: any) {
       console.error('Lỗi khi request OTP:', error, error.response?.data);
@@ -51,7 +52,7 @@ export const authService = {
     //   return mockSuccess({ verificationToken: 'mock_verification_token_' + payload.identifier });
     // }
     try {
-      const { data } = await apiClient.post<ApiResponse<VerifyOtpResponse>>(
+      const { data } = await publicApiClient.post<ApiResponse<VerifyOtpResponse>>(
         '/auth/register/verify-otp',
         payload
       );
@@ -76,7 +77,7 @@ export const authService = {
     //   };
     //   return mockSuccess(tokens);
     // }
-    const { data } = await apiClient.post<LoginResponse>('/auth/register', payload);
+    const { data } = await publicApiClient.post<LoginResponse>('/auth/register', payload);
     if (!data.access_token || !data.refresh_token) {
       throw new Error('Missing tokens in /auth/register response');
     }
@@ -103,7 +104,7 @@ export const authService = {
     //   await tokenStorage.setRefresh(tokens.refresh_token);
     //   return mockSuccess(tokens);
     // }
-    const { data } = await apiClient.post<LoginResponse>('/auth/authenticate', payload);
+    const { data } = await publicApiClient.post<LoginResponse>('/auth/authenticate', payload);
     if (!data.access_token || !data.refresh_token) {
       throw new Error('Missing tokens in /auth/authenticate response');
     }
@@ -126,7 +127,7 @@ export const authService = {
     //   };
     //   return mockSuccess(tokens);
     // }
-    const { data } = await apiClient.post<LoginResponse>('/auth/refresh-token', {
+    const { data } = await publicApiClient.post<LoginResponse>('/auth/refresh-token', {
       refreshToken,
     });
     if (!data.access_token || !data.refresh_token) {
@@ -180,12 +181,12 @@ export const authService = {
   /**
    * Lấy thông tin user hiện tại (dùng khi app khởi động)
    */
-  async getMe(): Promise<ApiResponse<AuthenticatedUser>> {
+  async getMe(): Promise<AuthenticatedUser> {
     // if (IS_MOCK_MODE) {
     //   await mockDelay(400);
     //   return mockSuccess(MOCK_AUTHENTICATED_USER);
     // }
-    const { data } = await apiClient.get<ApiResponse<AuthenticatedUser>>('/users/me');
+    const { data } = await apiClient.get<AuthenticatedUser>('/users/me');
     return data;
   },
 
@@ -196,8 +197,8 @@ export const authService = {
         ...MOCK_USER_PROFILE,
         displayName: payload.displayName,
         province: payload.province,
-        ward: payload.ward ?? null,
-        avatar_url: payload.avatar_url ?? null,
+        ward: payload.ward ?? '',
+        avatarUrl: payload.avatar_url ?? '',
       };
       return mockSuccess(profile);
     }
