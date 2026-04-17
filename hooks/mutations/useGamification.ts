@@ -28,11 +28,22 @@ export const useClaimLeaderboardReward = () => {
 
 export const useCreatePlantDailyLog = () => {
   return useMutation({
-    mutationFn: (payload: CreatePlantDailyLogRequest) => gamificationService.createPlantDailyLog(payload),
+    mutationFn: (payload: CreatePlantDailyLogRequest) =>
+      gamificationService.createPlantDailyLog(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garden.dailyLogs() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garden.active() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
+    },
+  });
+};
+
+export const useChangeCurrentSeed = () => {
+  return useMutation({
+    mutationFn: (seedId: string) => gamificationService.changeCurrentSeed(seedId),
+    onSuccess: (updatedPlant) => {
+      queryClient.setQueryData(QUERY_KEYS.garden.active(), updatedPlant);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garden.active() });
     },
   });
 };

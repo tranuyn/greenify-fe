@@ -5,9 +5,7 @@ import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { IMAGES } from '@/constants/linkMedia';
-import { useCreatePlantDailyLog } from '@/hooks/mutations/useGamification';
-import { useMyPlant, usePlantDailyLogs } from '@/hooks/queries/useGamification';
-import { PlantStatus } from '@/types/gamification.types';
+import { useMyStreak, usePlantDailyLogs } from '@/hooks/queries/useGamification';
 import { useTranslation } from 'react-i18next';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -21,17 +19,12 @@ const getStartOfWeek = (date: Date) => {
   return cloned;
 };
 
-const isSameDay = (a: Date, b: Date) => {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-};
+const toApiDate = (date: Date) => date.toISOString().slice(0, 10);
 
 const WeekSection = () => {
   const { t } = useTranslation();
   const colors = useThemeColor();
+  const { data: streak } = useMyStreak();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [draftDate, setDraftDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -45,46 +38,27 @@ const WeekSection = () => {
   );
   const weekEnd = weekDays[6];
 
-  const { data: myPlant } = useMyPlant();
   const { data: dailyLogs = [], isLoading: isDailyLogsLoading } = usePlantDailyLogs({
-    plant_progress_id: myPlant?.id,
-    from_date: weekStart.toISOString(),
-    to_date: weekEnd.toISOString(),
+    from_date: toApiDate(weekStart),
+    to_date: toApiDate(weekEnd),
   });
-  const { mutate: createPlantDailyLog, isPending: isCreatingLog } = useCreatePlantDailyLog();
 
   const activeDates = useMemo(() => {
     return new Set(
       dailyLogs
         .filter((log) => log.is_active_day)
-        .map((log) => new Date(log.log_date).toDateString())
+        .map((log) => new Date(log.logDate).toDateString())
     );
   }, [dailyLogs]);
 
   const selectedDateLabel = `${String(selectedDate.getMonth() + 1).padStart(2, '0')}/${selectedDate.getFullYear()}`;
 
-  const applySelectedDate = useCallback(
-    (nextDate: Date) => {
-      setSelectedDate(nextDate);
-
-      if (!myPlant?.id) {
-        return;
-      }
-
-      const dateKey = nextDate.toDateString();
-      if (activeDates.has(dateKey)) {
-        return;
-      }
-
-      createPlantDailyLog({
-        plant_progress_id: myPlant.id,
-        log_date: nextDate.toISOString(),
-        stage: myPlant.status ?? PlantStatus.GROWING,
-        is_active_day: true,
-      });
-    },
-    [activeDates, createPlantDailyLog, myPlant?.id, myPlant?.status]
-  );
+  const applySelectedDate = (date: Date) => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    setSelectedDate(normalized);
+    setDraftDate(normalized);
+  };
 
   const handleAndroidDateChange = (_: DateTimePickerEvent, pickedDate?: Date) => {
     if (Platform.OS === 'android') {
@@ -155,7 +129,7 @@ const WeekSection = () => {
         })}
       </View>
 
-      {(isDailyLogsLoading || isCreatingLog) && (
+      {isDailyLogsLoading && (
         <View className="mt-3 flex-row items-center justify-center">
           <ActivityIndicator size="small" color={colors.primary} />
           <Text className="ml-2 text-xs text-[var(--muted-foreground)]">
@@ -171,7 +145,7 @@ const WeekSection = () => {
         <Image source={{ uri: IMAGES.recycle }} className="h-6 w-6" />
       </TouchableOpacity>
       <Text className="mt-4 text-center font-inter text-sm text-[var(--foreground)]">
-        {t('calendar.week.restore_count', { current: 3, total: 3 })}
+        {t('calendar.week.restore_count', { current: streak?.restoreUsedThisMonth ?? 0, total: 3 })}
       </Text>
 
       {showDatePicker && Platform.OS === 'android' && (

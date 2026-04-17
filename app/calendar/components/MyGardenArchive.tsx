@@ -50,8 +50,8 @@ const MyGardenArchive = ({ onBack }: MyGardenArchiveProps) => {
           {archives.map((archive) => (
             <View key={archive.id} className="mb-3 w-1/5">
               <View className=" h-12 w-12 items-center justify-center rounded-full border border-[var(--primary)] bg-[var(--primary-light)]">
-                {archive.seed?.stage4_image_url ? (
-                  <Image source={{ uri: archive.seed.stage4_image_url }} className="h-8 w-8" />
+                {archive.seed?.stage4ImageUrl ? (
+                  <Image source={{ uri: archive.seed.stage4ImageUrl }} className="h-8 w-8" />
                 ) : null}
               </View>
             </View>

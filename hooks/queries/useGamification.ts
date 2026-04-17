@@ -1,12 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
-import { LeaderboardScope, PlantDailyLogQueryParams } from 'types/gamification.types';
+import {
+  LeaderboardScope,
+  PlantDailyLogQueryParams,
+  UserVoucherQueryParams,
+} from 'types/gamification.types';
 
 export const useMyStreak = () => {
   return useQuery({
     queryKey: QUERY_KEYS.streak.mine(),
-    queryFn: () => gamificationService.getMyStreak().then((r) => r.data),
+    queryFn: () => gamificationService.getMyStreak(),
     // Streak quan trọng, cần tươi — stale sau 1 phút
     staleTime: 60 * 1000,
   });
@@ -15,7 +19,7 @@ export const useMyStreak = () => {
 export const useMyPlant = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.active(),
-    queryFn: () => gamificationService.getMyPlant().then((r) => r.data),
+    queryFn: () => gamificationService.getMyPlant(),
     staleTime: 60 * 1000,
   });
 };
@@ -23,22 +27,22 @@ export const useMyPlant = () => {
 export const useGardenArchives = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.archives(),
-    queryFn: () => gamificationService.getGardenArchives().then((r) => r.data),
+    queryFn: () => gamificationService.getGardenArchives().then((r) => r.content),
   });
 };
 
 export const usePlantDailyLogs = (params?: PlantDailyLogQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.dailyLogs(params),
-    queryFn: () => gamificationService.getPlantDailyLogs(params).then((r) => r.data),
+    queryFn: () => gamificationService.getPlantDailyLogs(params).then((r) => r),
   });
 };
 
 export const useSeeds = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.seeds(),
-    queryFn: () => gamificationService.getSeeds().then((r) => r.data),
-    staleTime: 30 * 60 * 1000, // seed là master data
+    queryFn: () => gamificationService.getSeeds().then((r) => r.content),
+    staleTime: 30 * 60 * 1000,
   });
 };
 
@@ -49,10 +53,10 @@ export const useAvailableVouchers = () => {
   });
 };
 
-export const useMyVouchers = () => {
+export const useMyVouchers = (params?: UserVoucherQueryParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.vouchers.mine(),
-    queryFn: () => gamificationService.getMyVouchers().then((r) => r.data),
+    queryKey: QUERY_KEYS.vouchers.mine(params),
+    queryFn: () => gamificationService.getMyVouchers(params).then((r) => r.content),
   });
 };
 

@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { IMAGES } from '@/constants/linkMedia';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
-import { usePlantDailyLogs, useSeeds } from '@/hooks/queries/useGamification';
+import { useMyPlant, useSeeds } from '@/hooks/queries/useGamification';
+import { useChangeCurrentSeed } from '@/hooks/mutations/useGamification';
 import SeedSelectionModal from './SeedSelectionModal';
 import { CycleType } from '@/types/gamification.types';
 import { useTranslation } from 'react-i18next';
@@ -21,39 +22,41 @@ const UtilitiesSection = ({ onPressFarm }: UtilitiesSectionProps) => {
 
   const { data: seeds = [], isLoading: isSeedsLoading } = useSeeds();
 
-  const todayLogParams = useMemo(
-    () => ({
-      log_date: new Date().toISOString().slice(0, 10),
-      user_id: userId,
-    }),
-    [userId]
-  );
+  const { data: myPlant } = useMyPlant();
+  const { mutate: changeCurrentSeed, isPending: isChangingSeed } = useChangeCurrentSeed();
 
-  const { data: todayLogs = [] } = usePlantDailyLogs(todayLogParams);
-
-  const longTermSeeds = useMemo(
-    () => seeds.filter((seed) => seed.cycle_type === CycleType.LONG_TERM),
+  const easySeeds = useMemo(
+    () => seeds.filter((seed) => seed.cycleType === CycleType.EASY),
     [seeds]
   );
 
-  const shortTermSeeds = useMemo(
-    () => seeds.filter((seed) => seed.cycle_type === CycleType.SHORT_TERM),
+  const mediumSeeds = useMemo(
+    () => seeds.filter((seed) => seed.cycleType === CycleType.MEDIUM),
     [seeds]
   );
 
-  const currentSelectedSeedId = useMemo(() => {
-    if (!userId || todayLogs.length === 0) return null;
+  const hardSeeds = useMemo(
+    () => seeds.filter((seed) => seed.cycleType === CycleType.HARD),
+    [seeds]
+  );
 
-    return todayLogs[0]?.plant_progress?.seed_id || null;
-  }, [todayLogs, userId]);
+  const effectiveSelectedSeedId = selectedSeedId ?? myPlant?.seedId ?? null;
 
-  const effectiveSelectedSeedId = selectedSeedId ?? currentSelectedSeedId;
-
-  const hasGrowingSeed = todayLogs.length > 0;
+  const hasGrowingSeed = Boolean(myPlant);
 
   const handleCloseSeedModal = () => {
     setIsSeedModalVisible(false);
     setSelectedSeedId(null);
+  };
+
+  const handlePlantSeed = () => {
+    if (!effectiveSelectedSeedId) return;
+
+    changeCurrentSeed(effectiveSelectedSeedId, {
+      onSuccess: () => {
+        handleCloseSeedModal();
+      },
+    });
   };
 
   return (
@@ -86,10 +89,13 @@ const UtilitiesSection = ({ onPressFarm }: UtilitiesSectionProps) => {
         onClose={handleCloseSeedModal}
         selectedSeedId={effectiveSelectedSeedId}
         onSelectSeed={setSelectedSeedId}
-        longTermSeeds={longTermSeeds}
-        shortTermSeeds={shortTermSeeds}
+        easySeeds={easySeeds}
+        mediumSeeds={mediumSeeds}
+        hardSeeds={hardSeeds}
         isSeedsLoading={isSeedsLoading}
         hasGrowingSeed={hasGrowingSeed}
+        isPlanting={isChangingSeed}
+        onPlantSeed={handlePlantSeed}
       />
     </>
   );

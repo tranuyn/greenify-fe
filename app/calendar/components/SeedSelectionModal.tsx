@@ -114,10 +114,13 @@ type SeedSelectionModalProps = {
   onClose: () => void;
   selectedSeedId: string | null;
   onSelectSeed: (seedId: string) => void;
-  longTermSeeds: Seed[];
-  shortTermSeeds: Seed[];
+  easySeeds: Seed[];
+  mediumSeeds: Seed[];
+  hardSeeds: Seed[];
   isSeedsLoading: boolean;
   hasGrowingSeed: boolean;
+  isPlanting?: boolean;
+  onPlantSeed: () => void;
 };
 
 const SeedSelectionModal = ({
@@ -125,10 +128,13 @@ const SeedSelectionModal = ({
   onClose,
   selectedSeedId,
   onSelectSeed,
-  longTermSeeds,
-  shortTermSeeds,
+  easySeeds,
+  mediumSeeds,
+  hardSeeds,
   isSeedsLoading,
   hasGrowingSeed,
+  isPlanting = false,
+  onPlantSeed,
 }: SeedSelectionModalProps) => {
   const { t } = useTranslation();
   // STATE MỚI: Dùng để điều khiển Modal Lưu ý
@@ -143,12 +149,12 @@ const SeedSelectionModal = ({
         onPress={() => onSelectSeed(seed.id)}
         className={`mb-2 flex-row items-center rounded-lg px-2 py-2 ${isSelected ? 'bg-[var(--primary-light)]/30 border border-[var(--primary)]' : ''}`}>
         <View className="h-10 w-10 items-center justify-center rounded-full border border-[var(--primary)] bg-[var(--primary-light)]">
-          <Image source={{ uri: seed.stage4_image_url }} className="h-7 w-7" />
+          <Image source={{ uri: seed.stage4ImageUrl }} className="h-7 w-7" />
         </View>
         <View className="ml-3">
           <Text className="font-inter-medium text-base text-[var(--foreground)]">{seed.name}</Text>
           <Text className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-            {t('calendar.seed_modal.duration_days', { days: seed.days_to_mature })}
+            {t('calendar.seed_modal.duration_days', { days: seed.daysToMature })}
           </Text>
         </View>
       </TouchableOpacity>
@@ -180,14 +186,19 @@ const SeedSelectionModal = ({
 
             <ScrollView showsVerticalScrollIndicator={false} className="px-3">
               <Text className="mb-2 font-inter-semibold text-lg text-[var(--foreground)]">
-                {t('calendar.seed_modal.long_term_section')}
+                {t('calendar.seed_modal.easy_care')}
               </Text>
-              {longTermSeeds.map((seed) => renderSeedItem(seed))}
+              {easySeeds.map((seed) => renderSeedItem(seed))}
 
               <Text className="mb-2 mt-3 font-inter-semibold text-lg text-[var(--foreground)]">
-                {t('calendar.seed_modal.short_term_section')}
+                {t('calendar.seed_modal.medium_care')}
               </Text>
-              {shortTermSeeds.map((seed) => renderSeedItem(seed))}
+              {mediumSeeds.map((seed) => renderSeedItem(seed))}
+
+              <Text className="mb-2 mt-3 font-inter-semibold text-lg text-[var(--foreground)]">
+                {t('calendar.seed_modal.hard_care')}
+              </Text>
+              {hardSeeds.map((seed) => renderSeedItem(seed))}
 
               {isSeedsLoading && (
                 <Text className="py-2 text-sm text-[var(--muted-foreground)]">
@@ -220,12 +231,14 @@ const SeedSelectionModal = ({
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={onClose}
-                disabled={!selectedSeedId}
-                className={`flex-1 flex-row items-center justify-center rounded-lg py-4 ${selectedSeedId ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`}>
+                onPress={onPlantSeed}
+                disabled={!selectedSeedId || isPlanting}
+                className={`flex-1 flex-row items-center justify-center rounded-lg py-4 ${selectedSeedId && !isPlanting ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`}>
                 <Text
-                  className={`mr-1 font-inter-semibold text-[var(--foreground)] ${selectedSeedId ? 'text-[var(--on-primary)]' : 'text-[var(--muted-foreground)]'}`}>
-                  {t('calendar.seed_modal.plant_button')}
+                  className={`mr-1 font-inter-semibold text-[var(--foreground)] ${selectedSeedId && !isPlanting ? 'text-[var(--on-primary)]' : 'text-[var(--muted-foreground)]'}`}>
+                  {isPlanting
+                    ? t('calendar.seed_modal.loading_seeds')
+                    : t('calendar.seed_modal.plant_button')}
                 </Text>
                 {/* Đảm bảo IMAGES.growingPlant đã được import hợp lệ */}
                 <Image source={{ uri: IMAGES?.growingPlant || '' }} className="h-6 w-6" />

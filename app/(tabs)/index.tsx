@@ -74,7 +74,7 @@ export default function HomeScreen() {
       .filter(
         (v) => v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
       )
-      .map((v) => v.voucher_template_id)
+      .map((v) => v.voucherTemplateId)
   );
 
   const handleCollect = (item: VoucherTemplate) => {
