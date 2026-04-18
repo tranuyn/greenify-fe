@@ -23,7 +23,7 @@ export const useMyPosts = (params?: MyPostsQueryParams, enabled = true) => {
 export const useActionTypes = () => {
   return useQuery({
     queryKey: QUERY_KEYS.actionTypes.all,
-    queryFn: () => actionService.getActionTypes().then((r) => r.data),
+    queryFn: () => actionService.getActionTypes(),
     staleTime: 30 * 60 * 1000, // 30 phút — master data, ít thay đổi
   });
 };

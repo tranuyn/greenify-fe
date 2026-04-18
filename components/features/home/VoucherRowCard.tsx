@@ -31,7 +31,7 @@ export function VoucherRowCard({ item, isCollected, isCollecting, onCollect }: P
     <View className="mb-3 flex-row items-center rounded-2xl bg-background px-3 py-2 shadow-sm shadow-black/70 dark:bg-card">
       <View className="mr-3 h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-primary-50">
         <Image
-          source={{ uri: item.thumbnail_url ?? undefined }}
+          source={{ uri: item.thumbnailUrl ?? undefined }}
           className="h-full w-full"
           resizeMode="cover"
         />
@@ -42,7 +42,7 @@ export function VoucherRowCard({ item, isCollected, isCollecting, onCollect }: P
         <View className="mb-0.5 flex-row items-center">
           <View className="mr-1 h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-primary-50">
             <Image
-              source={{ uri: item.partner_logo_url ?? undefined }}
+              source={{ uri: item.partnerLogoUrl ?? undefined }}
               className="h-full w-full"
               resizeMode="cover"
             />
@@ -50,7 +50,7 @@ export function VoucherRowCard({ item, isCollected, isCollecting, onCollect }: P
           <Text
             numberOfLines={1}
             className="text-foreground/50 min-w-0 flex-1 font-inter text-[11px]">
-            {item.partner_name}
+            {item.partnerName}
           </Text>
         </View>
         <Text numberOfLines={2} className="text-md min-w-0 font-inter-semibold text-foreground">
@@ -61,14 +61,14 @@ export function VoucherRowCard({ item, isCollected, isCollecting, onCollect }: P
           <Text
             numberOfLines={1}
             className="text-foreground/40 ml-1 min-w-0 shrink font-inter text-[10px]">
-            {t('home.remaining_stock', { count: item.remaining_stock })}
+            {t('home.remaining_stock', { count: item.remainingStock })}
           </Text>
           <Text className="text-foreground/20 mx-1.5">•</Text>
           <Feather name="clock" size={10} color={NEUTRAL_COLORS[400]} />
           <Text
             numberOfLines={1}
             className="text-foreground/40 ml-1 min-w-0 flex-1 shrink font-inter text-[10px]">
-            {t('home.valid_until', { date: formatDate(item.valid_until) })}
+            {t('home.valid_until', { date: formatDate(item.validUntil) })}
           </Text>
         </View>
       </View>
@@ -76,7 +76,7 @@ export function VoucherRowCard({ item, isCollected, isCollecting, onCollect }: P
       {/* Right side: GP + Button */}
       <View className="w-[70px] shrink-0 items-end">
         <Text className="mb-1.5 !font-inter-bold text-lg text-primary">
-          {item.required_points}
+          {item.requiredPoints}
           <Text className="!font-inter-semibold text-xs text-primary-800"> GP</Text>
         </Text>
         <TouchableOpacity

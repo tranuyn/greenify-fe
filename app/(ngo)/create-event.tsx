@@ -131,20 +131,26 @@ export default function CreateEventScreen() {
         {
           title: data.title,
           description: data.description,
-          event_type: data.event_type,
-          cover_image_url: coverImage || '',
-          //   city: data.city,
-          location_address: data.location_address,
-          latitude: 10.7769, // TODO: tích hợp geocoding
-          longitude: 106.7009,
-          start_time: buildISO(data.start_date, data.start_time),
-          end_time: buildISO(data.end_date, data.end_time),
-          max_participants: 100,
-          reward_points: Number(data.reward_points),
-          participation_conditions: '',
-          cancel_deadline_days: 3,
-          //   gender_condition: data.gender_condition,
-          //   accepted_terms: data.accepted_terms,
+          eventType: data.event_type as any, // Cast because we will update EVENT_TYPE_OPTIONS
+          startTime: buildISO(data.start_date, data.start_time),
+          endTime: buildISO(data.end_date, data.end_time),
+          maxParticipants: 100,
+          minParticipants: 10,
+          cancelDeadlineHoursBefore: 24,
+          signUpDeadlineHoursBefore: 24,
+          reminderHoursBefore: 2,
+          thankYouHoursAfter: 2,
+          rewardPoints: Number(data.reward_points),
+          status: 'DRAFT',
+          thumbnail: { imageUrl: coverImage || '', objectKey: '', bucketName: '' },
+          images: [],
+          address: {
+            province: 'TP. HCM', // default or use data.city
+            ward: '',
+            addressDetail: data.location_address,
+            latitude: 10.7769,
+            longitude: 106.7009,
+          },
         },
         {
           onSuccess: () => {

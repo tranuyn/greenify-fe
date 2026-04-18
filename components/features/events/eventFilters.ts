@@ -10,7 +10,7 @@ export type EventFilterInput = {
   filterDate: Date | null;
 };
 
-const PRIORITY_EVENT_TYPES = ['Dọn rác', 'Trồng cây', 'Workshop', 'Chiến dịch'] as const;
+const PRIORITY_EVENT_TYPES = ['CLEANUP', 'PLANTING', 'RECYCLING', 'EDUCATION'] as const;
 
 export function formatDateLabel(date: Date) {
   return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
@@ -25,7 +25,7 @@ export function filterEvents(events: Event[], input: EventFilterInput) {
     const matchSearch =
       normalizedSearch.length === 0 ||
       event.title.toLowerCase().includes(normalizedSearch) ||
-      event.location_address.toLowerCase().includes(normalizedSearch);
+      (event.address?.addressDetail || '').toLowerCase().includes(normalizedSearch);
 
     const matchType =
       input.activeType === ALL_EVENT_TYPE_LABEL || event.eventType === input.activeType;

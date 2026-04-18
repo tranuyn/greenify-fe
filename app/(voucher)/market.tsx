@@ -8,12 +8,16 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
-import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
+import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 
 import { VoucherSearchBar } from '@/components/features/voucher/VoucherSearchBar';
 import { PartnerFilter } from '@/components/features/voucher/PartnerFilter';
 import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
-import { USER_VOUCHER_STATUS, type VoucherTemplate } from '@/types/gamification.types';
+import {
+  USER_VOUCHER_STATUS,
+  type UserVoucher,
+  type VoucherTemplate,
+} from '@/types/gamification.types';
 
 export default function VoucherMarketScreen() {
   const insets = useSafeAreaInsets();
@@ -25,51 +29,50 @@ export default function VoucherMarketScreen() {
   const [activePartner, setActivePartner] = useState<string | null>(null);
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
 
-  const { data: vouchers = [], isLoading } = useAvailableVouchers();
-  const { data: myVouchers = [] } = useMyVouchers();
-  const { mutate: redeemVoucher } = useRedeemVoucher();
+  const { data: availableVouchersData, isLoading } = useAvailableVouchers();
+  const { data: myVouchers } = useMyVouchers();
+  const { mutate: exchangeVoucher } = useExchangeVoucher();
+
+  const vouchers: VoucherTemplate[] = availableVouchersData?.content ?? [];
+  const myVoucherList: UserVoucher[] = myVouchers?.content ?? [];
 
   const collectedVoucherIds = useMemo(() => {
     return new Set(
-      myVouchers
+      myVoucherList
         .filter(
           (v) => v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
         )
         .map((v) => v.voucherTemplateId)
     );
-  }, [myVouchers]);
+  }, [myVoucherList]);
 
   const filteredVouchers = useMemo(() => {
     return vouchers.filter((v) => {
       const matchSearch =
         searchQuery.trim() === '' ||
         v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        v.partner_name.toLowerCase().includes(searchQuery.toLowerCase());
+        v.partnerName.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchPartner = !activePartner || v.partner_name === activePartner;
+      const matchPartner = !activePartner || v.partnerName === activePartner;
 
       return matchSearch && matchPartner;
     });
   }, [vouchers, searchQuery, activePartner]);
 
-  // Danh sách các partner độc nhất
   const allPartners = useMemo(() => {
     const set = new Set<string>();
-    vouchers.forEach((v) => set.add(v.partner_name));
+    vouchers.forEach((v) => set.add(v.partnerName));
     return Array.from(set).sort();
   }, [vouchers]);
 
   const handleCollect = useCallback(
     (item: VoucherTemplate) => {
       setRedeemingId(item.id);
-      redeemVoucher(
-        { voucher_template_id: item.id },
-        {
-          onSettled: () => setRedeemingId(null),
-        }
-      );
+      exchangeVoucher(item.id, {
+        onSettled: () => setRedeemingId(null),
+      });
     },
-    [redeemVoucher]
+    [exchangeVoucher]
   );
 
   const renderHeader = () => (

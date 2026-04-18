@@ -351,11 +351,11 @@ export default function PostDetailScreen() {
                       </View>
 
                       {/* Lý do từ chối */}
-                      {review.rejectReasonCode  && (
+                      {review.rejectReasonNote  && (
                         <Text className="text-foreground/50 mt-1 font-inter text-xs">
-                          {t('community.post_detail.reason', 'Lý do')}:{' '}
-                          {REJECT_REASONS.find((r) => r.code === review.rejectReasonCode)
-                            ?.label ?? review.rejectReasonCode}
+                          {t('community.post_detail.reason', 'Lý do')}:{' '} `${review.rejectReasonNote}`
+                          {/* {REJECT_REASONS.find((r) => r.code === review.rejectReasonCode)
+                            ?.label ?? review.rejectReasonCode} */}
                         </Text>
                       )}
                       {review.rejectReasonNote && (

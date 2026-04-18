@@ -76,7 +76,7 @@ export function MyEventCard({ registration, onPress }: Props) {
       className="mb-3 flex-row overflow-hidden rounded-2xl bg-white shadow-sm shadow-black/50 dark:bg-card">
       {/* Thumbnail */}
       <Image
-        source={{ uri: event.cover_image_url }}
+        source={{ uri: event.thumbnail?.imageUrl }}
         className="h-full w-24 bg-primary-100"
         resizeMode="cover"
       />
@@ -98,8 +98,8 @@ export function MyEventCard({ registration, onPress }: Props) {
         </Text>
 
         {/* NGO name */}
-        {event.ngo_name && (
-          <Text className="text-foreground/40 mt-0.5 font-inter text-[11px]">{event.ngo_name}</Text>
+        {event.ngoName && (
+          <Text className="text-foreground/40 mt-0.5 font-inter text-[11px]">{event.ngoName}</Text>
         )}
 
         {/* Meta */}
@@ -107,13 +107,13 @@ export function MyEventCard({ registration, onPress }: Props) {
           <View className="flex-row items-center">
             <Feather name="map-pin" size={10} color={colors.neutral400} />
             <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]" numberOfLines={1}>
-              {event.location_address}
+              {event.address?.addressDetail}
             </Text>
           </View>
           <View className="flex-row items-center">
             <Feather name="clock" size={10} color={colors.neutral400} />
             <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
-              {formatDate(event.start_time)}
+              {formatDate(event.startTime)}
             </Text>
           </View>
         </View>
@@ -123,7 +123,7 @@ export function MyEventCard({ registration, onPress }: Props) {
           <View className="flex-row items-center">
             <Feather name="zap" size={11} color={colors.primary} />
             <Text className="ml-1 font-inter-semibold text-xs text-primary">
-              +{event.reward_points} {c('gp_unit')}
+              +{event.rewardPoints} {c('gp_unit')}
             </Text>
           </View>
           <Feather name="chevron-right" size={16} color={colors.neutral400} />

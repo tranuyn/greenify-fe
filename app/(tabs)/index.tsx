@@ -17,11 +17,15 @@ import { useAuthRole, useCurrentUser } from '@/hooks/queries/useAuth';
 import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useRegisterEvent } from '@/hooks/mutations/useEvents';
 import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
-import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
+import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 import { useMyWallet } from '@/hooks/queries/useWallet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { Text } from '@/components/ui/Text';
-import { USER_VOUCHER_STATUS, type VoucherTemplate } from '@/types/gamification.types';
+import {
+  USER_VOUCHER_STATUS,
+  type UserVoucher,
+  type VoucherTemplate,
+} from '@/types/gamification.types';
 import { Utilities } from '@/components/profile/Utilities';
 
 // ============================================================
@@ -56,9 +60,9 @@ export default function HomeScreen() {
       onSettled: () => setRegisteringEventId(null),
     });
   };
-  const { data: vouchers, isLoading: isLoadingVouchers } = useAvailableVouchers();
+  const { data: availableVouchersData, isLoading: isLoadingVouchers } = useAvailableVouchers();
   const { data: myVouchers } = useMyVouchers();
-  const { mutate: redeemVoucher } = useRedeemVoucher();
+  const { mutate: exchangeVoucher } = useExchangeVoucher();
 
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
   const currentProfile = authData?.userProfile;
@@ -68,10 +72,11 @@ export default function HomeScreen() {
     userName = currentProfile.displayName;
   }
   const events = eventsData?.content ?? [];
-  const allVouchers = vouchers ?? [];
+  const allVouchers: VoucherTemplate[] = availableVouchersData?.content ?? [];
+  const myVoucherList: UserVoucher[] = myVouchers?.content ?? [];
 
   const collectedVoucherIds = new Set(
-    (myVouchers ?? [])
+    myVoucherList
       .filter(
         (v) => v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
       )
@@ -80,12 +85,9 @@ export default function HomeScreen() {
 
   const handleCollect = (item: VoucherTemplate) => {
     setRedeemingId(item.id);
-    redeemVoucher(
-      { voucher_template_id: item.id },
-      {
-        onSettled: () => setRedeemingId(null),
-      }
-    );
+    exchangeVoucher(item.id, {
+      onSettled: () => setRedeemingId(null),
+    });
   };
 
   const authRole = useAuthRole();

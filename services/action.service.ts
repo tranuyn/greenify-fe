@@ -12,6 +12,10 @@ import type {
   FeedApiRequestParams,
   FeedQueryParams,
   CreatePostApiRequest,
+  ReviewPostResponse,
+  PostStatus,
+  CreateActionTypeRequest,
+  UpdateActionTypeRequest,
 } from 'types/action.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import {
@@ -28,20 +32,63 @@ import { SortOption } from '@/constants/enums/sortOptions.enum';
 // GREEN ACTION SERVICE
 // ============================================================
 export const actionService = {
-  async getActionTypes(): Promise<ApiResponse<GreenActionType[]>> {
+  async getActionTypes(): Promise<GreenActionType[]> {
     if (IS_MOCK_MODE) {
       await mockDelay(400);
-      return mockSuccess(MOCK_ACTION_TYPES.filter((a) => a.is_active));
+      return MOCK_ACTION_TYPES.filter((a) => a.isActive);
     }
-    const { data } = await apiClient.get<ApiResponse<GreenActionType[]>>('/action-types');
+
+    const { data } = await apiClient.get<GreenActionType[]>('/green-action/action-types');
     return data;
   },
+  async createActionType(payload: CreateActionTypeRequest): Promise<GreenActionType> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(600);
 
+      const newAction: GreenActionType = {
+        id: `act-${Date.now()}`,
+        ...payload,
+      };
+
+      MOCK_ACTION_TYPES.unshift(newAction);
+
+      return newAction;
+    }
+    const { data } = await apiClient.post<GreenActionType>(
+      '/admin/green-action/action-types',
+      payload
+    );
+    return data;
+  },
+  async updateActionType(id: string, payload: UpdateActionTypeRequest): Promise<GreenActionType> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+
+      const idx = MOCK_ACTION_TYPES.findIndex((a) => a.id === id);
+      if (idx === -1) throw new Error('Action type not found');
+
+      // Ghi đè dữ liệu mới lên dữ liệu cũ
+      const updatedAction: GreenActionType = {
+        ...MOCK_ACTION_TYPES[idx],
+        ...payload,
+      };
+
+      MOCK_ACTION_TYPES[idx] = updatedAction;
+      return updatedAction;
+    }
+
+    const { data } = await apiClient.patch<GreenActionType>(
+      `/admin/green-action/action-types/${id}`,
+      payload
+    );
+
+    return { ...data, id };
+  },
   async getFeedPosts(
     params?: FeedQueryParams
   ): Promise<ApiResponse<PageResponse<GreenActionPostDetailDto>>> {
     const apiParams: FeedApiRequestParams = {
-      page: params?.page ? params.page - 1 : 0, // BE Spring Boot thường đếm page từ 0
+      page: params?.page ? params.page - 1 : 0,
       size: params?.size ?? 10,
     };
 
@@ -215,8 +262,8 @@ export const actionService = {
         id: `post-${Date.now()}`,
         authorDisplayName: 'Nhã Uyên',
         authorAvatarUrl: 'https://i.redd.it/ya8qikz9kn0f1.png',
-        actionTypeName: actionType?.action_name || 'Hành động xanh',
-        groupName: actionType?.group_name || 'Chung',
+        actionTypeName: actionType?.actionName || 'Hành động xanh',
+        groupName: actionType?.groupName || 'Chung',
         caption: payload.caption,
         mediaUrl: payload.media_url,
         approveCount: 0,
@@ -277,32 +324,47 @@ export const actionService = {
     return data;
   },
 
-  // async getPostReviews(postId: string): Promise<ApiResponse<PostReview[]>> {
-  //   if (IS_MOCK_MODE) {
-  //     await mockDelay(300);
-  //     return mockSuccess(MOCK_POST_REVIEWS[postId] ?? []);
-  //   }
-  //   const { data } = await apiClient.get<ApiResponse<PostReview[]>>(`/posts/${postId}/reviews`);
-  //   return data;
-  // },
+  async getPostForReview(postId: string): Promise<ApiResponse<GreenActionPostDetailDto>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(400);
+      const post = MOCK_POSTS.find((p) => p.id === postId);
+      if (!post) throw new Error('Post not found');
 
-  async reviewPost(postId: string, payload: ReviewPostRequest): Promise<ApiResponse<PostReview>> {
+      return mockSuccess({
+        ...post,
+        actionTypeId: 'mock-action-id',
+        latitude: 10.87,
+        longitude: 106.8031,
+        alreadyReviewed: false,
+      });
+    }
+    const { data } = await apiClient.get<ApiResponse<GreenActionPostDetailDto>>(
+      `/review/posts/${postId}` // Chuẩn Swagger mới
+    );
+    return data;
+  },
+
+  async reviewPost(
+    postId: string,
+    payload: ReviewPostRequest
+  ): Promise<ApiResponse<ReviewPostResponse>> {
     if (IS_MOCK_MODE) {
       await mockDelay(600);
-      const review: PostReview = {
-        id: `rev-${Date.now()}`,
-        post_id: postId,
-        reviewer_id: 'usr-002',
+
+      // Giả lập trạng thái trả về (Duyệt -> VERIFIED, Từ chối -> REJECTED)
+      const newStatus: PostStatus = payload.decision === 'APPROVE' ? 'VERIFIED' : 'REJECTED';
+
+      return mockSuccess({
+        reviewId: `rev-${Date.now()}`,
+        postId: postId,
         decision: payload.decision,
-        reject_reason_code: payload.reject_reason_code ?? null,
-        reject_reason_note: payload.reject_reason_note ?? null,
-        is_valid: true,
-        created_at: new Date().toISOString(),
-      };
-      return mockSuccess(review);
+        postStatus: newStatus,
+        message: 'Đánh giá bài viết thành công (Mock)',
+      });
     }
-    const { data } = await apiClient.post<ApiResponse<PostReview>>(
-      `/posts/${postId}/review`,
+
+    const { data } = await apiClient.post<ApiResponse<ReviewPostResponse>>(
+      `/review/posts/${postId}/reviews`,
       payload
     );
     return data;

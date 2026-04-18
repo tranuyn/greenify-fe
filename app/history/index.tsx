@@ -67,9 +67,7 @@ export default function WalletScreen() {
     setAppliedFilters({ time: [], sourceTypes: [] });
   };
 
-  const appliedFilterLabels = [
-    ...appliedFilters.time.map((item) => timeLabels[item] ?? item),
-  ];
+  const appliedFilterLabels = [...appliedFilters.time.map((item) => timeLabels[item] ?? item)];
 
   return (
     <SafeAreaView className="flex-1 bg-background">
