@@ -3,7 +3,7 @@ import type {
   GreenActionType,
   CreatePostRequest,
   PointWallet,
-  PointLedgerEntry,
+  PointHistoryEntry,
   PostReview,
   ReviewPostRequest,
   GreenActionPostDetailDto,
@@ -143,11 +143,6 @@ export const actionService = {
     if (params?.fromDate) apiParams.fromDate = params.fromDate;
     if (params?.toDate) apiParams.toDate = params.toDate;
 
-    if (params?.sort === SortOption.POPULAR) {
-      apiParams.sort = ['approveCount,desc'];
-    } else {
-      apiParams.sort = ['createdAt,desc'];
-    }
     if (IS_MOCK_MODE) {
       await mockDelay(500);
 
@@ -167,15 +162,6 @@ export const actionService = {
         const toTime = new Date(params.toDate).setHours(23, 59, 59, 999);
         filteredPosts = filteredPosts.filter(
           (post) => new Date(post.createdAt).getTime() <= toTime
-        );
-      }
-
-      // Sắp xếp (Sort)
-      if (params?.sort === SortOption.POPULAR) {
-        filteredPosts.sort((a, b) => b.approveCount - a.approveCount);
-      } else {
-        filteredPosts.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       }
 
@@ -327,31 +313,34 @@ export const actionService = {
 // POINT WALLET SERVICE
 // ============================================================
 export const walletService = {
-  async getMyWallet(): Promise<ApiResponse<PointWallet>> {
+  async getMyWallet(): Promise<PointWallet> {
     if (IS_MOCK_MODE) {
       await mockDelay(400);
-      return mockSuccess(MOCK_POINT_WALLET);
+      return MOCK_POINT_WALLET;
     }
-    const { data } = await apiClient.get<ApiResponse<PointWallet>>('/wallet/me');
+    const { data } = await apiClient.get<PointWallet>('/green-action/points/me');
     return data;
   },
 
-  async getLedger(
-    params?: PaginationParams & { time?: string[]; source_type?: string[] }
-  ): Promise<ApiResponse<PageResponse<PointLedgerEntry>>> {
+  async getMyPointHistory(
+    params?: PaginationParams
+  ): Promise<ApiResponse<PageResponse<PointHistoryEntry>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
+      const pageSize = params?.size ?? 100;
+      const pageIndex = params?.page ?? 1;
+      const start = (pageIndex - 1) * pageSize;
+      const historyItems = MOCK_LEDGER.slice(start, start + pageSize);
       return mockSuccess({
-        content: MOCK_LEDGER,
+        content: historyItems,
         totalElements: MOCK_LEDGER.length,
-        page: params?.page ?? 1,
-        size: params?.size ?? 20,
-        has_next: false,
-        totalPages: Math.ceil(MOCK_LEDGER.length / (params?.size ?? 20)),
+        page: pageIndex,
+        size: pageSize,
+        totalPages: Math.ceil(MOCK_LEDGER.length / pageSize),
       });
     }
-    const { data } = await apiClient.get<ApiResponse<PageResponse<PointLedgerEntry>>>(
-      '/wallet/ledger',
+    const { data } = await apiClient.get<ApiResponse<PageResponse<PointHistoryEntry>>>(
+      '/green-action/points/me/history',
       { params }
     );
     return data;

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, forwardRef } from 'react';
+import React, { useEffect, useState, forwardRef } from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import Feather from '@expo/vector-icons/Feather';
@@ -9,25 +9,7 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { SortOption } from '@/constants/enums/sortOptions.enum';
-
-import type { PostStatus } from '@/types/action.types';
-
-// --- Types ---
-export interface FeedFilterState {
-  actionTypeId: string;
-  sortBy: SortOption;
-  fromDate?: string;
-  toDate?: string;
-}
-
-export interface MyPostsFilterState {
-  status: PostStatus | 'all';
-  sortBy: SortOption;
-  fromDate?: string;
-  toDate?: string;
-}
-
-export type FilterState = FeedFilterState;
+import type { FeedFilterState } from '@/components/features/community/CommunityFilterSheet';
 
 interface Props {
   initialFilters: FeedFilterState;
@@ -36,7 +18,6 @@ interface Props {
   onClear: () => void;
 }
 
-// --- Local Component ---
 const FilterChip = ({
   label,
   isSelected,
@@ -57,22 +38,15 @@ const FilterChip = ({
   </TouchableOpacity>
 );
 
-// --- Main Sheet Component ---
-export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
+export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
   ({ initialFilters, actionTypes, onApply, onClear }, ref) => {
     const { t } = useTranslation();
     const colors = useThemeColor();
-
     const [tempFilters, setTempFilters] = useState<FeedFilterState>(initialFilters);
 
-    const handleSheetChanges = useCallback(
-      (index: number) => {
-        if (index === 0) {
-          setTempFilters(initialFilters);
-        }
-      },
-      [initialFilters]
-    );
+    useEffect(() => {
+      setTempFilters(initialFilters);
+    }, [initialFilters]);
 
     const [datePickerConfig, setDatePickerConfig] = useState<{
       show: boolean;
@@ -103,7 +77,6 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
         ref={ref}
         index={0}
         snapPoints={['75%']}
-        onChange={handleSheetChanges}
         backdropComponent={(props) => (
           <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.4} />
         )}
@@ -112,7 +85,7 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
         <BottomSheetView className="flex-1 px-6 pb-8 pt-2">
           <View className="mb-6 flex-row items-center justify-between">
             <Text className="font-inter-bold text-xl text-foreground">
-              {t('community.filters.title', 'Bộ lọc tìm kiếm')}
+              {t('community.filters.title', 'Bộ lọc cộng đồng')}
             </Text>
             <TouchableOpacity
               onPress={onClear}
@@ -169,7 +142,6 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
             />
           </View>
 
-          {/* Ô chọn ngày Custom */}
           <View className="mb-6 flex-row items-center space-x-4">
             <View className="flex-1">
               <Text className="text-foreground/60 mb-1 font-inter text-xs">
@@ -199,7 +171,6 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
             </View>
           </View>
 
-          {/* Action Type */}
           <Text className="mb-3 font-inter-semibold text-base text-foreground">
             {t('community.filters.actionTitle', 'Hoạt động xanh')}
           </Text>
@@ -219,7 +190,6 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
             ))}
           </View>
 
-          {/* Nút Apply */}
           <View className="flex-1" />
           <Button
             title={t('community.filters.apply', 'Áp dụng bộ lọc')}

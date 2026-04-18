@@ -3,15 +3,14 @@ import { View, Pressable, ScrollView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useUpdateProfile } from '@/hooks/mutations/useAuth';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
-import type { CompleteProfileFormData } from '@/validations/auth.schema';
+import type { CompleteProfileRequest } from '@/types/user.type';
 import { ProfileForm } from '@/components/shared/auth/ProfileForm';
 
 export default function EditProfileScreen() {
   const { data: meData, isLoading: isLoadingUser } = useCurrentUser();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
-  const currentProfile = meData?.userProfile;
-  const isCitizenProfile = currentProfile && 'displayName' in currentProfile;
-  const handleUpdateProfile = (data: CompleteProfileFormData) => {
+  const isCitizenProfile = meData?.userProfile && 'displayName' in meData.userProfile;
+  const handleUpdateProfile = (data: CompleteProfileRequest) => {
     updateProfile(data, {
       onSuccess: () => {
         router.back();
@@ -39,11 +38,23 @@ export default function EditProfileScreen() {
         contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}>
         <ProfileForm
-          email={meData?.user?.email ?? ''}
+          email={meData?.email ?? ''}
+          initialAvatarUrl={meData?.userProfile?.avatarUrl ?? null}
           initialValues={{
-            displayName: isCitizenProfile ? currentProfile.displayName || '' : '',
+            displayName: isCitizenProfile ? meData.userProfile.displayName || '' : '',
             province: meData?.userProfile?.province ?? '',
+            district: meData?.userProfile?.district ?? '',
             ward: meData?.userProfile?.ward ?? '',
+            addressDetail: meData?.userProfile?.addressDetail ?? '',
+            firstName: meData?.userProfile?.firstName ?? '',
+            lastName: meData?.userProfile?.lastName ?? '',
+            avatar: meData?.userProfile?.avatarUrl
+              ? {
+                  bucketName: '',
+                  objectKey: '',
+                  imageUrl: meData.userProfile.avatarUrl,
+                }
+              : undefined,
           }}
           isEditMode={true}
           isLoading={isPending || isLoadingUser}

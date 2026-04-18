@@ -23,7 +23,7 @@ const LocationBottomSheet = forwardRef(({ onSelect }: { onSelect: (loc: string) 
       )}
       containerStyle={{ zIndex: 1001 }}>
       <BottomSheetView className="p-6">
-        <Text className="mb-4 text-xl font-bold">{t('photograph.location_sheet.title')}</Text>
+        <Text className="font-inter-bold mb-4 text-xl">{t('photograph.location_sheet.title')}</Text>
         <FlatList
           data={LOCATIONS}
           keyExtractor={(item) => item}
@@ -34,7 +34,7 @@ const LocationBottomSheet = forwardRef(({ onSelect }: { onSelect: (loc: string) 
                 modalRef.current?.dismiss();
               }}
               className="border-b border-gray-100 py-4">
-              <Text className="text-lg">{item}</Text>
+              <Text className="font-inter text-lg">{item}</Text>
             </TouchableOpacity>
           )}
         />

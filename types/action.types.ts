@@ -98,7 +98,7 @@ export interface FeedApiRequestParams {
 //ui
 export interface MyPostsQueryParams extends BaseQueryParams {
   status?: PostStatus | 'all';
-  sort?: SortOption;
+  // sort?: SortOption;
 }
 //api
 export interface MyPostsApiRequestParams extends Omit<MyPostsQueryParams, 'status' | 'sort'> {
@@ -187,27 +187,23 @@ export type LedgerStatus = 'REWARDED' | 'REVERSED' | 'FROZEN';
 export type WalletStatus = 'ACTIVE' | 'FROZEN';
 
 export interface PointWallet {
-  id: string;
-  user_id: string;
-  total_points: number;
-  available_points: number;
-  weekly_points: number;
-  status: WalletStatus;
-  updated_at: string;
+  userId: string;
+  accumulatedPoints: number;
+  availablePoints: number;
+  transactionCount: number;
 }
 
-export interface PointLedgerEntry {
+export interface PointHistoryEntry {
   id: string;
-  user_id: string;
-  amount: number; // positive = earn, negative = spend
-  source_type: PointSourceType;
-  source_id: string;
-  status: LedgerStatus;
-  created_at: string;
-
-  /// extraction
-  source_name?: string;
-  source_display_url?: string | null;
+  points: number;
+  actionDescription: string;
+  sourcePostId: string;
+  sourceReviewId: string;
+  sourceName: string;
+  sourceDisplayUrl: string;
+  createdAt: string;
+  expiresAt: string;
+  expiredTransactionId: string;
 }
 
 export interface PointRule {

@@ -33,11 +33,9 @@ export default function VoucherMarketScreen() {
     return new Set(
       myVouchers
         .filter(
-          (v) =>
-            v.status === USER_VOUCHER_STATUS.AVAILABLE ||
-            v.status === USER_VOUCHER_STATUS.USED
+          (v) => v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
         )
-        .map((v) => v.voucher_template_id)
+        .map((v) => v.voucherTemplateId)
     );
   }, [myVouchers]);
 
@@ -61,23 +59,26 @@ export default function VoucherMarketScreen() {
     return Array.from(set).sort();
   }, [vouchers]);
 
-  const handleCollect = useCallback((item: VoucherTemplate) => {
-    setRedeemingId(item.id);
-    redeemVoucher(
-      { voucher_template_id: item.id },
-      {
-        onSettled: () => setRedeemingId(null),
-      }
-    );
-  }, [redeemVoucher]);
+  const handleCollect = useCallback(
+    (item: VoucherTemplate) => {
+      setRedeemingId(item.id);
+      redeemVoucher(
+        { voucher_template_id: item.id },
+        {
+          onSettled: () => setRedeemingId(null),
+        }
+      );
+    },
+    [redeemVoucher]
+  );
 
   const renderHeader = () => (
     <View className="mb-2">
       <VoucherSearchBar value={searchQuery} onChangeText={setSearchQuery} />
-      <PartnerFilter 
-        partners={allPartners} 
-        activePartner={activePartner} 
-        onSelect={(p) => setActivePartner(prev => prev === p ? null : p)} 
+      <PartnerFilter
+        partners={allPartners}
+        activePartner={activePartner}
+        onSelect={(p) => setActivePartner((prev) => (prev === p ? null : p))}
       />
     </View>
   );
@@ -88,7 +89,7 @@ export default function VoucherMarketScreen() {
       <View className="flex-row items-center px-4 py-3">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="h-10 w-10 items-center justify-center rounded-full bg-foreground/5 dark:bg-foreground/10 active:opacity-70">
+          className="bg-foreground/5 dark:bg-foreground/10 h-10 w-10 items-center justify-center rounded-full active:opacity-70">
           <Feather name="arrow-left" size={24} color={colors.foreground} />
         </TouchableOpacity>
         <Text className="ml-4 font-inter-semibold text-lg text-foreground">
@@ -118,8 +119,13 @@ export default function VoucherMarketScreen() {
           )}
           ListEmptyComponent={
             <View className="mt-10 items-center justify-center px-6">
-              <Feather name="inbox" size={48} color={colors.foreground} style={{ opacity: 0.3, marginBottom: 16 }} />
-              <Text className="text-center font-inter text-sm text-foreground/50">
+              <Feather
+                name="inbox"
+                size={48}
+                color={colors.foreground}
+                style={{ opacity: 0.3, marginBottom: 16 }}
+              />
+              <Text className="text-foreground/50 text-center font-inter text-sm">
                 Không tìm thấy voucher nào.
               </Text>
             </View>

@@ -4,6 +4,7 @@ import { queryClient } from 'lib/queryClient';
 import { authService } from 'services/auth.service';
 import {
   CompleteProfileRequest,
+  CreateNgoProfileRequest,
   LoginRequest,
   RegisterEmailRequest,
   VerifyOtpRequest,
@@ -65,6 +66,15 @@ export const useUpdateProfile = () => {
     mutationFn: (payload: CompleteProfileRequest) => authService.updateProfile(payload),
     onSuccess: () => {
       // Profile đã thay đổi → invalidate cache /me để refetch
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
+    },
+  });
+};
+
+export const useCreateNgoProfile = () => {
+  return useMutation({
+    mutationFn: (payload: CreateNgoProfileRequest) => authService.createNgoProfile(payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
     },
   });

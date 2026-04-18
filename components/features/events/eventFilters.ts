@@ -28,11 +28,10 @@ export function filterEvents(events: Event[], input: EventFilterInput) {
       event.location_address.toLowerCase().includes(normalizedSearch);
 
     const matchType =
-      input.activeType === ALL_EVENT_TYPE_LABEL || event.event_type === input.activeType;
+      input.activeType === ALL_EVENT_TYPE_LABEL || event.eventType === input.activeType;
 
     const matchDate =
-      !input.filterDate ||
-      isSameCalendarDate(new Date(event.start_time), input.filterDate);
+      !input.filterDate || isSameCalendarDate(new Date(event.startTime), input.filterDate);
 
     return matchSearch && matchType && matchDate;
   });
@@ -40,7 +39,7 @@ export function filterEvents(events: Event[], input: EventFilterInput) {
 
 export function getEventTypeOptions(events: Event[]): EventTypeOption[] {
   const availableTypes = Array.from(
-    new Set(events.map((event) => event.event_type).filter((type) => type.trim().length > 0))
+    new Set(events.map((event) => event.eventType).filter((type) => type.trim().length > 0))
   );
 
   const orderedPriority = PRIORITY_EVENT_TYPES.filter((type) => availableTypes.includes(type));

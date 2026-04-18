@@ -2,19 +2,21 @@ import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { PaginationParams } from 'types/common.types';
 import { actionService } from 'services/action.service';
-import { FeedQueryParams } from '@/types/action.types';
+import { FeedQueryParams, MyPostsQueryParams } from '@/types/action.types';
 
-export const useFeedPosts = (params?: FeedQueryParams) => {
+export const useFeedPosts = (params?: FeedQueryParams, enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.feed(params),
     queryFn: () => actionService.getFeedPosts(params).then((r) => r.data),
+    enabled,
   });
 };
 
-export const useMyPosts = (params?: PaginationParams) => {
+export const useMyPosts = (params?: MyPostsQueryParams, enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.mine(params),
     queryFn: () => actionService.getMyPosts(params).then((r) => r.data),
+    enabled,
   });
 };
 

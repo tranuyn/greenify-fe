@@ -32,47 +32,62 @@ export const MOCK_NGO_USER: User = {
 
 export const MOCK_USER_PROFILE: UserProfile = {
   id: 'prof-001',
-  user_id: 'usr-001',
+  firstName: 'Nha',
+  lastName: 'Uyen',
   displayName: 'Nhã Uyên',
-  avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
+  avatarUrl: 'https://i.redd.it/ya8qikz9kn0f1.png',
   province: 'TP. Hồ Chí Minh',
-  // district: 'Quận 1',
+  district: 'Quận 1',
   ward: 'Phường Bến Nghé',
-  free_time_slots: [
-    { day: 'SAT', from: '08:00', to: '12:00' },
-    { day: 'SUN', from: '08:00', to: '17:00' },
-  ],
+  addressDetail: '168 Nguyen Dinh Chieu',
+  status: 'ACTIVE',
 };
 
 export const MOCK_NGO_PROFILE: NgoProfile = {
   id: 'ngo-prof-001',
-  user_id: 'usr-003',
-  org_name: 'Green Future Vietnam',
-  representative_name: 'Nguyễn Văn An',
-  avatar_url: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
+  orgName: 'Green Future Vietnam',
+  representativeName: 'Nguyễn Văn An',
   hotline: '1800 1234',
-  contact_email: 'contact@greenfuture.vn',
-  // address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
-  province: 'TP. Hồ Chí Minh',
-  ward: 'Phường Bến Nghé',
+  contactEmail: 'contact@greenfuture.vn',
   description: 'Tổ chức phi lợi nhuận hoạt động vì môi trường xanh tại Việt Nam.',
-  verification_docs: ['https://s3.example.com/docs/greenfuture-license.pdf'],
-  verify_status: 'VERIFIED',
-  reject_reason: null,
+  status: 'VERIFIED',
+  rejectedReason: null,
+  rejectedCount: 0,
+  address: {
+    province: 'TP. Hồ Chí Minh',
+    district: 'Quận 1',
+    ward: 'Phường Bến Nghé',
+    addressDetail: '123 Nguyễn Huệ',
+    latitude: 10.7769,
+    longitude: 106.7009,
+  },
+  avatar: {
+    bucketName: 'mock-bucket',
+    objectKey: 'avatar/ngo-prof-001.jpg',
+    imageUrl: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
+  },
+  verificationDocs: [
+    {
+      bucketName: 'mock-bucket',
+      objectKey: 'docs/greenfuture-license.pdf',
+      imageUrl: 'https://s3.example.com/docs/greenfuture-license.pdf',
+    },
+  ],
+  createdAt: '2026-01-10T08:00:00Z',
+  updatedAt: '2026-04-19T10:00:00Z',
 };
 
 export const MOCK_AUTH_RESPONSE: LoginResponse = {
   access_token: 'mock.access.token.eyJhbGciOiJIUzI1NiJ9',
   refresh_token: 'mock.refresh.token.eyJhbGciOiJIUzI1NiJ9',
-  user: MOCK_USER,
-  profile: MOCK_USER_PROFILE,
 };
 
 export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-  user: MOCK_USER,
-  profile: MOCK_USER_PROFILE,
+  id: MOCK_NGO_USER.id,
+  email: MOCK_NGO_USER.email,
+  role: [MOCK_NGO_USER.role],
+  phoneNumber: MOCK_NGO_USER.phone,
+  username: MOCK_NGO_USER.email,
+  userProfile: MOCK_USER_PROFILE,
+  ngoProfile: MOCK_NGO_PROFILE,
 };
-// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-//   user: MOCK_NGO_USER,
-//   profile: MOCK_NGO_PROFILE,
-// };

@@ -6,6 +6,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { usePlantDailyLogs } from '@/hooks/queries/useGamification';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { IMAGES } from '@/constants/linkMedia';
+import TopBar from './components/TopBar';
 
 type DayImageMap = Record<
   string,
@@ -135,7 +136,7 @@ export default function ScheduleScreen() {
   // Render từng khối tháng
   const renderMonthItem = ({ item }: { item: MonthData }) => (
     <View className="mx-4 mb-6 rounded-3xl bg-neutral-800 p-5">
-      <Text className="mb-4 text-lg font-bold text-[var(--primary)]">
+      <Text className="mb-4 font-inter-bold text-lg text-[var(--primary)]">
         {padZero(item.month)}/{item.year}
       </Text>
       <View className="flex-row flex-wrap items-center">{item.days.map(renderDayItem)}</View>
@@ -150,23 +151,8 @@ export default function ScheduleScreen() {
         intensity={100}
         tint="dark"
         className="absolute left-0 right-0 top-0 z-50">
-        <View className="flex-row items-center justify-between px-6 pb-6 pt-16">
-          <TouchableOpacity className="rounded-full bg-white/10 p-3">
-            <Ionicons name="grid" size={24} color="white" />
-          </TouchableOpacity>
-
-          <View className="aspect-square w-14 overflow-hidden rounded-[40px] border border-neutral-500">
-            <Image
-              source={{
-                uri: userProfile?.userProfile?.avatarUrl || IMAGES.treeAvatar,
-              }}
-              className="flex-1"
-            />
-          </View>
-
-          <TouchableOpacity className="rounded-2xl bg-white/10 p-3 shadow-sm">
-            <Feather name="download" size={24} color="white" />
-          </TouchableOpacity>
+        <View className=" px-6 pb-6 pt-16">
+          <TopBar />
         </View>
       </BlurView>
 

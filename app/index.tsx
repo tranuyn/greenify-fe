@@ -30,7 +30,6 @@ export default function StartPage() {
           return;
         }
 
-        // Có token -> fetch user info để populate React Query Cache
         const res = await authService.getMe();
         queryClient.setQueryData(QUERY_KEYS.auth.me(), res);
         setRoute('app');

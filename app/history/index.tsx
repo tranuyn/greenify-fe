@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
-import { usePointLedger } from 'hooks/queries/useWallet';
+import { useMyWallet, usePointLedger } from 'hooks/queries/useWallet';
 import { IMAGES } from 'constants/linkMedia';
-import { PointLedgerEntry, PointSourceType } from 'types/action.types';
+import { PointHistoryEntry } from 'types/action.types';
 import HistoryItem from './_components/HistoryItem';
 import FilterModal, { LedgerFilterValue } from './_components/FilterModal';
-import { getSourceTypeLabels } from '@/constants/sourceTypeLabel';
 import { router } from 'expo-router';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { useTranslation } from 'react-i18next';
@@ -33,25 +32,7 @@ const isInSelectedTimeRange = (createdAt: string, selectedTime: LedgerFilterValu
   });
 };
 
-const getLedgerIconUrl = (entry: PointLedgerEntry) => {
-  if (entry.source_type === PointSourceType.EVENT_ATTEND && entry.source_display_url) {
-    return entry.source_display_url;
-  }
-
-  switch (entry.source_type) {
-    case PointSourceType.GREEN_ACTION:
-      return IMAGES.blog;
-    case PointSourceType.LEADERBOARD:
-      return IMAGES.crownSilver;
-    case PointSourceType.LEADERBOARD_REWARD:
-      return IMAGES.crownGold;
-    case PointSourceType.VOUCHER_REDEEM:
-      return IMAGES.voucher;
-    case PointSourceType.REVIEW_REWARD:
-    default:
-      return IMAGES.gift;
-  }
-};
+const getLedgerIconUrl = (entry: PointHistoryEntry) => entry.sourceDisplayUrl || IMAGES.gift;
 
 export default function WalletScreen() {
   const { t } = useTranslation();
@@ -62,26 +43,21 @@ export default function WalletScreen() {
   });
 
   const colors = useThemeColor();
-  const sourceTypeLabels = getSourceTypeLabels(t);
   const timeLabels: Record<LedgerFilterValue['time'][number], string> = {
     week: t('point_history.filter.time.week'),
     month: t('point_history.filter.time.month'),
   };
 
+  const { data: wallet } = useMyWallet();
+
   const { data: ledgerData, isLoading: isLedgerLoading } = usePointLedger({
     page: 1,
-    page_size: 20,
-    time: appliedFilters.time.length > 0 ? appliedFilters.time : undefined,
-    source_type: appliedFilters.sourceTypes.length > 0 ? appliedFilters.sourceTypes : undefined,
+    size: 20,
   });
 
-  const ledgerItems = (ledgerData?.items ?? []).filter((entry) => {
-    const matchSourceType =
-      appliedFilters.sourceTypes.length === 0 ||
-      appliedFilters.sourceTypes.includes(entry.source_type);
-    const matchTime = isInSelectedTimeRange(entry.created_at, appliedFilters.time);
-    return matchSourceType && matchTime;
-  });
+  const ledgerItems = (ledgerData?.content ?? []).filter((entry) =>
+    isInSelectedTimeRange(entry.createdAt, appliedFilters.time)
+  );
 
   const handleApplyFilter = (value: LedgerFilterValue) => {
     setAppliedFilters(value);
@@ -93,7 +69,6 @@ export default function WalletScreen() {
 
   const appliedFilterLabels = [
     ...appliedFilters.time.map((item) => timeLabels[item] ?? item),
-    ...appliedFilters.sourceTypes.map((item) => sourceTypeLabels[item] ?? item),
   ];
 
   return (
@@ -123,10 +98,15 @@ export default function WalletScreen() {
           <Text className="text-right text-sm font-medium text-on-primary">
             {t('point_history.points_label')}
           </Text>
-          <Text className="mt-1 text-right text-4xl text-on-primary">20 GP</Text>
+          <Text className="mt-1 text-right text-4xl text-on-primary">
+            {wallet?.availablePoints ?? 0}
+          </Text>
         </View>
         <Text className="mt-3 text-center text-xs text-muted-foreground">
-          {t('point_history.expiring_points_text', { points: 10, date: '01/02/2026' })}
+          {t('point_history.expiring_points_text', {
+            points: wallet?.accumulatedPoints ?? 0,
+            date: '01/02/2026',
+          })}
         </Text>
 
         {/* Khung Tìm kiếm & Lọc */}
@@ -184,13 +164,13 @@ export default function WalletScreen() {
             ledgerItems.map((entry) => (
               <HistoryItem
                 key={entry.id}
-                title={entry.source_name || t('point_history.unknown_activity')}
+                title={entry.sourceName || t('point_history.unknown_activity')}
                 subtitle={
-                  entry.amount >= 0
+                  entry.points >= 0
                     ? t('point_history.subtitle_positive')
                     : t('point_history.subtitle_negative')
                 }
-                points={entry.amount}
+                points={entry.points}
                 iconUrl={getLedgerIconUrl(entry)}
               />
             ))

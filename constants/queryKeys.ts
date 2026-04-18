@@ -90,6 +90,8 @@ export const QUERY_KEYS = {
   // Map
   stations: {
     all: ['stations'] as const,
+    list: (wasteTypeID?: string) => ['stations', 'list', { wasteTypeID }] as const,
+    wasteTypes: () => ['stations', 'waste-types'] as const,
   },
 
   // Community

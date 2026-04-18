@@ -3,44 +3,36 @@
 // Mapped from: events, event_registrations, event_predictions
 // ============================================================
 
-import { SortOption } from "@/constants/enums/sortOptions.enum";
-import { BaseQueryParams, SortParams } from "./common.types";
-import { MediaDto } from "./media.types";
+import { SortOption } from '@/constants/enums/sortOptions.enum';
+import { BaseQueryParams, SortParams } from './common.types';
+import { MediaDto } from './media.types';
 
 export type EventStatus =
-  | "DRAFT"
-  | "PENDING_APPROVAL"
-  | "APPROVED"
-  | "REJECTED"
-  | "NEEDS_REVISION"
-  | "PUBLISHED"
-  | "CLOSED"
-  | "CANCELLED";
+  | 'DRAFT'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'NEEDS_REVISION'
+  | 'PUBLISHED'
+  | 'CLOSED'
+  | 'CANCELLED';
 
 export const REGISTRATION_STATUS = {
-  REGISTERED: "REGISTERED",
-  WAITLISTED: "WAITLISTED",
-  CANCELLED: "CANCELLED",
-  CHECKED_IN: "CHECKED_IN",
-  CHECKED_OUT: "CHECKED_OUT",
-  ATTENDED: "ATTENDED",
-  NO_SHOW: "NO_SHOW",
+  REGISTERED: 'REGISTERED',
+  WAITLISTED: 'WAITLISTED',
+  CANCELLED: 'CANCELLED',
+  CHECKED_IN: 'CHECKED_IN',
+  CHECKED_OUT: 'CHECKED_OUT',
+  ATTENDED: 'ATTENDED',
+  NO_SHOW: 'NO_SHOW',
 } as const;
 
-export type RegistrationStatus =
-  (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
+export type RegistrationStatus = (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
 
-export type RegistrationRewardStatus =
-  | "PENDING_REWARD"
-  | "REWARDED"
-  | "REVERSED";
+export type RegistrationRewardStatus = 'PENDING_REWARD' | 'REWARDED' | 'REVERSED';
 
-export type EventType =
-  | "CLEANUP"
-  | "PLANTING"
-  | "RECYCLING"
-  | "EDUCATION"
-  | "OTHER";
+export type EventType = 'CLEANUP' | 'PLANTING' | 'RECYCLING' | 'EDUCATION' | 'OTHER';
+
 export interface EventAddress {
   id?: string;
   province: string;
@@ -78,15 +70,14 @@ export interface Event {
   registeredCount?: number;
   ngoName?: string;
 }
-export interface EventQueryParams
-  extends BaseQueryParams, SortParams<SortOption> {
+export interface EventQueryParams extends BaseQueryParams, SortParams<SortOption> {
   title?: string;
-  eventType?: EventType | "all";
-  status?: EventStatus | "all";
+  eventType?: EventType | 'all';
+  status?: EventStatus | 'all';
 }
 export interface EventApiRequestParams extends Omit<
   EventQueryParams,
-  "eventType" | "status" | "sort"
+  'eventType' | 'status' | 'sort'
 > {
   eventType?: string;
   status?: string;
@@ -139,7 +130,7 @@ export interface CreateEventRequest {
   status: EventStatus; // Thường là 'DRAFT' hoặc 'APPROVAL_WAITING'
   thumbnail: MediaDto;
   images: MediaDto[];
-  address: Omit<EventAddress, "id">;
+  address: Omit<EventAddress, 'id'>;
 }
 
 export type UpdateEventRequest = CreateEventRequest;
@@ -152,11 +143,48 @@ export interface RejectEventRequest {
 // Mapped from: recycling_stations
 // ============================================================
 
-export type StationStatus =
-  | "DRAFT"
-  | "ACTIVE"
-  | "INACTIVE"
-  | "TEMPORARY_CLOSED";
+export type StationStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'TEMPORARY_CLOSED';
+
+export interface AddressDto {
+  id: string;
+  province: string;
+  district: string;
+  ward: string;
+  addressDetail: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface RecyclingStationWasteTypeDto {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface RecyclingStationOpenTimeDto {
+  id: string;
+  startTime: string;
+  endTime: string;
+  dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+}
+
+export interface RecyclingStationApiModel {
+  id: string;
+  name: string;
+  description: string;
+  phoneNumber: string;
+  email: string;
+  status: StationStatus;
+  address: AddressDto;
+  wasteTypes: RecyclingStationWasteTypeDto[];
+  openTimes: RecyclingStationOpenTimeDto[];
+}
+
+export interface WasteType {
+  id: string;
+  name: string;
+  description: string;
+}
 
 export interface OpeningHours {
   [day: string]: { open: string; close: string } | null; // null = closed
@@ -181,19 +209,19 @@ export interface RecyclingStation {
 // ============================================================
 
 export type TrashSpotStatus =
-  | "SUBMITTED"
-  | "PENDING_VERIFY"
-  | "VERIFIED"
-  | "REJECTED"
-  | "IN_PROGRESS"
-  | "PENDING_RESOLVE_APPROVAL"
-  | "RESOLVED"
-  | "REOPENED"
-  | "FLAGGED";
+  | 'SUBMITTED'
+  | 'PENDING_VERIFY'
+  | 'VERIFIED'
+  | 'REJECTED'
+  | 'IN_PROGRESS'
+  | 'PENDING_RESOLVE_APPROVAL'
+  | 'RESOLVED'
+  | 'REOPENED'
+  | 'FLAGGED';
 
-export type SeverityLevel = "LOW" | "MEDIUM" | "HIGH";
+export type SeverityLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
-export type VerificationDecision = "VERIFY" | "REPORT_FAKE";
+export type VerificationDecision = 'VERIFY' | 'REPORT_FAKE';
 
 export interface TrashSpotReport {
   id: string;
@@ -226,11 +254,7 @@ export interface TrashSpotVerification {
 
 export type CreateTrashReportRequest = Pick<
   TrashSpotReport,
-  | "description"
-  | "latitude"
-  | "longitude"
-  | "before_media_urls"
-  | "severity_level"
+  'description' | 'latitude' | 'longitude' | 'before_media_urls' | 'severity_level'
 >;
 
 // ============================================================
@@ -238,19 +262,19 @@ export type CreateTrashReportRequest = Pick<
 // Mapped from: notifications
 // ============================================================
 
-export type NotificationStatus = "QUEUED" | "SENT" | "FAILED" | "READ";
+export type NotificationStatus = 'QUEUED' | 'SENT' | 'FAILED' | 'READ';
 
 export type NotificationTemplateKey =
-  | "POST_VERIFIED"
-  | "POST_REJECTED"
-  | "POINTS_EARNED"
-  | "CTV_ELIGIBLE"
-  | "EVENT_PUBLISHED"
-  | "LEADERBOARD_RESULT"
-  | "VOUCHER_RECEIVED"
-  | "STREAK_BROKEN"
-  | "GARDEN_MATURED"
-  | "TRASH_VERIFIED";
+  | 'POST_VERIFIED'
+  | 'POST_REJECTED'
+  | 'POINTS_EARNED'
+  | 'CTV_ELIGIBLE'
+  | 'EVENT_PUBLISHED'
+  | 'LEADERBOARD_RESULT'
+  | 'VOUCHER_RECEIVED'
+  | 'STREAK_BROKEN'
+  | 'GARDEN_MATURED'
+  | 'TRASH_VERIFIED';
 
 export interface Notification {
   id: string;
