@@ -587,6 +587,8 @@
   },
   "map": {
     "search_placeholder": "Search collection points...",
+    "open_directions": "Open map",
+    "open_directions_error": "Unable to open map application.",
     "today_hours": "Today ({{day}}): {{open}} - {{close}}",
     "today_closed": "Today ({{day}}): Closed",
     "days": {

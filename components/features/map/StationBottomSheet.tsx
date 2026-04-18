@@ -1,4 +1,4 @@
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, Linking, Platform, View, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { useTranslation } from 'react-i18next';
 
@@ -24,8 +24,30 @@ export function StationBottomSheet({ station, onClose }: Props) {
   const todayHours = station.opening_hours?.[todayKey];
   const todayLabel = t(`map.days.${todayKey}`);
 
+  const handleOpenDirections = async () => {
+    const { latitude, longitude } = station;
+    const googleAppUrl = `comgooglemaps://?daddr=${latitude},${longitude}&directionsmode=driving`;
+    const googleWebUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+    const appleMapsUrl = `http://maps.apple.com/?daddr=${latitude},${longitude}`;
+
+    try {
+      if (Platform.OS === 'ios') {
+        const canOpenGoogleApp = await Linking.canOpenURL(googleAppUrl);
+        await Linking.openURL(canOpenGoogleApp ? googleAppUrl : appleMapsUrl);
+        return;
+      }
+
+      await Linking.openURL(googleWebUrl);
+    } catch {
+      Alert.alert(
+        t('common.error', 'Loi'),
+        t('map.open_directions_error', 'Khong the mo ung dung ban do.')
+      );
+    }
+  };
+
   return (
-    <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white px-5 pb-8 pt-5 shadow-2xl shadow-black/20">
+    <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-background px-5 pb-8 pt-5 shadow-2xl shadow-black/20">
       {/* Handle bar */}
       <View className="mb-4 h-1 w-10 self-center rounded-full bg-gray-200" />
 
@@ -73,6 +95,15 @@ export function StationBottomSheet({ station, onClose }: Props) {
           </View>
         ))}
       </View>
+
+      <TouchableOpacity
+        onPress={handleOpenDirections}
+        className="mt-4 flex-row items-center justify-center rounded-xl bg-primary px-4 py-3">
+        <Feather name="navigation" size={16} color="#ffffff" />
+        <Text className="ml-2 font-inter-semibold text-sm text-white">
+          {t('map.open_directions', 'Mở bản đồ')}
+        </Text>
+      </TouchableOpacity>
 
       {/* Notes */}
       {station.notes && (

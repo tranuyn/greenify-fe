@@ -77,7 +77,7 @@ export const QuickActions = ({ navigation }: any) => {
     router.replace('/(onboarding)');
   };
   return (
-    <View className="mt-6 flex-row justify-around  py-6">
+    <View className="flex-row justify-around  py-6">
       {actions.map((item) => (
         <TouchableOpacity
           key={item.id}

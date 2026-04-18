@@ -13,7 +13,11 @@ import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 import { VoucherSearchBar } from '@/components/features/voucher/VoucherSearchBar';
 import { PartnerFilter } from '@/components/features/voucher/PartnerFilter';
 import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
-import { USER_VOUCHER_STATUS, type UserVoucher, type VoucherTemplate } from '@/types/gamification.types';
+import {
+  USER_VOUCHER_STATUS,
+  type UserVoucher,
+  type VoucherTemplate,
+} from '@/types/gamification.types';
 
 export default function VoucherMarketScreen() {
   const insets = useSafeAreaInsets();

@@ -8,9 +8,11 @@ import type {
   SetPasswordRequest,
   LogoutRequest,
   CompleteProfileRequest,
+  CreateNgoProfileRequest,
   UserProfile,
   AuthenticatedUser,
   UserRole,
+  NgoProfile,
 } from 'types/user.type';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import { MOCK_AUTH_RESPONSE, MOCK_AUTHENTICATED_USER, MOCK_USER_PROFILE } from './mock/user.mock';
@@ -162,7 +164,7 @@ export const authService = {
   /**
    * Hoàn thiện hồ sơ sau đăng ký
    */
-  async completeProfile(payload: CompleteProfileRequest): Promise<ApiResponse<UserProfile>> {
+  async completeProfile(payload: CompleteProfileRequest): Promise<UserProfile> {
     // if (IS_MOCK_MODE) {
     //   await mockDelay(700);
     //   const profile: UserProfile = {
@@ -174,7 +176,28 @@ export const authService = {
     //   };
     //   return mockSuccess(profile);
     // }
-    const { data } = await apiClient.post<ApiResponse<UserProfile>>('/profiles', payload);
+    const { data } = await apiClient.post<UserProfile>('/profiles', payload);
+    return data;
+  },
+
+  async updateProfile(payload: CompleteProfileRequest): Promise<UserProfile> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(700);
+    //   const profile: UserProfile = {
+    //     ...MOCK_USER_PROFILE,
+    //     displayName: payload.displayName,
+    //     province: payload.province,
+    //     ward: payload.ward ?? null,
+    //     avatar_url: payload.avatar_url ?? null,
+    //   };
+    //   return mockSuccess(profile);
+    // }
+    const { data } = await apiClient.put<UserProfile>('/profiles', payload);
+    return data;
+  },
+
+  async createNgoProfile(payload: CreateNgoProfileRequest): Promise<NgoProfile> {
+    const { data } = await apiClient.post<NgoProfile>('/ngo-profiles', payload);
     return data;
   },
 
@@ -182,27 +205,11 @@ export const authService = {
    * Lấy thông tin user hiện tại (dùng khi app khởi động)
    */
   async getMe(): Promise<AuthenticatedUser> {
-    // if (IS_MOCK_MODE) {
-    //   await mockDelay(400);
-    //   return mockSuccess(MOCK_AUTHENTICATED_USER);
-    // }
-    const { data } = await apiClient.get<AuthenticatedUser>('/users/me');
-    return data;
-  },
-
-  async updateProfile(payload: CompleteProfileRequest): Promise<ApiResponse<UserProfile>> {
     if (IS_MOCK_MODE) {
-      await mockDelay(700);
-      const profile: UserProfile = {
-        ...MOCK_USER_PROFILE,
-        displayName: payload.displayName,
-        province: payload.province,
-        ward: payload.ward ?? '',
-        avatarUrl: payload.avatar_url ?? '',
-      };
-      return mockSuccess(profile);
+      await mockDelay(400);
+      return MOCK_AUTHENTICATED_USER;
     }
-    const { data } = await apiClient.patch<ApiResponse<UserProfile>>('/users/me/profile', payload);
+    const { data } = await apiClient.get<AuthenticatedUser>('/profile/me');
     return data;
   },
 };

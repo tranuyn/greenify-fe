@@ -22,13 +22,14 @@ export const useCurrentUser = () => {
 export const useAuthRole = () => {
   const queryClient = useQueryClient();
   const authData = queryClient.getQueryData<AuthenticatedUser>(QUERY_KEYS.auth.me());
+  const roles = authData?.role ?? [];
 
   return {
-    userId: authData?.user?.id ?? null,
-    role: authData?.user?.role ?? null,
-    isNgo: authData?.user?.role === 'NGO',
-    isCitizen: authData?.user?.role === 'USER',
-    isCtv: authData?.user?.role === 'CTV' || authData?.user?.ctv_status === 'ACTIVE_CTV',
-    isAdmin: authData?.user?.role === 'ADMIN',
+    userId: authData?.id ?? null,
+    role: roles,
+    isNgo: roles.includes('NGO'),
+    isCitizen: roles.includes('USER'),
+    isCtv: roles.includes('CTV'),
+    isAdmin: roles.includes('ADMIN'),
   };
 };

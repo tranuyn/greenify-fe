@@ -33,7 +33,7 @@ const ExpandingInput = memo(({ description, setDescription }: any) => {
               tension: 50,
             }).start();
           }}
-          className="absolute font-medium opacity-0"
+          className="font-inter-medium absolute opacity-0"
           style={{ fontSize: 15 }}>
           {/* Chỉ lấy dòng cuối cùng hoặc nội dung ngắn để đo Width ngang */}
           {description || t('photograph.expanding_input.placeholder')}
@@ -44,7 +44,7 @@ const ExpandingInput = memo(({ description, setDescription }: any) => {
           onChangeText={setDescription}
           placeholder={t('photograph.expanding_input.placeholder')}
           placeholderTextColor="#cbd5e1"
-          className="w-full text-center font-medium text-white"
+          className="font-inter-medium w-full text-center text-white"
           style={{
             fontSize: 15,
             padding: 0,

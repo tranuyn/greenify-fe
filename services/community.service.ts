@@ -2,7 +2,9 @@ import { apiClient } from "@/lib/apiClient";
 import type {
   Event,
   EventRegistration,
+  OpeningHours,
   RecyclingStation,
+  RecyclingStationApiModel,
   TrashSpotReport,
   CreateTrashReportRequest,
   CreateEventRequest,
@@ -10,6 +12,7 @@ import type {
   EventQueryParams,
   UpdateEventRequest,
   RejectEventRequest,
+  WasteType,
 } from "@/types/community.types";
 import {
   ApiResponse,
@@ -24,6 +27,56 @@ import {
   MOCK_TRASH_REPORTS,
 } from "./mock/community.mock";
 import { SortOption } from "@/constants/enums/sortOptions.enum";
+
+const DAY_OF_WEEK_MAP: Record<string, string> = {
+  MONDAY: "MON",
+  TUESDAY: "TUE",
+  WEDNESDAY: "WED",
+  THURSDAY: "THU",
+  FRIDAY: "FRI",
+  SATURDAY: "SAT",
+  SUNDAY: "SUN",
+};
+
+const formatTime = (time?: string) => (time ? time.slice(0, 5) : "");
+
+const mapOpenTimesToOpeningHours = (
+  openTimes: RecyclingStationApiModel["openTimes"],
+): OpeningHours => {
+  const openingHours: OpeningHours = {};
+
+  openTimes.forEach((item) => {
+    const day = DAY_OF_WEEK_MAP[item.dayOfWeek];
+    if (!day) return;
+
+    openingHours[day] = {
+      open: formatTime(item.startTime),
+      close: formatTime(item.endTime),
+    };
+  });
+
+  return openingHours;
+};
+
+const mapStationFromApi = (station: RecyclingStationApiModel): RecyclingStation => ({
+  id: station.id,
+  name: station.name,
+  address: [
+    station.address?.addressDetail,
+    station.address?.ward,
+    station.address?.district,
+    station.address?.province,
+  ]
+    .filter(Boolean)
+    .join(", "),
+  latitude: station.address?.latitude ?? 0,
+  longitude: station.address?.longitude ?? 0,
+  waste_types: station.wasteTypes?.map((w) => w.name) ?? [],
+  opening_hours: mapOpenTimesToOpeningHours(station.openTimes ?? []),
+  contact_phone: station.phoneNumber,
+  notes: station.description || null,
+  status: station.status,
+});
 
 // ============================================================
 // EVENT SERVICE
@@ -370,13 +423,36 @@ export const eventService = {
 // MAP SERVICE
 // ============================================================
 export const mapService = {
-  async getStations(): Promise<ApiResponse<RecyclingStation[]>> {
+  async getStations(wasteTypeID?: string): Promise<RecyclingStation[]> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
-      return mockSuccess(MOCK_STATIONS.filter((s) => s.status === "ACTIVE"));
+      return MOCK_STATIONS.filter((s) => s.status === "ACTIVE");
     }
-    const { data } =
-      await apiClient.get<ApiResponse<RecyclingStation[]>>("/stations");
+    const { data } = await apiClient.get<RecyclingStationApiModel[]>(
+      "/recycling-stations",
+      {
+        params: wasteTypeID ? { wasteTypeID } : undefined,
+      },
+    );
+    return data.map(mapStationFromApi);
+  },
+
+  async getAllWasteType(): Promise<WasteType[]> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(300);
+      const uniqueNames = new Set<string>();
+      MOCK_STATIONS.forEach((station) => {
+        station.waste_types.forEach((name) => uniqueNames.add(name));
+      });
+
+      return Array.from(uniqueNames).map((name) => ({
+        id: name.toLowerCase().replace(/\s+/g, "-"),
+        name,
+        description: "",
+      }));
+    }
+
+    const { data } = await apiClient.get<WasteType[]>("/waste-types");
     return data;
   },
 };

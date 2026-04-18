@@ -15,7 +15,7 @@ const HistoryItem = ({ title, subtitle, points, iconUrl }: HistoryItemProps) => 
   return (
     <View className="flex-row items-center border-b border-muted-foreground py-4">
       {iconUrl ? (
-        <View className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl border">
+        <View className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl ">
           <Image source={{ uri: iconUrl }} className="h-full w-full" resizeMode="cover" />
         </View>
       ) : null}

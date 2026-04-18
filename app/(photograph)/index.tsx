@@ -116,13 +116,13 @@ export default function LocketScreen() {
   if (!permission.granted) {
     return (
       <View className="flex-1 items-center justify-center bg-black px-4">
-        <Text className="mb-4 text-center text-lg text-white">
+        <Text className="mb-4 text-center font-inter-medium text-lg text-white">
           {t('photograph.permission_required')}
         </Text>
         <TouchableOpacity
           className="rounded-lg bg-[var(--primary)] px-6 py-3"
           onPress={requestPermission}>
-          <Text className="font-bold text-white">{t('photograph.permission_button')}</Text>
+          <Text className="font-inter-bold text-white">{t('photograph.permission_button')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -163,7 +163,7 @@ export default function LocketScreen() {
                 <TouchableOpacity
                   onPress={toggleZoom}
                   className="h-12 w-12 items-center justify-center rounded-full bg-black/60 backdrop-blur-md">
-                  <Text className="text-xs font-bold text-white">{displayZoomText}</Text>
+                  <Text className="font-inter-bold text-xs text-white">{displayZoomText}</Text>
                 </TouchableOpacity>
               </Animated.View>
 

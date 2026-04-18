@@ -1,3 +1,6 @@
+import { AddressDto } from './community.types';
+import { MediaDto } from './media.types';
+
 export type UserRole = 'USER' | 'CTV' | 'NGO' | 'ADMIN';
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DELETED' | 'FLAGGED';
 export type CtvStatus =
@@ -44,19 +47,19 @@ export interface FreeTimeSlot {
 
 export interface NgoProfile {
   id: string;
-  user_id: string;
   orgName: string;
   representativeName: string;
-  avatarUrl: string | null;
   hotline: string;
   contactEmail: string;
-  // address: string;
-  province: string;
-  ward: string | null;
   description: string;
-  verification_docs: string[]; // array of URLs
-  verify_status: NgoVerifyStatus;
-  reject_reason: string | null;
+  status: NgoVerifyStatus;
+  rejectedReason: string | null;
+  rejectedCount: number;
+  address: NgoProfileAddress;
+  avatar: MediaDto;
+  verificationDocs: MediaDto[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OtpRequest {
@@ -107,23 +110,42 @@ export interface LogoutRequest {
 }
 
 export interface CompleteProfileRequest {
+  firstName?: string;
+  lastName?: string;
   displayName: string;
-  avatar_url?: string;
   province: string;
   district?: string;
   ward?: string;
+  addressDetail?: string;
+  avatar?: {
+    bucketName?: string;
+    objectKey?: string;
+    imageUrl: string;
+  };
 }
 
-// User với profile gộp lại — dùng ở phần lớn màn hình
+export type NgoProfileAddress = Omit<AddressDto, 'id'>;
+
+export interface CreateNgoProfileRequest {
+  orgName: string;
+  representativeName: string;
+  hotline: string;
+  contactEmail: string;
+  description: string;
+  address: NgoProfileAddress;
+  avatar: MediaDto;
+  verificationDocs: Array<MediaDto>;
+}
+
+// User với profile gộp lại
 export interface AuthenticatedUser {
   id: string;
   email: string;
   role: UserRole[];
   phoneNumber: string;
   username: string;
-  user: User;
-  userProfile: UserProfile;
-  ngoProfile?: NgoProfile; // Có thể có ngoProfile nếu user là NGO, nhưng không bắt buộc phải có (nếu chưa hoàn thành hồ sơ)
+  userProfile?: UserProfile;
+  ngoProfile?: NgoProfile;
 }
 
 export interface CreateUserInput {

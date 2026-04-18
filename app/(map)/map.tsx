@@ -6,7 +6,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { useTranslation } from 'react-i18next';
 
 import { MapView } from '@/components/features/map/MapView';
-import { useStations } from '@/hooks/queries/useMap';
+import { useStations, useWasteTypes } from '@/hooks/queries/useMap';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { RecyclingStation } from '@/types/community.types';
 import { SearchBar } from '@/components/shared/SearchBar';
@@ -20,11 +20,12 @@ export default function MapScreen() {
 
   const [selectedStation, setSelectedStation] = useState<RecyclingStation | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeWasteType, setActiveWasteType] = useState<string | null>(null);
+  const [activeWasteTypeID, setActiveWasteTypeID] = useState<string | null>(null);
 
-  const { data: stations = [], isLoading } = useStations();
+  const { data: stations = [], isLoading } = useStations(activeWasteTypeID);
+  const { data: wasteTypes = [] } = useWasteTypes();
 
-  // Filter stations theo search + waste type
+  // Filter stations theo search (waste type đã filter từ server)
   const filteredStations = useMemo(() => {
     return stations.filter((s) => {
       const matchSearch =
@@ -32,18 +33,9 @@ export default function MapScreen() {
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchWaste = !activeWasteType || s.waste_types.includes(activeWasteType);
-
-      return matchSearch && matchWaste;
+      return matchSearch;
     });
-  }, [stations, searchQuery, activeWasteType]);
-
-  // Tất cả waste types có trong data — dùng cho filter chips
-  const allWasteTypes = useMemo(() => {
-    const set = new Set<string>();
-    stations.forEach((s) => s.waste_types.forEach((w) => set.add(w)));
-    return Array.from(set).sort();
-  }, [stations]);
+  }, [stations, searchQuery]);
 
   const handleSelectStation = useCallback((station: RecyclingStation) => {
     setSelectedStation(station);
@@ -89,9 +81,11 @@ export default function MapScreen() {
         {/* Waste type filter chips */}
         <View className="-mx-4 mt-2">
           <WasteTypeFilter
-            types={allWasteTypes}
-            activeType={activeWasteType}
-            onSelect={(type: any) => setActiveWasteType((prev) => (prev === type ? null : type))}
+            types={wasteTypes}
+            activeType={activeWasteTypeID}
+            onSelect={(typeID) =>
+              setActiveWasteTypeID((prev) => (prev === typeID ? null : typeID))
+            }
           />
         </View>
       </View>

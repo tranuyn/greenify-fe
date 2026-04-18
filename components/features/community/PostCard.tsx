@@ -72,14 +72,11 @@ export function PostCard({ post }: { post: GreenActionPostDetailDto }) {
   const statusCfg = STATUS_CONFIG[post.status as PostStatus];
 
   return (
-    <View className="mt-6 rounded-2xl bg-card py-4 px-3 shadow-sm shadow-black/50">
+    <View className="mt-6 rounded-2xl bg-card px-3 py-4 shadow-sm shadow-black/50">
       <View className="mb-4 flex-row items-center justify-between">
         <View className="flex-row items-center">
           {post.authorAvatarUrl ? (
-            <Image
-              source={{ uri: post.authorAvatarUrl }}
-              className="mr-3 h-14 w-14 rounded-full"
-            />
+            <Image source={{ uri: post.authorAvatarUrl }} className="mr-3 h-14 w-14 rounded-full" />
           ) : (
             <View className="mr-3 h-14 w-14 items-center justify-center rounded-full border border-primary bg-primary-50">
               <FontAwesome6 name="tree" size={24} color={colors.primary} />
@@ -125,15 +122,13 @@ export function PostCard({ post }: { post: GreenActionPostDetailDto }) {
         </View>
       </View>
 
-      <View className="mt-4 flex-row flex-wrap">
-        <Tag label={t('community.tags.greenDaily', 'Sống xanh mỗi ngày')} />
+      <View className="mt-4 flex-row flex-wrap ">
+        {/* <Tag label={t('community.tags.greenDaily', 'Sống xanh mỗi ngày')} /> */}
         {post.actionTypeName && <Tag label={post.actionTypeName} />}
       </View>
 
-      <View className="mt-2 rounded-2xl bg-primary-50 p-4">
-        <Text className="font-inter text-base leading-relaxed text-primary-800">
-          {post.caption}
-        </Text>
+      <View className="mt-2 rounded-2xl bg-background p-4">
+        <Text className="font-inter text-base leading-relaxed text-foreground">{post.caption}</Text>
       </View>
 
       {isCtv && (

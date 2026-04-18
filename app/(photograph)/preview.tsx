@@ -136,16 +136,19 @@ export default function PreviewScreen() {
         <SafeAreaView className="flex-1 justify-between bg-neutral-900 py-10">
           {/* --- CỤM 1: TOP BAR --- */}
           <View className="flex-row items-center justify-between px-6">
-            <TouchableOpacity className="rounded-full bg-white/10 p-3">
+            <TouchableOpacity
+              className="rounded-full bg-white/10 p-3"
+              onPress={() => router.replace('/(tabs)/community')}>
               <Ionicons name="grid" size={24} color="white" />
             </TouchableOpacity>
 
-            <Image
-              source={{
-                uri: userProfile?.userProfile?.avatarUrl || IMAGES.treeAvatar,
-              }}
-              className="flex-1"
-            />
+            <View className="h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-white/20">
+              <Image
+                source={{ uri: userProfile?.userProfile?.avatarUrl || IMAGES.treeAvatar }}
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            </View>
 
             <TouchableOpacity
               onPress={handleDownloadImage}
@@ -173,7 +176,9 @@ export default function PreviewScreen() {
                 className="mt-4 h-10 px-4">
                 {selectedActionType && (
                   <View className="mr-2 flex-row items-center rounded-full bg-green-800 px-3 py-1">
-                    <Text className="text-xs text-white">{selectedActionType.actionName}</Text>
+                    <Text className="font-inter text-xs text-white">
+                      {selectedActionType.action_name}
+                    </Text>
                     <TouchableOpacity
                       onPress={() => setSelectedActionTypeId('')}
                       hitSlop={8}

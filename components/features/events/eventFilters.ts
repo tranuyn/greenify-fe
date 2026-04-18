@@ -31,8 +31,7 @@ export function filterEvents(events: Event[], input: EventFilterInput) {
       input.activeType === ALL_EVENT_TYPE_LABEL || event.eventType === input.activeType;
 
     const matchDate =
-      !input.filterDate ||
-      isSameCalendarDate(new Date(event.startTime), input.filterDate);
+      !input.filterDate || isSameCalendarDate(new Date(event.startTime), input.filterDate);
 
     return matchSearch && matchType && matchDate;
   });

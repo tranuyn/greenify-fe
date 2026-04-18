@@ -13,7 +13,7 @@ import { StreakPlantCard } from '@/components/features/home/StreakPlantCard';
 import { CommunityFeedPreview } from '@/components/features/home/CommunityFeedPreview';
 
 import { router } from 'expo-router';
-import { useCurrentUser } from '@/hooks/queries/useAuth';
+import { useAuthRole, useCurrentUser } from '@/hooks/queries/useAuth';
 import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useRegisterEvent } from '@/hooks/mutations/useEvents';
 import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
@@ -21,7 +21,12 @@ import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 import { useMyWallet } from '@/hooks/queries/useWallet';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { Text } from '@/components/ui/Text';
-import { USER_VOUCHER_STATUS, type UserVoucher, type VoucherTemplate } from '@/types/gamification.types';
+import {
+  USER_VOUCHER_STATUS,
+  type UserVoucher,
+  type VoucherTemplate,
+} from '@/types/gamification.types';
+import { Utilities } from '@/components/profile/Utilities';
 
 // ============================================================
 // HOME SCREEN
@@ -85,6 +90,8 @@ export default function HomeScreen() {
     });
   };
 
+  const authRole = useAuthRole();
+
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -93,12 +100,12 @@ export default function HomeScreen() {
       {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
       <HomeHeader
         userName={userName}
-        avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatarUrl}
-        points={wallet?.available_points ?? 0}
+        avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatar.imageUrl}
+        points={wallet?.availablePoints ?? 0}
       />
 
       {/* 2. QUICK MENU — Bản đồ, Voucher, Leaderboard  */}
-      <HomeActionMenu />
+      <Utilities isForHome={true} />
 
       {/* 3. SỰ KIỆN XANH — Carousel ngang              */}
       <SectionHeader title={t('home.section_events')} />

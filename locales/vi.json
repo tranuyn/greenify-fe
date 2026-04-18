@@ -585,6 +585,8 @@
   },
   "map": {
     "search_placeholder": "Tìm điểm thu gom...",
+    "open_directions": "Mở bản đồ",
+    "open_directions_error": "Không thể mở ứng dụng bản đồ.",
     "today_hours": "Hôm nay ({{day}}): {{open}} - {{close}}",
     "today_closed": "Hôm nay ({{day}}): Đóng cửa",
     "days": {

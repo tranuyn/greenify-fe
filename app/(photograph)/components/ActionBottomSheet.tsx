@@ -35,7 +35,7 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
       containerStyle={{ zIndex: 1000 }}>
       <BottomSheetView className=" px-6 pb-5">
         <View className="mt-6">
-          <Text className="mb-4 text-lg font-bold text-white">
+          <Text className="mb-4 font-inter-bold text-lg text-white">
             {t('photograph.action_sheet.sections.action_tags')}
           </Text>
           <View className="mt-2">
@@ -54,8 +54,10 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
                   }`}>
                   {/* Bọc text trong 1 view có flex-1 để nó tự co giãn */}
                   <View className="flex-1 pr-2">
-                    <Text className="mb-1 text-base leading-5 text-white">{type.actionName}</Text>
-                    <Text className="text-xs text-white/70">#{type.groupName}</Text>
+                    <Text className="mb-1 font-inter-medium text-base leading-5 text-white">
+                      {type.actionName}
+                    </Text>
+                    <Text className="font-inter text-xs text-white/70">#{type.groupName}</Text>
                   </View>
                 </TouchableOpacity>
               );
