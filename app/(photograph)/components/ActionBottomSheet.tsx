@@ -55,9 +55,9 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
                   {/* Bọc text trong 1 view có flex-1 để nó tự co giãn */}
                   <View className="flex-1 pr-2">
                     <Text className="mb-1 font-inter-medium text-base leading-5 text-white">
-                      {type.action_name}
+                      {type.actionName}
                     </Text>
-                    <Text className="font-inter text-xs text-white/70">#{type.group_name}</Text>
+                    <Text className="font-inter text-xs text-white/70">#{type.groupName}</Text>
                   </View>
                 </TouchableOpacity>
               );
