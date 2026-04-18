@@ -55,18 +55,21 @@ export const createEventRequestSchema = (t: TFunction): z.ZodType<CreateEventReq
   return z.object({
     title: z.string().min(1, messages.title),
     description: z.string().min(1, messages.description),
-    event_type: z.string().min(1, messages.eventType),
-    cover_image_url: z.string().min(1, messages.coverImageUrl),
-    location_address: z.string().min(1, messages.locationAddress),
-    latitude: z.number().finite(messages.latitude),
-    longitude: z.number().finite(messages.longitude),
-    start_time: z.string().min(1, messages.startTime),
-    end_time: z.string().min(1, messages.endTime),
-    max_participants: z.number().int().positive(messages.maxParticipants),
-    reward_points: z.number().int().positive(messages.rewardPointsPositive),
-    participation_conditions: z.string().min(1, messages.participationConditions),
-    cancel_deadline_days: z.number().int().nonnegative(messages.cancelDeadlineDays),
-  });
+    eventType: z.enum(['CLEANUP', 'PLANTING', 'RECYCLING', 'EDUCATION', 'OTHER']),
+    startTime: z.string().min(1, messages.startTime),
+    endTime: z.string().min(1, messages.endTime),
+    maxParticipants: z.number().int().positive(messages.maxParticipants),
+    minParticipants: z.number().int().nonnegative(),
+    cancelDeadlineHoursBefore: z.number().int().nonnegative(),
+    signUpDeadlineHoursBefore: z.number().int().nonnegative(),
+    reminderHoursBefore: z.number().int().nonnegative(),
+    thankYouHoursAfter: z.number().int().nonnegative(),
+    rewardPoints: z.number().int().positive(messages.rewardPointsPositive),
+    status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED', 'NEEDS_REVISION', 'PUBLISHED', 'CLOSED', 'CANCELLED']),
+    thumbnail: z.any(),
+    images: z.array(z.any()),
+    address: z.any(),
+  }) as unknown as z.ZodType<CreateEventRequest>;
 };
 
 type RequestSchemaOutput = z.infer<ReturnType<typeof createEventRequestSchema>>;
@@ -78,11 +81,11 @@ type IsCreateEventRequestMatched = RequestSchemaOutput extends CreateEventReques
 export type CreateEventRequestSchemaMatches = IsCreateEventRequestMatched;
 
 export const EVENT_TYPE_OPTIONS = [
-  { value: 'Dọn rác', labelKey: 'events.create_event.event_types.cleanup' },
-  { value: 'Trồng cây', labelKey: 'events.create_event.event_types.tree_planting' },
-  { value: 'Workshop', labelKey: 'events.create_event.event_types.workshop' },
-  { value: 'Chiến dịch', labelKey: 'events.create_event.event_types.campaign' },
-  { value: 'Khác', labelKey: 'events.create_event.event_types.other' },
+  { value: 'CLEANUP', labelKey: 'events.create_event.event_types.cleanup' },
+  { value: 'PLANTING', labelKey: 'events.create_event.event_types.tree_planting' },
+  { value: 'EDUCATION', labelKey: 'events.create_event.event_types.workshop' },
+  { value: 'RECYCLING', labelKey: 'events.create_event.event_types.campaign' },
+  { value: 'OTHER', labelKey: 'events.create_event.event_types.other' },
 ] as const;
 
 export const GENDER_OPTIONS: { label: string; value: 'Nam' | 'Nữ' | 'Không' }[] = [

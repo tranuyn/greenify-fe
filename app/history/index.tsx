@@ -70,12 +70,12 @@ export default function WalletScreen() {
 
   const { data: ledgerData, isLoading: isLedgerLoading } = usePointLedger({
     page: 1,
-    page_size: 20,
+    size: 20,
     time: appliedFilters.time.length > 0 ? appliedFilters.time : undefined,
     source_type: appliedFilters.sourceTypes.length > 0 ? appliedFilters.sourceTypes : undefined,
   });
 
-  const ledgerItems = (ledgerData?.items ?? []).filter((entry) => {
+  const ledgerItems = (ledgerData?.content ?? []).filter((entry) => {
     const matchSourceType =
       appliedFilters.sourceTypes.length === 0 ||
       appliedFilters.sourceTypes.includes(entry.source_type);

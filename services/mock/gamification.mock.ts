@@ -21,64 +21,64 @@ export const MOCK_VOUCHER_TEMPLATES: VoucherTemplate[] = [
   {
     id: 'vt-001',
     name: 'Giảm 20% Xanh SM',
-    partner_name: 'Xanh SM',
-    partner_logo_url:
+    partnerName: 'Xanh SM',
+    partnerLogoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Xanh_SM_logo.svg/1280px-Xanh_SM_logo.svg.png',
-    thumbnail_url:
+    thumbnailUrl:
       'https://cafefcdn.com/zoom/700_438/203337114487263232/2023/12/6/xanh-sm-emag-cover-mobi-08-1701855466110670966778.jpg',
     description: 'Giảm 20% cho chuyến đi xe điện Xanh SM. Áp dụng toàn quốc.',
-    required_points: 100,
-    total_stock: 500,
-    remaining_stock: 247,
-    usage_conditions: 'Áp dụng cho chuyến đi từ 20.000đ trở lên. Không áp dụng cùng CTKM khác.',
-    valid_until: '2026-06-30T23:59:59Z',
+    requiredPoints: 100,
+    totalStock: 500,
+    remainingStock: 247,
+    usageConditions: 'Áp dụng cho chuyến đi từ 20.000đ trở lên. Không áp dụng cùng CTKM khác.',
+    validUntil: '2026-06-30T23:59:59Z',
     status: 'ACTIVE',
   },
   {
     id: 'vt-002',
     name: 'Voucher Cocoon 50.000đ',
-    partner_name: 'Cocoon Vietnam',
-    partner_logo_url: 'https://moonchicorder.com.vn/wp-content/uploads/2024/09/Cocoon.png',
-    thumbnail_url: 'https://channel.mediacdn.vn/2020/1/7/photo-1-15783942747491282238021.jpg',
+    partnerName: 'Cocoon Vietnam',
+    partnerLogoUrl: 'https://moonchicorder.com.vn/wp-content/uploads/2024/09/Cocoon.png',
+    thumbnailUrl: 'https://channel.mediacdn.vn/2020/1/7/photo-1-15783942747491282238021.jpg',
     description: 'Voucher mua sản phẩm Cocoon trị giá 50.000đ.',
-    required_points: 50,
-    total_stock: 200,
-    remaining_stock: 89,
-    usage_conditions: 'Đơn hàng tối thiểu 200.000đ. Chỉ áp dụng trên website cocoonvietnam.com.',
-    valid_until: '2026-05-31T23:59:59Z',
+    requiredPoints: 50,
+    totalStock: 200,
+    remainingStock: 89,
+    usageConditions: 'Đơn hàng tối thiểu 200.000đ. Chỉ áp dụng trên website cocoonvietnam.com.',
+    validUntil: '2026-05-31T23:59:59Z',
     status: 'ACTIVE',
   },
   {
     id: 'vt-003',
     name: 'Đồ uống miễn phí – The Coffee House',
-    partner_name: 'The Coffee House',
-    partner_logo_url:
+    partnerName: 'The Coffee House',
+    partnerLogoUrl:
       'https://play-lh.googleusercontent.com/qWEv8qR8KmXHh9JHwOeWl0aqV50co9Wqw1gVZXJ2Fqrd0oIRM199Enbcc7McoZo_7w4qYPcRzaFi_IQ8rDVC',
-    thumbnail_url: 'https://upload.urbox.vn/strapi/Gallery_The_Coffee_House_2_46dac27aac.jpg',
+    thumbnailUrl: 'https://upload.urbox.vn/strapi/Gallery_The_Coffee_House_2_46dac27aac.jpg',
     description: 'Đổi voucher lấy 1 ly đồ uống size M khi mang ly cá nhân.',
-    required_points: 75,
-    total_stock: 1000,
-    remaining_stock: 412,
-    usage_conditions: 'Áp dụng tại tất cả cơ sở The Coffee House. Mang ly cá nhân để nhận.',
-    valid_until: '2026-12-31T23:59:59Z',
+    requiredPoints: 75,
+    totalStock: 1000,
+    remainingStock: 412,
+    usageConditions: 'Áp dụng tại tất cả cơ sở The Coffee House. Mang ly cá nhân để nhận.',
+    validUntil: '2026-12-31T23:59:59Z',
     status: 'ACTIVE',
   },
   {
     id: 'vt-004',
     name: 'Giảm 70% giá trị hóa đơn',
-    partner_name: 'Highland',
-    partner_logo_url:
+    partnerName: 'Highland',
+    partnerLogoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Highlands_Coffee_5G.svg/3840px-Highlands_Coffee_5G.svg.png', // Link mock logo
-    thumbnail_url:
+    thumbnailUrl:
       'https://www.shutterstock.com/image-vector/elegant-gift-voucher-design-beauty-260nw-2628756281.jpg', // Link mock ảnh bìa
     description:
       'Giải thưởng dành cho Top 5: Giảm 70% giá trị hóa đơn khi mua hàng trực tiếp tại cửa hàng.',
-    required_points: 200,
-    total_stock: 5,
-    remaining_stock: 5,
-    usage_conditions:
+    requiredPoints: 200,
+    totalStock: 5,
+    remainingStock: 5,
+    usageConditions:
       '- Áp dụng cho hóa đơn từ 100.000đ trở lên\n- Mỗi voucher chỉ sử dụng 1 lần / 1 hóa đơn\n- Không áp dụng đồng thời với các chương trình khuyến mãi khác\n- Không quy đổi thành tiền mặt\n- Chỉ áp dụng khi mua hàng trực tiếp tại cửa hàng\n- Voucher không được chuyển nhượng\n- Trong trường hợp có tranh chấp, quyết định từ hệ thống là cuối cùng',
-    valid_until: '2026-01-01T23:59:59Z', // Lấy theo ngày ghi chú dưới dòng "Hết hạn sau"
+    validUntil: '2026-01-01T23:59:59Z', // Lấy theo ngày ghi chú dưới dòng "Hết hạn sau"
     status: 'ACTIVE',
   },
 ];
@@ -311,11 +311,14 @@ export const MOCK_USER_VOUCHERS: UserVoucher[] = [
     voucherCode: 'GREEN-XSM-A7K2',
     voucherTemplateId: 'vt-001',
     voucherName: MOCK_VOUCHER_TEMPLATES[0].name,
-    partnerName: MOCK_VOUCHER_TEMPLATES[0].partner_name,
-    thumbnailUrl: MOCK_VOUCHER_TEMPLATES[0].thumbnail_url ?? '',
+    partnerName: MOCK_VOUCHER_TEMPLATES[0].partnerName,
+    partnerLogoUrl: MOCK_VOUCHER_TEMPLATES[0].partnerLogoUrl,
+    description: MOCK_VOUCHER_TEMPLATES[0].description,
+    usageConditions: MOCK_VOUCHER_TEMPLATES[0].usageConditions,
+    thumbnailUrl: MOCK_VOUCHER_TEMPLATES[0].thumbnailUrl,
     source: 'REDEEM',
     status: 'AVAILABLE',
-    expiresAt: new Date('2026-06-30T23:59:59Z'),
+    expiresAt: '2026-06-30T23:59:59Z',
     usedAt: null,
   },
   {
@@ -323,12 +326,15 @@ export const MOCK_USER_VOUCHERS: UserVoucher[] = [
     voucherCode: 'GREEN-TCH-B3M9',
     voucherTemplateId: 'vt-003',
     voucherName: MOCK_VOUCHER_TEMPLATES[2].name,
-    partnerName: MOCK_VOUCHER_TEMPLATES[2].partner_name,
-    thumbnailUrl: MOCK_VOUCHER_TEMPLATES[2].thumbnail_url ?? '',
+    partnerName: MOCK_VOUCHER_TEMPLATES[2].partnerName,
+    partnerLogoUrl: MOCK_VOUCHER_TEMPLATES[2].partnerLogoUrl,
+    description: MOCK_VOUCHER_TEMPLATES[2].description,
+    usageConditions: MOCK_VOUCHER_TEMPLATES[2].usageConditions,
+    thumbnailUrl: MOCK_VOUCHER_TEMPLATES[2].thumbnailUrl,
     source: 'GARDEN_REWARD',
-    status: 'AVAILABLE',
-    expiresAt: new Date('2026-12-31T23:59:59Z'),
-    usedAt: new Date('2026-03-20T10:00:00Z'),
+    status: 'USED',
+    expiresAt: '2026-12-31T23:59:59Z',
+    usedAt: '2026-03-20T10:00:00Z',
   },
 ];
 

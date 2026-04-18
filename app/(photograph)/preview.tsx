@@ -173,7 +173,7 @@ export default function PreviewScreen() {
                 className="mt-4 h-10 px-4">
                 {selectedActionType && (
                   <View className="mr-2 flex-row items-center rounded-full bg-green-800 px-3 py-1">
-                    <Text className="text-xs text-white">{selectedActionType.action_name}</Text>
+                    <Text className="text-xs text-white">{selectedActionType.actionName}</Text>
                     <TouchableOpacity
                       onPress={() => setSelectedActionTypeId('')}
                       hitSlop={8}

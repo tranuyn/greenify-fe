@@ -34,8 +34,8 @@ export function getFilteredRegistrations(registrations: EventRegistration[], act
   return registrations
     .filter((registration) => allowedStatuses.includes(registration.status) && !!registration.event)
     .sort((a, b) => {
-      const aTime = new Date(a.event?.start_time ?? 0).getTime();
-      const bTime = new Date(b.event?.start_time ?? 0).getTime();
+      const aTime = new Date(a.event?.startTime ?? 0).getTime();
+      const bTime = new Date(b.event?.startTime ?? 0).getTime();
       return activeTab === 'attended' ? bTime - aTime : aTime - bTime;
     });
 }

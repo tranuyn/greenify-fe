@@ -32,27 +32,25 @@ export const MOCK_NGO_USER: User = {
 
 export const MOCK_USER_PROFILE: UserProfile = {
   id: 'prof-001',
-  user_id: 'usr-001',
+  firstName: 'Nhã',
+  lastName: 'Uyên',
   displayName: 'Nhã Uyên',
-  avatar_url: 'https://i.redd.it/ya8qikz9kn0f1.png',
+  avatarUrl: 'https://i.redd.it/ya8qikz9kn0f1.png',
   province: 'TP. Hồ Chí Minh',
-  // district: 'Quận 1',
+  district: 'Quận 1',
   ward: 'Phường Bến Nghé',
-  free_time_slots: [
-    { day: 'SAT', from: '08:00', to: '12:00' },
-    { day: 'SUN', from: '08:00', to: '17:00' },
-  ],
+  addressDetail: '123 ABC',
+  status: 'ACTIVE',
 };
 
 export const MOCK_NGO_PROFILE: NgoProfile = {
   id: 'ngo-prof-001',
   user_id: 'usr-003',
-  org_name: 'Green Future Vietnam',
-  representative_name: 'Nguyễn Văn An',
-  avatar_url: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
+  orgName: 'Green Future Vietnam',
+  representativeName: 'Nguyễn Văn An',
+  avatarUrl: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
   hotline: '1800 1234',
-  contact_email: 'contact@greenfuture.vn',
-  // address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+  contactEmail: 'contact@greenfuture.vn',
   province: 'TP. Hồ Chí Minh',
   ward: 'Phường Bến Nghé',
   description: 'Tổ chức phi lợi nhuận hoạt động vì môi trường xanh tại Việt Nam.',
@@ -64,13 +62,16 @@ export const MOCK_NGO_PROFILE: NgoProfile = {
 export const MOCK_AUTH_RESPONSE: LoginResponse = {
   access_token: 'mock.access.token.eyJhbGciOiJIUzI1NiJ9',
   refresh_token: 'mock.refresh.token.eyJhbGciOiJIUzI1NiJ9',
-  user: MOCK_USER,
-  profile: MOCK_USER_PROFILE,
-};
+} as LoginResponse;
 
 export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
+  id: 'usr-001',
+  email: 'uyen@greenify.vn',
+  role: ['CTV'],
+  phoneNumber: '0901234567',
+  username: 'nhauyen',
   user: MOCK_USER,
-  profile: MOCK_USER_PROFILE,
+  userProfile: MOCK_USER_PROFILE,
 };
 // export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
 //   user: MOCK_NGO_USER,

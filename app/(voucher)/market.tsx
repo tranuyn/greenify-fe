@@ -8,12 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
-import { useRedeemVoucher } from '@/hooks/mutations/useGamification';
+import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 
 import { VoucherSearchBar } from '@/components/features/voucher/VoucherSearchBar';
 import { PartnerFilter } from '@/components/features/voucher/PartnerFilter';
 import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
-import { USER_VOUCHER_STATUS, type VoucherTemplate } from '@/types/gamification.types';
+import { USER_VOUCHER_STATUS, type UserVoucher, type VoucherTemplate } from '@/types/gamification.types';
 
 export default function VoucherMarketScreen() {
   const insets = useSafeAreaInsets();
@@ -25,59 +25,59 @@ export default function VoucherMarketScreen() {
   const [activePartner, setActivePartner] = useState<string | null>(null);
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
 
-  const { data: vouchers = [], isLoading } = useAvailableVouchers();
-  const { data: myVouchers = [] } = useMyVouchers();
-  const { mutate: redeemVoucher } = useRedeemVoucher();
+  const { data: availableVouchersData, isLoading } = useAvailableVouchers();
+  const { data: myVouchers } = useMyVouchers();
+  const { mutate: exchangeVoucher } = useExchangeVoucher();
+
+  const vouchers: VoucherTemplate[] = availableVouchersData?.content ?? [];
+  const myVoucherList: UserVoucher[] = myVouchers?.content ?? [];
 
   const collectedVoucherIds = useMemo(() => {
     return new Set(
-      myVouchers
+      myVoucherList
         .filter(
-          (v) =>
-            v.status === USER_VOUCHER_STATUS.AVAILABLE ||
-            v.status === USER_VOUCHER_STATUS.USED
+          (v) => v.status === USER_VOUCHER_STATUS.AVAILABLE || v.status === USER_VOUCHER_STATUS.USED
         )
-        .map((v) => v.voucher_template_id)
+        .map((v) => v.voucherTemplateId)
     );
-  }, [myVouchers]);
+  }, [myVoucherList]);
 
   const filteredVouchers = useMemo(() => {
     return vouchers.filter((v) => {
       const matchSearch =
         searchQuery.trim() === '' ||
         v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        v.partner_name.toLowerCase().includes(searchQuery.toLowerCase());
+        v.partnerName.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchPartner = !activePartner || v.partner_name === activePartner;
+      const matchPartner = !activePartner || v.partnerName === activePartner;
 
       return matchSearch && matchPartner;
     });
   }, [vouchers, searchQuery, activePartner]);
 
-  // Danh sách các partner độc nhất
   const allPartners = useMemo(() => {
     const set = new Set<string>();
-    vouchers.forEach((v) => set.add(v.partner_name));
+    vouchers.forEach((v) => set.add(v.partnerName));
     return Array.from(set).sort();
   }, [vouchers]);
 
-  const handleCollect = useCallback((item: VoucherTemplate) => {
-    setRedeemingId(item.id);
-    redeemVoucher(
-      { voucher_template_id: item.id },
-      {
+  const handleCollect = useCallback(
+    (item: VoucherTemplate) => {
+      setRedeemingId(item.id);
+      exchangeVoucher(item.id, {
         onSettled: () => setRedeemingId(null),
-      }
-    );
-  }, [redeemVoucher]);
+      });
+    },
+    [exchangeVoucher]
+  );
 
   const renderHeader = () => (
     <View className="mb-2">
       <VoucherSearchBar value={searchQuery} onChangeText={setSearchQuery} />
-      <PartnerFilter 
-        partners={allPartners} 
-        activePartner={activePartner} 
-        onSelect={(p) => setActivePartner(prev => prev === p ? null : p)} 
+      <PartnerFilter
+        partners={allPartners}
+        activePartner={activePartner}
+        onSelect={(p) => setActivePartner((prev) => (prev === p ? null : p))}
       />
     </View>
   );
@@ -88,7 +88,7 @@ export default function VoucherMarketScreen() {
       <View className="flex-row items-center px-4 py-3">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="h-10 w-10 items-center justify-center rounded-full bg-foreground/5 dark:bg-foreground/10 active:opacity-70">
+          className="bg-foreground/5 dark:bg-foreground/10 h-10 w-10 items-center justify-center rounded-full active:opacity-70">
           <Feather name="arrow-left" size={24} color={colors.foreground} />
         </TouchableOpacity>
         <Text className="ml-4 font-inter-semibold text-lg text-foreground">
@@ -118,8 +118,13 @@ export default function VoucherMarketScreen() {
           )}
           ListEmptyComponent={
             <View className="mt-10 items-center justify-center px-6">
-              <Feather name="inbox" size={48} color={colors.foreground} style={{ opacity: 0.3, marginBottom: 16 }} />
-              <Text className="text-center font-inter text-sm text-foreground/50">
+              <Feather
+                name="inbox"
+                size={48}
+                color={colors.foreground}
+                style={{ opacity: 0.3, marginBottom: 16 }}
+              />
+              <Text className="text-foreground/50 text-center font-inter text-sm">
                 Không tìm thấy voucher nào.
               </Text>
             </View>

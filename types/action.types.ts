@@ -29,11 +29,11 @@ export type AppealStatus =
 
 export interface GreenActionType {
   id: string;
-  group_name: string;
-  action_name: string;
-  suggested_points: number;
-  location_required: boolean;
-  is_active: boolean;
+  groupName: string;
+  actionName: string;
+  suggestedPoints: number;
+  locationRequired: boolean;
+  isActive: boolean;
 }
 
 export interface GreenActionPost {
@@ -79,6 +79,14 @@ export interface PostAppeal {
 }
 
 // ---- API Request shapes ----
+export interface CreateActionTypeRequest {
+  groupName: string;
+  actionName: string;
+  suggestedPoints: number;
+  locationRequired: boolean;
+  isActive: boolean;
+}
+export type UpdateActionTypeRequest = Partial<CreateActionTypeRequest>;
 // FEED PARAMS
 export interface FeedQueryParams extends BaseQueryParams {
   search?: string;
@@ -133,10 +141,15 @@ export interface CreatePostApiRequest {
 
 export interface ReviewPostRequest {
   decision: ReviewDecision;
-  reject_reason_code?: string;
-  reject_reason_note?: string;
+  rejectReason?: string;
 }
-
+export interface ReviewPostResponse {
+  reviewId: string;
+  postId: string;
+  decision: ReviewDecision;
+  postStatus: PostStatus;
+  message: string;
+}
 export interface PostReviewDto {
   reviewId: string;
   reviewerId: string;
@@ -150,17 +163,21 @@ export interface GreenActionPostDetailDto {
   id: string;
   authorDisplayName: string;
   authorAvatarUrl: string | null;
+  // actionTypeId: string;
   actionTypeName: string;
   groupName: string;
   caption: string;
   mediaUrl: string;
   approveCount: number;
   rejectCount: number;
+  // latitude: number;
+  // longitude: number;
   location: string | null;
   reviews: PostReviewDto[];
   actionDate: string;
   status: PostStatus;
   createdAt: string;
+  // alreadyReviewed?: boolean;
 }
 
 export interface AppealPostRequest {

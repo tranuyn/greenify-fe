@@ -1,11 +1,10 @@
 // ============================================================
 // VOUCHER TYPES
 // Mapped from: voucher_templates, user_vouchers
+
+import { PageResponse, PaginationParams } from "./common.types";
+
 // ============================================================
-
-import { Use } from 'react-native-svg';
-import { UserProfile } from './user.type';
-
 export type VoucherTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DEPLETED';
 
 export const USER_VOUCHER_STATUS = {
@@ -22,16 +21,23 @@ export type VoucherSource = 'REDEEM' | 'LEADERBOARD_REWARD' | 'GARDEN_REWARD';
 export interface VoucherTemplate {
   id: string;
   name: string;
-  partner_name: string;
-  partner_logo_url: string | null;
-  thumbnail_url: string | null;
+  partnerName: string;
+  partnerLogoUrl: string | null;
+  thumbnailUrl: string | null;
   description: string;
-  required_points: number;
-  total_stock: number;
-  remaining_stock: number;
-  usage_conditions: string;
-  valid_until: string;
+  requiredPoints: number;
+  totalStock: number;
+  remainingStock: number;
+  usageConditions: string;
+  validUntil: string;
   status: VoucherTemplateStatus;
+}
+export interface AvailableVouchersResponse extends PageResponse<VoucherTemplate> {
+  availablePoints: number;
+}
+export interface AvailableVouchersQueryParams extends PaginationParams {
+  minRequiredPoints?: number;
+  maxRequiredPoints?: number;
 }
 
 export interface SeedRewardVoucher {
@@ -55,21 +61,19 @@ export interface UserVoucher {
   voucherTemplateId: string;
   voucherName: string;
   partnerName: string;
-  thumbnailUrl: string;
-  expiresAt: Date;
-  usedAt: Date | null;
+  partnerLogoUrl: string | null;
+  description: string;
+  usageConditions: string;
+  thumbnailUrl: string | null;
+  expiresAt: string;
+  usedAt: string | null;
   status: UserVoucherStatus;
   source: VoucherSource;
 }
 
-export interface RedeemVoucherRequest {
-  voucher_template_id: string;
-}
-
-export interface UserVoucherQueryParams {
-  status?: UserVoucherStatus;
-  page?: number;
-  size?: number;
+export interface MyVouchersQueryParams extends PaginationParams {
+  status?: UserVoucherStatus | 'all';
+  source?: VoucherSource | 'all';
 }
 
 // ============================================================

@@ -10,11 +10,12 @@ import {
   SeedRewardVoucher,
   VoucherTemplate,
   UserVoucher,
-  UserVoucherQueryParams,
-  RedeemVoucherRequest,
   LeaderboardScope,
   WeeklyLeaderboard,
   WeeklyLeaderboardPrizes,
+  MyVouchersQueryParams,
+  AvailableVouchersResponse,
+  AvailableVouchersQueryParams,
 } from 'types/gamification.types';
 import { ApiResponse, PageResponse } from 'types/common.types';
 
@@ -134,12 +135,53 @@ export const gamificationService = {
     return data;
   },
 
-  async getAvailableVouchers(): Promise<ApiResponse<VoucherTemplate[]>> {
+  async getAvailableVouchers(
+    params?: AvailableVouchersQueryParams
+  ): Promise<ApiResponse<AvailableVouchersResponse>> {
     if (IS_MOCK_MODE) {
       await mockDelay(500);
-      return mockSuccess(MOCK_VOUCHER_TEMPLATES.filter((v) => v.status === 'ACTIVE'));
+
+      // Giả định bạn đã update MOCK_VOUCHER_TEMPLATES sang camelCase
+      let filtered = MOCK_VOUCHER_TEMPLATES.filter((v) => v.status === 'ACTIVE');
+
+      // Lọc theo khoảng điểm
+      if (params?.minRequiredPoints !== undefined) {
+        filtered = filtered.filter((v) => v.requiredPoints >= params.minRequiredPoints!);
+      }
+      if (params?.maxRequiredPoints !== undefined) {
+        filtered = filtered.filter((v) => v.requiredPoints <= params.maxRequiredPoints!);
+      }
+
+      // Phân trang
+      const pageIndex = params?.page ?? 1;
+      const pageSize = params?.size ?? 20;
+      const start = (pageIndex - 1) * pageSize;
+      const paginated = filtered.slice(start, start + pageSize);
+
+      return mockSuccess({
+        availablePoints: 1250, // Giả lập user đang có 1250 điểm
+        content: paginated,
+        page: pageIndex,
+        size: pageSize,
+        totalElements: filtered.length,
+        totalPages: Math.ceil(filtered.length / pageSize),
+      });
     }
-    const { data } = await apiClient.get<ApiResponse<VoucherTemplate[]>>('/vouchers/available');
+
+    // ==========================================
+    // 2. GỌI API THẬT
+    // ==========================================
+    const { data } = await apiClient.get<ApiResponse<AvailableVouchersResponse>>(
+      '/vouchers', // Endpoint chuẩn Swagger mới
+      {
+        params: {
+          page: params?.page ? params.page - 1 : 0, // Dịch page 1 -> 0
+          size: params?.size ?? 20,
+          minRequiredPoints: params?.minRequiredPoints,
+          maxRequiredPoints: params?.maxRequiredPoints,
+        },
+      }
+    );
     return data;
   },
 
@@ -154,52 +196,82 @@ export const gamificationService = {
     return data;
   },
 
-  async getMyVouchers(params?: UserVoucherQueryParams): Promise<PageResponse<UserVoucher>> {
+  async getMyVouchers(
+    params?: MyVouchersQueryParams
+  ): Promise<ApiResponse<PageResponse<UserVoucher>>> {
     if (IS_MOCK_MODE) {
       await mockDelay(400);
-      const filteredVouchers = params?.status
-        ? MOCK_USER_VOUCHERS.filter((voucher) => voucher.status === params.status)
-        : MOCK_USER_VOUCHERS;
+      let mappedVouchers: UserVoucher[] = [...MOCK_USER_VOUCHERS];
 
-      const pageIndex = params?.page ?? 0;
+      // Lọc theo Status (Bỏ qua nếu chọn 'all' hoặc không truyền)
+      if (params?.status && params.status !== 'all') {
+        mappedVouchers = mappedVouchers.filter((v) => v.status === params.status);
+      }
+
+      // Lọc theo Source (Bỏ qua nếu chọn 'all' hoặc không truyền)
+      if (params?.source && params.source !== 'all') {
+        mappedVouchers = mappedVouchers.filter((v) => v.source === params.source);
+      }
+
+      const pageIndex = params?.page ?? 1;
       const pageSize = params?.size ?? 20;
-      const start = pageIndex * pageSize;
-      const content = filteredVouchers.slice(start, start + pageSize);
+      const start = (pageIndex - 1) * pageSize;
+      const paginatedVouchers = mappedVouchers.slice(start, start + pageSize);
 
-      return {
-        content,
+      return mockSuccess({
+        content: paginatedVouchers,
         page: pageIndex,
         size: pageSize,
-        totalElements: filteredVouchers.length,
-        totalPages: Math.ceil(filteredVouchers.length / pageSize),
-      };
+        totalElements: mappedVouchers.length,
+        totalPages: Math.ceil(mappedVouchers.length / pageSize),
+      });
     }
-    const { data } = await apiClient.get<PageResponse<UserVoucher>>('/wallet/vouchers', {
-      params,
-    });
+    const { data } = await apiClient.get<ApiResponse<PageResponse<UserVoucher>>>(
+      '/wallet/vouchers',
+      {
+        params: {
+          // Xử lý logic lệch trang: UI đếm từ 1, BE đếm từ 0
+          page: params?.page ? params.page - 1 : 0,
+          size: params?.size ?? 20,
+          // Nếu UI gửi 'all', ta chuyển thành undefined để BE không filter
+          status: params?.status === 'all' ? undefined : params?.status,
+          source: params?.source === 'all' ? undefined : params?.source,
+        },
+      }
+    );
     return data;
   },
 
-  async redeemVoucher(payload: RedeemVoucherRequest): Promise<ApiResponse<UserVoucher>> {
+  async exchangeVoucher(templateId: string): Promise<ApiResponse<UserVoucher>> {
     if (IS_MOCK_MODE) {
       await mockDelay(800);
-      const template = MOCK_VOUCHER_TEMPLATES[0];
+
+      const template =
+        MOCK_VOUCHER_TEMPLATES.find((t) => t.id === templateId) || MOCK_VOUCHER_TEMPLATES[0];
       if (!template) throw new Error('Voucher not found');
+
       const newVoucher: UserVoucher = {
         id: `uvoucher-${Date.now()}`,
         voucherTemplateId: template.id,
         voucherCode: `GREEN-MOCK-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
         source: 'REDEEM',
         status: 'AVAILABLE',
-        expiresAt: new Date(template.valid_until),
+        expiresAt: template.validUntil,
         usedAt: null,
         voucherName: template.name,
-        partnerName: template.partner_name,
-        thumbnailUrl: template.thumbnail_url || '',
+        partnerName: template.partnerName,
+        partnerLogoUrl: template.partnerLogoUrl,
+        description: template.description,
+        usageConditions: template.usageConditions,
+        thumbnailUrl: template.thumbnailUrl,
       };
+
       return mockSuccess(newVoucher);
     }
-    const { data } = await apiClient.post<ApiResponse<UserVoucher>>('/vouchers/redeem', payload);
+
+    const { data } = await apiClient.post<ApiResponse<UserVoucher>>(
+      `/vouchers/${templateId}/exchange`
+    );
     return data;
   },
 };
@@ -252,29 +324,29 @@ export const leaderboardService = {
         nationalVoucher: {
           id: nationalTemplate.id,
           name: nationalTemplate.name,
-          partnerName: nationalTemplate.partner_name,
+          partnerName: nationalTemplate.partnerName,
           description: nationalTemplate.description,
-          requiredPoints: nationalTemplate.required_points,
-          totalStock: nationalTemplate.total_stock,
-          remainingStock: nationalTemplate.remaining_stock,
-          usageConditions: nationalTemplate.usage_conditions,
-          validUntil: nationalTemplate.valid_until,
-          partnerLogoUrl: nationalTemplate.partner_logo_url,
-          thumbnailUrl: nationalTemplate.thumbnail_url,
+          requiredPoints: nationalTemplate.requiredPoints,
+          totalStock: nationalTemplate.totalStock,
+          remainingStock: nationalTemplate.remainingStock,
+          usageConditions: nationalTemplate.usageConditions,
+          validUntil: nationalTemplate.validUntil,
+          partnerLogoUrl: nationalTemplate.partnerLogoUrl,
+          thumbnailUrl: nationalTemplate.thumbnailUrl,
           status: nationalTemplate.status,
         },
         provincialVoucher: {
           id: provincialTemplate.id,
           name: provincialTemplate.name,
-          partnerName: provincialTemplate.partner_name,
+          partnerName: provincialTemplate.partnerName,
           description: provincialTemplate.description,
-          requiredPoints: provincialTemplate.required_points,
-          totalStock: provincialTemplate.total_stock,
-          remainingStock: provincialTemplate.remaining_stock,
-          usageConditions: provincialTemplate.usage_conditions,
-          validUntil: provincialTemplate.valid_until,
-          partnerLogoUrl: provincialTemplate.partner_logo_url,
-          thumbnailUrl: provincialTemplate.thumbnail_url,
+          requiredPoints: provincialTemplate.requiredPoints,
+          totalStock: provincialTemplate.totalStock,
+          remainingStock: provincialTemplate.remainingStock,
+          usageConditions: provincialTemplate.usageConditions,
+          validUntil: provincialTemplate.validUntil,
+          partnerLogoUrl: provincialTemplate.partnerLogoUrl,
+          thumbnailUrl: provincialTemplate.thumbnailUrl,
           status: provincialTemplate.status,
         },
       };
