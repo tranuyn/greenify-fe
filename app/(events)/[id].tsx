@@ -53,7 +53,7 @@ export default function EventDetailScreen() {
     myRegistration?.status === REGISTRATION_STATUS.REGISTERED ||
     myRegistration?.status === REGISTRATION_STATUS.CHECKED_IN;
 
-  const isFull = (event?.registeredCount ?? 0) >= (event?.maxParticipants ?? 0);
+  const isFull = (event?.participantCount ?? 0) >= (event?.maxParticipants ?? 0);
 
   const handleRegister = useCallback(() => {
     if (!event) return;
@@ -116,13 +116,13 @@ export default function EventDetailScreen() {
 
         <View className="px-5 pt-5">
           {/* NGO */}
-          {event.ngoName && (
+          {event.organizer.name && (
             <View className="mb-2 flex-row items-center">
               <View className="mr-2 h-6 w-6 items-center justify-center rounded-full bg-primary-100">
                 <Feather name="shield" size={12} color={colors.primary700} />
               </View>
               <Text className="font-inter-semibold text-xs uppercase tracking-wider text-primary-700">
-                {event.ngoName}
+                {event.organizer.name}
               </Text>
             </View>
           )}
@@ -162,7 +162,7 @@ export default function EventDetailScreen() {
               </View>
               <Text className="text-foreground/70 font-inter text-sm">
                 {t('events.detail.participants', {
-                  registered: event.registeredCount ?? 0,
+                  registered: event.participantCount ?? 0,
                   total: event.maxParticipants,
                 })}
               </Text>

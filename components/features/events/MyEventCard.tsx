@@ -98,8 +98,8 @@ export function MyEventCard({ registration, onPress }: Props) {
         </Text>
 
         {/* NGO name */}
-        {event.ngoName && (
-          <Text className="text-foreground/40 mt-0.5 font-inter text-[11px]">{event.ngoName}</Text>
+        {event.organizer?.name && (
+          <Text className="text-foreground/40 mt-0.5 font-inter text-[11px]">{event.organizer.name}</Text>
         )}
 
         {/* Meta */}

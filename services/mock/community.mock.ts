@@ -41,8 +41,8 @@ export const MOCK_EVENTS: Event[] = [
     images: [],
     createdAt: '2026-03-20T10:00:00Z',
     lastModifiedAt: '2026-03-20T10:00:00Z',
-    registeredCount: 32,
-    ngoName: 'Green Future Vietnam',
+    participantCount: 32,
+    ngoName: 'Green Future Vietnam', 
   },
   {
     id: 'evt-002',
@@ -73,7 +73,7 @@ export const MOCK_EVENTS: Event[] = [
     images: [],
     createdAt: '2026-03-22T08:00:00Z',
     lastModifiedAt: '2026-03-22T08:00:00Z',
-    registeredCount: 18,
+    participantCount: 18,
     ngoName: 'Green Future Vietnam',
   },
   {
@@ -105,7 +105,7 @@ export const MOCK_EVENTS: Event[] = [
     images: [],
     createdAt: '2026-03-25T09:00:00Z',
     lastModifiedAt: '2026-03-25T09:00:00Z',
-    registeredCount: 67,
+    participantCount: 67,
     ngoName: 'Green Future Vietnam',
   },
 ];

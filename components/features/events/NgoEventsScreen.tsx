@@ -118,7 +118,7 @@ function NgoEventCard({
               <Feather name="users" size={10} color={colors.neutral400} />
               <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
                 {t('events.ngo_events.registered_count', {
-                  registered: item.registeredCount ?? 0,
+                  registered: item.participantCount ?? 0,
                   max: item.maxParticipants,
                 })}
               </Text>
