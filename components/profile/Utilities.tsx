@@ -1,16 +1,19 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { IMAGES } from '@/constants/linkMedia';
 
 const utils = [
-  { name: 'Bản đồ Xanh', icon: require('../../assets/map.png'), route: '/map' },
-  { name: 'Chợ Voucher', icon: require('../../assets/market.png'), route: '/market' },
-  { name: 'Bảng xếp hạng', icon: require('../../assets/rank.png'), route: '/leaderboard' },
-  { name: 'Lịch xanh', icon: require('../../assets/calender.png'), route: '/calendar' },
+  { name: 'Bản đồ Xanh', icon: IMAGES.map, route: '/map', isForHome: true },
+  { name: 'Chợ Voucher', icon: IMAGES.vegetable, route: '/market', isForHome: true },
+  { name: 'Bảng xếp hạng', icon: IMAGES.winner, route: '/leaderboard', isForHome: true },
+  { name: 'Lịch xanh', icon: IMAGES.calendarImg, route: '/calendar', isForHome: true },
   {
     name: 'Ví & Điểm',
-    icon: require('../../assets/wallet.png'),
+    icon: IMAGES.saveWater,
     route: '/history', // Khai báo đường dẫn ở đây
+    isForHome: false,
   },
+  { name: 'Điểm rác', icon: IMAGES.coexistence, route: '/coexistence', isForHome: false },
 ];
 
 type UtilitiesProps = {
@@ -19,7 +22,7 @@ type UtilitiesProps = {
 
 export const Utilities = ({ isForHome = false }: UtilitiesProps) => {
   const router = useRouter();
-  const visibleUtils = isForHome ? utils.filter((item) => item.name !== 'Ví & Điểm') : utils;
+  const visibleUtils = isForHome ? utils.filter((item) => item.isForHome) : utils;
   return (
     <View className="px-4 pt-4">
       {isForHome && <View className="pt-6" />}
@@ -39,7 +42,7 @@ export const Utilities = ({ isForHome = false }: UtilitiesProps) => {
                 console.log(`Chưa có route cho ${item.name}`);
               }
             }}>
-            <Image source={item.icon} className="mb-2 h-10 w-10" resizeMode="contain" />
+            <Image source={{ uri: item.icon }} className="mb-2 h-10 w-10" resizeMode="contain" />
             <Text className="text-center text-[11px] text-foreground">{item.name}</Text>
           </TouchableOpacity>
         ))}

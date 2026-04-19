@@ -74,7 +74,8 @@ export const QUERY_KEYS = {
     all: ['leaderboard'] as const,
     scope: (scope: LeaderboardScope, weekStartDate: string, province?: string) =>
       ['leaderboard', scope, weekStartDate, province] as const,
-    weeklyPrizes: (weekStartDate: string) => ['leaderboard', 'weekly-prizes', weekStartDate] as const,
+    weeklyPrizes: (weekStartDate: string) =>
+      ['leaderboard', 'weekly-prizes', weekStartDate] as const,
     claim: (periodId: string) => ['leaderboard', 'claim', periodId] as const,
   },
 
@@ -95,9 +96,10 @@ export const QUERY_KEYS = {
   },
 
   // Community
-  trashReports: {
-    all: ['trash-reports'] as const,
-    list: (params?: object) => ['trash-reports', 'list', params] as const,
+  trashSpots: {
+    all: ['trash-spots'] as const,
+    list: (params?: object) => ['trash-spots', 'list', params] as const,
+    detail: (trashSpotId: string) => ['trash-spots', 'detail', trashSpotId] as const,
   },
 
   // Location

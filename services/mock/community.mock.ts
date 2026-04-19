@@ -1,9 +1,12 @@
 import type {
+  CreateTrashSpotReportRequest,
   Event,
   EventRegistration,
   RecyclingStation,
+  TrashSpotListItem,
   TrashSpotReport,
 } from 'types/community.types';
+import { SeverityTier } from 'types/community.types';
 
 // ---- Events ----
 
@@ -11,7 +14,8 @@ export const MOCK_EVENTS: Event[] = [
   {
     id: 'evt-001',
     title: 'Dọn rác bãi biển Cần Giờ',
-    description: 'Cùng nhau làm sạch bãi biển Cần Giờ – lá phổi xanh của TP.HCM. Mang bao tay và tinh thần xanh nhé!',
+    description:
+      'Cùng nhau làm sạch bãi biển Cần Giờ – lá phổi xanh của TP.HCM. Mang bao tay và tinh thần xanh nhé!',
     eventType: 'CLEANUP',
     startTime: '2026-04-05T07:00:00Z',
     endTime: '2026-04-05T11:00:00Z',
@@ -93,7 +97,7 @@ export const MOCK_EVENTS: Event[] = [
       ward: 'Gò Vấp',
       addressDetail: 'Công viên Gia Định',
       latitude: 10.8145,
-      longitude: 106.6910,
+      longitude: 106.691,
     },
     thumbnail: {
       imageUrl: 'https://images.unsplash.com/photo-1542601906897-ecd3d1c4b0a0?w=400',
@@ -185,26 +189,87 @@ export const MOCK_STATIONS: RecyclingStation[] = [
 
 // ---- Trash Spot Reports ----
 
-export const MOCK_TRASH_REPORTS: TrashSpotReport[] = [
+export const MOCK_TRASH_SPOTS: TrashSpotListItem[] = [
   {
     id: 'trash-001',
-    reporter_id: 'usr-001',
-    description: 'Đống rác lớn tràn ra vỉa hè, chủ yếu là túi nilon và hộp xốp. Mùi khó chịu.',
+    name: 'Đống rác lớn dưới chân cầu Thủ Thiêm',
+    description: 'Khu vực này có khá nhiều rác chưa được dọn, mong mọi người ghé hỗ trợ',
     latitude: 10.7755,
     longitude: 106.6992,
-    before_media_urls: [
-      'https://images.unsplash.com/photo-1604187351574-c75ca79f5807?w=400',
-    ],
-    after_media_urls: null,
-    severity_level: 'HIGH',
-    verify_count: 4,
-    hot_score: 87.5,
-    assigned_ngo_id: null,
+    province: 'TP.HCM',
+    status: 'PENDING_VERIFY',
+    severityTier: SeverityTier.SEVERITY_HIGH,
+    hotScore: 87.5,
+    verificationCount: 4,
+    primaryImageUrl: 'https://images.unsplash.com/photo-1604187351574-c75ca79f5807?w=400',
+    wasteTypeNames: ['Nhua', 'Tui nilon', 'Hop xop'],
+    createdAt: '2026-03-28T11:00:00Z',
+  },
+  {
+    id: 'trash-002',
+    name: 'Đống rác nhỏ bên lề đường',
+    description: 'Có một đống rác nhỏ bên lề đường, cần được dọn sạch để tránh tắc cống khi mưa.',
+    latitude: 10.7798,
+    longitude: 106.6952,
+    province: 'TP.HCM',
     status: 'VERIFIED',
-    resolve_note: null,
-    resolve_completed_at: null,
-    admin_resolve_note: null,
-    created_at: '2026-03-28T11:00:00Z',
-    updated_at: '2026-03-29T08:00:00Z',
+    severityTier: SeverityTier.SEVERITY_MEDIUM,
+    hotScore: 52.3,
+    verificationCount: 9,
+    primaryImageUrl: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400',
+    wasteTypeNames: ['Giay', 'Vo chai'],
+    createdAt: '2026-04-03T09:20:00Z',
   },
 ];
+
+export const MOCK_TRASH_SPOT_DETAILS: TrashSpotReport = {
+  id: 'trash-001',
+  reporterId: 'usr-001',
+  reporterDisplayName: 'Mock User',
+  name: 'Đống rác lớn dưới chân cầu Thủ Thiêm',
+  description: 'Khu vực này có khá nhiều rác chưa được dọn, mong mọi người ghé hỗ trợ',
+  latitude: 10.7755,
+  longitude: 106.6992,
+  province: 'TP.HCM',
+  status: 'PENDING_VERIFY',
+  verificationCount: 4,
+  hotScore: 87.5,
+  severityTier: SeverityTier.SEVERITY_HIGH,
+  assignedNgoId: null,
+  assignedNgoDisplayName: null,
+  claimedAt: null,
+  resolvedAt: null,
+  imageUrls: [
+    'https://images.unsplash.com/photo-1604187351574-c75ca79f5807?w=400',
+    'https://www.ecobaent.vn/files/2020/02/19/anh-huong-cua-rac-thai-den-nguon-nuoc-1.jpg',
+  ],
+  wasteTypeIds: [],
+  wasteTypeNames: ['Nhua', 'Tui nilon', 'Hop xop'],
+  verifications: [
+    {
+      id: 'verify-trash-001',
+      verifierId: 'usr-002',
+      verifierDisplayName: 'Verifier Mock',
+      note: 'Da xac minh thong tin.',
+      createdAt: '2026-03-28T11:00:00Z',
+    },
+  ],
+  resolveRequests: [
+    {
+      id: 'resolve-trash-001',
+      trashSpotId: 'trash-001',
+      ngoId: 'ngo-001',
+      ngoDisplayName: 'Green Future Vietnam',
+      description: 'De xuat don dep khu vuc nay.',
+      cleanedAt: '2026-03-28T11:00:00Z',
+      status: 'PENDING_ADMIN_REVIEW',
+      rejectReason: null,
+      reviewedBy: null,
+      reviewedAt: null,
+      imageUrls: ['https://images.unsplash.com/photo-1604187351574-c75ca79f5807?w=400'],
+      createdAt: '2026-03-28T11:00:00Z',
+    },
+  ],
+  createdAt: '2026-03-28T11:00:00Z',
+  lastModifiedAt: '2026-03-28T11:00:00Z',
+};

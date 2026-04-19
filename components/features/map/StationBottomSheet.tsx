@@ -1,8 +1,10 @@
-import { Alert, Linking, Platform, View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
+import { openDirections } from '@/utils/directions.util';
+import { useReverseGeocode } from '@/hooks/useReverseGeocode.hook';
 import type { RecyclingStation } from '@/types/community.types';
 import { NEUTRAL_COLORS } from 'constants/color.constant';
 
@@ -13,6 +15,11 @@ type Props = {
 
 export function StationBottomSheet({ station, onClose }: Props) {
   const { t } = useTranslation();
+  const { address: resolvedAddress, isLoading: isResolvingAddress } = useReverseGeocode({
+    latitude: station.latitude,
+    longitude: station.longitude,
+    fallbackAddress: station.address,
+  });
 
   const today = new Date()
     .toLocaleDateString('en-US', { weekday: 'short' })
@@ -25,19 +32,8 @@ export function StationBottomSheet({ station, onClose }: Props) {
   const todayLabel = t(`map.days.${todayKey}`);
 
   const handleOpenDirections = async () => {
-    const { latitude, longitude } = station;
-    const googleAppUrl = `comgooglemaps://?daddr=${latitude},${longitude}&directionsmode=driving`;
-    const googleWebUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-    const appleMapsUrl = `http://maps.apple.com/?daddr=${latitude},${longitude}`;
-
     try {
-      if (Platform.OS === 'ios') {
-        const canOpenGoogleApp = await Linking.canOpenURL(googleAppUrl);
-        await Linking.openURL(canOpenGoogleApp ? googleAppUrl : appleMapsUrl);
-        return;
-      }
-
-      await Linking.openURL(googleWebUrl);
+      await openDirections({ latitude: station.latitude, longitude: station.longitude });
     } catch {
       Alert.alert(
         t('common.error', 'Loi'),
@@ -62,7 +58,9 @@ export function StationBottomSheet({ station, onClose }: Props) {
       {/* Address */}
       <View className="mt-2 flex-row items-start">
         <Feather name="map-pin" size={14} color={NEUTRAL_COLORS[400]} style={{ marginTop: 2 }} />
-        <Text className="text-foreground/60 ml-2 flex-1 font-inter text-sm">{station.address}</Text>
+        <Text className="text-foreground/60 ml-2 flex-1 font-inter text-sm">
+          {isResolvingAddress ? t('common.processing', 'Đang xử lý...') : resolvedAddress}
+        </Text>
       </View>
 
       {/* Today hours */}
