@@ -415,12 +415,14 @@ export const trashService = {
     //   await mockDelay(500);
     //   return MOCK_TRASH_SPOTS;
     // }
+    const requestParams = {
+      province: params?.province,
+      status: params?.status,
+      wasteTypeId: params?.wasteTypeId,
+      severityTier: params?.severityTier,
+    };
     const { data } = await apiClient.get<TrashSpotListItem[]>('/trash-spots', {
-      params: {
-        province: params?.province,
-        status: params?.status,
-        severityTier: params?.severityTier,
-      },
+      params: requestParams,
     });
     return data;
   },
@@ -466,6 +468,16 @@ export const trashService = {
         note: payload.note,
       }
     );
+    return data;
+  },
+
+  async reportTrashSpot(
+    id: string,
+    payload: CreateTrashSpotVerificationRequest
+  ): Promise<TrashSpotReport> {
+    const { data } = await apiClient.post<TrashSpotReport>(`/trash-spots/${id}/reports`, {
+      note: payload.note,
+    });
     return data;
   },
 };

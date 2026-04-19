@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import * as Location from 'expo-location';
+import { reverseGeocodeWithCache } from '@/utils/reverseGeocode.util';
 
 type Params = {
   latitude?: number | null;
@@ -34,7 +34,7 @@ export function useReverseGeocode({
       setIsLoading(true);
 
       try {
-        const geocoded = await Location.reverseGeocodeAsync({ latitude, longitude });
+        const geocoded = await reverseGeocodeWithCache({ latitude, longitude });
         const first = geocoded[0];
 
         const parts = [

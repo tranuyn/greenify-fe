@@ -72,12 +72,13 @@ export const useVoucherBySeed = (seedId?: string) => {
 export const useLeaderboard = (
   scope: LeaderboardScope,
   weekStartDate: string,
-  province?: string
+  province?: string,
+  enabled = true
 ) => {
   return useQuery({
     queryKey: QUERY_KEYS.leaderboard.scope(scope, weekStartDate, province),
     queryFn: () => leaderboardService.getLeaderboard(scope, weekStartDate, province),
-    enabled: Boolean(weekStartDate),
+    enabled: Boolean(weekStartDate) && enabled,
     // Leaderboard update theo tuần
     staleTime: 5 * 60 * 1000,
   });

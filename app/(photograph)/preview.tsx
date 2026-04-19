@@ -70,16 +70,16 @@ export default function PreviewScreen() {
         longitude = position.coords.longitude;
       }
 
-      const uploadedMedia = await uploadFile({
+      const uploadedMediaResult = await uploadFile({
         uri: imageUri,
       });
 
       await createPost({
         action_type_id: selectedActionTypeId,
         caption: description.trim(),
-        media_url: uploadedMedia.imageUrl,
-        media_bucket: uploadedMedia.bucketName,
-        media_key: uploadedMedia.objectKey,
+        media_url: uploadedMediaResult.imageUrl,
+        media_bucket: uploadedMediaResult.bucketName ?? '',
+        media_key: uploadedMediaResult.objectKey ?? '',
         latitude,
         longitude,
         action_date: new Date().toISOString().slice(0, 10),

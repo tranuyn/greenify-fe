@@ -232,13 +232,14 @@ export const actionService = {
   },
   async createPost(payload: CreatePostRequest): Promise<GreenActionPostDetailDto> {
     // 1. ADAPTER: CHUYỂN ĐỔI BODY TỪ UI -> BE
+    console.log('Creating post with payload:', payload);
     const apiPayload: CreatePostApiRequest = {
       actionTypeId: payload.action_type_id,
       caption: payload.caption,
       // Map thành object media theo ý BE
       media: {
-        bucketName: payload.media_bucket || 'default-bucket',
-        objectKey: payload.media_key || 'default-key',
+        bucketName: payload.media_bucket ?? '',
+        objectKey: payload.media_key ?? '',
         imageUrl: payload.media_url,
       },
       latitude: payload.latitude,
@@ -359,6 +360,28 @@ export const actionService = {
     const { data } = await apiClient.post<ReviewPostResponse>(
       `/review/posts/${postId}/reviews`,
       payload
+    );
+    return data;
+  },
+
+  async getPostHistory(params?: PaginationParams): Promise<PageResponse<GreenActionPostDetailDto>> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   const historyPosts = MOCK_POSTS.filter((p) => p.authorDisplayName === 'Nhã Uyên');
+    //   return mockSuccess({
+    //     content: historyPosts,
+    //     totalElements: historyPosts.length,
+    //     page: params?.page ?? 1,
+    //     size: params?.size ?? 10,
+    //     has_next: false,
+    //     totalPages: Math.ceil(historyPosts.length / (params?.size ?? 10)),
+    //   });
+    // }
+    const { data } = await apiClient.get<PageResponse<GreenActionPostDetailDto>>(
+      '/green-action/posts/me/history',
+      {
+        params,
+      }
     );
     return data;
   },

@@ -60,6 +60,7 @@ const generateMonth = (
 
 export default function ScheduleScreen() {
   const { data: dailyLogs = [] } = usePlantDailyLogs();
+  console.log('Daily Logs:', dailyLogs);
   const { data: userProfile } = useCurrentUser();
 
   const [monthCount, setMonthCount] = useState<number>(2);

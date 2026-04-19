@@ -282,6 +282,17 @@ export interface TrashSpotVerification {
   createdAt: string;
 }
 
+export interface TrashSpotReport {
+  id: string;
+  reporterId: string;
+  reporterDisplayName: string;
+  reporterAvatarUrl: string;
+  note: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  trashSpot: TrashSpotListItem;
+}
+
 export interface CreateTrashSpotVerificationRequest {
   note: string;
 }

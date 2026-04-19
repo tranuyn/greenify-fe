@@ -228,6 +228,8 @@
     "retry": "Try again",
     "empty": "No ranking data yet.",
     "anonymous": "Anonymous",
+    "select_province": "Please select a province",
+    "province_picker_label": "Province / City",
     "scope": {
       "provincial": "Regional",
       "national": "National"
@@ -310,7 +312,8 @@
       "verify_note_label": "Verification note",
       "verify_note_placeholder": "Enter verification note",
       "verify_success": "Trash spot verified successfully.",
-      "verify_error": "Unable to verify the trash spot. Please try again."
+      "verify_error": "Unable to verify the trash spot. Please try again.",
+      "report_error": "Unable to report the trash spot. Please try again."
     }
   },
   "auth": {

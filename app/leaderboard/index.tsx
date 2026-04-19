@@ -23,6 +23,7 @@ import RankItem from './components/RankItem';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import RewardDetail from './components/LeaderboardReward';
+import ProvincePicker from '@/components/ui/ProvincePicker';
 import { useTranslation } from 'react-i18next';
 
 const getWeekStartDate = () => {
@@ -40,8 +41,16 @@ const getWeekStartDate = () => {
 const LeaderboardScreen = () => {
   const { t } = useTranslation();
   const [scope, setScope] = React.useState<LeaderboardScope>(LeaderboardScope.NATIONAL);
+  const [selectedProvince, setSelectedProvince] = React.useState('');
   const [showLeaderboardReward, setShowLeaderboardReward] = React.useState(false);
   const weekStartDate = React.useMemo(() => getWeekStartDate(), []);
+
+  React.useEffect(() => {
+    setSelectedProvince('');
+  }, [scope]);
+
+  const provinceQuery = scope === LeaderboardScope.PROVINCIAL ? selectedProvince : undefined;
+  const shouldPickProvince = scope === LeaderboardScope.PROVINCIAL && !selectedProvince;
 
   const {
     data: leaderboardData,
@@ -49,7 +58,7 @@ const LeaderboardScreen = () => {
     isFetching,
     isError,
     refetch,
-  } = useLeaderboard(scope, weekStartDate);
+  } = useLeaderboard(scope, weekStartDate, provinceQuery, !shouldPickProvince);
   const {
     data: weeklyPrizes,
     isLoading: isLoadingWeeklyPrizes,
@@ -130,12 +139,19 @@ const LeaderboardScreen = () => {
           <TimeFilter />
 
           {/* Cụm Top 3 */}
-          <Podium topThree={topThree} />
+          {!shouldPickProvince ? <Podium topThree={topThree} /> : null}
         </View>
       </ImageBackground>
 
       {/* Nửa dưới: Danh sách User */}
-      <View className="-mt-24 flex-1 rounded-t-[32px] bg-background px-5 pt-6 shadow-lg">
+      <View className="-mt-24 flex-1 rounded-t-[32px] bg-background px-5 pt-3 shadow-lg">
+        {scope === LeaderboardScope.PROVINCIAL ? (
+          <ProvincePicker
+            label={t('leaderboard.province_picker_label')}
+            value={selectedProvince}
+            onChange={setSelectedProvince}
+          />
+        ) : null}
         {showLeaderboardReward ? (
           <RewardDetail
             data={rewardVoucher}
@@ -149,7 +165,11 @@ const LeaderboardScreen = () => {
           />
         ) : (
           <>
-            {isLoading ? (
+            {shouldPickProvince ? (
+              <View className="flex-1 items-center justify-center gap-2">
+                <Text className="text-sm text-gray-500">{t('leaderboard.select_province')}</Text>
+              </View>
+            ) : isLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="small" color="#359B63" />
               </View>

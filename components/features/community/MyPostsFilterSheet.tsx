@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { SortOption } from '@/constants/enums/sortOptions.enum';
 import type { MyPostsFilterState } from '@/components/features/community/CommunityFilterSheet';
-import type { PostStatus } from '@/types/action.types';
+import { POST_STATUS, type PostStatus } from '@/types/action.types';
 
 interface Props {
   initialFilters: MyPostsFilterState;
@@ -40,21 +40,21 @@ const FilterChip = ({
 
 const STATUS_OPTIONS: Array<{ value: PostStatus | 'all'; labelKey: string; fallback: string }> = [
   { value: 'all', labelKey: 'common.all', fallback: 'Tất cả' },
-  { value: 'DRAFT', labelKey: 'community.post_status.draft', fallback: 'Nháp' },
+  { value: POST_STATUS.DRAFT, labelKey: 'community.post_status.draft', fallback: 'Nháp' },
   {
-    value: 'PENDING_REVIEW',
+    value: POST_STATUS.PENDING_REVIEW,
     labelKey: 'community.post_status.pending_review',
     fallback: 'Chờ duyệt',
   },
   {
-    value: 'PARTIALLY_APPROVED',
+    value: POST_STATUS.PARTIALLY_APPROVED,
     labelKey: 'community.post_status.partially_approved',
     fallback: 'Duyệt một phần',
   },
-  { value: 'VERIFIED', labelKey: 'community.post_status.verified', fallback: 'Đã duyệt' },
-  { value: 'REJECTED', labelKey: 'community.post_status.rejected', fallback: 'Từ chối' },
-  { value: 'FLAGGED', labelKey: 'community.post_status.flagged', fallback: 'Gắn cờ' },
-  { value: 'REVOKED', labelKey: 'community.post_status.revoked', fallback: 'Thu hồi' },
+  { value: POST_STATUS.VERIFIED, labelKey: 'community.post_status.verified', fallback: 'Đã duyệt' },
+  { value: POST_STATUS.REJECTED, labelKey: 'community.post_status.rejected', fallback: 'Từ chối' },
+  { value: POST_STATUS.FLAGGED, labelKey: 'community.post_status.flagged', fallback: 'Gắn cờ' },
+  { value: POST_STATUS.REVOKED, labelKey: 'community.post_status.revoked', fallback: 'Thu hồi' },
 ];
 
 const PRESET_RANGE_DAYS = 7;

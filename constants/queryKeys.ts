@@ -35,6 +35,7 @@ export const QUERY_KEYS = {
     detail: (postId: string) => ['posts', postId] as const,
     reviews: (postId: string) => ['posts', postId, 'reviews'] as const,
     pendingReview: (params?: object) => ['posts', 'pending-review', params] as const,
+    history: (params?: object) => ['posts', 'history', params] as const,
   },
 
   // Action types (master data — stale lâu hơn)

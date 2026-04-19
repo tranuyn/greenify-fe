@@ -7,7 +7,7 @@ export const locationService = {
     //   await mockDelay(300);
     //   return mockSuccess(MOCK_PROVINCES);
     // }
-    const { data } = await apiClient.get<Province[]>('/api/v1/divisions/provinces');
+    const { data } = await apiClient.get<Province[]>('/divisions/provinces');
     return data;
   },
 
@@ -17,9 +17,7 @@ export const locationService = {
     //   const filtered = MOCK_WARDS.filter((w) => w.province_code === provinceCode);
     //   return mockSuccess(filtered);
     // }
-    const { data } = await apiClient.get<Ward[]>(
-      `/api/v1/divisions/provinces/${provinceCode}/wards`
-    );
+    const { data } = await apiClient.get<Ward[]>(`/divisions/provinces/${provinceCode}/wards`);
     return data;
   },
 };

@@ -94,6 +94,7 @@ export const gamificationService = {
     const { data } = await apiClient.get<PlantDailyLog[]>('/garden/plant/daily-logs', {
       params,
     });
+    console.log('API Plant Daily Logs:', data);
     return data;
   },
 

@@ -8,7 +8,7 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: (payload: CreatePostRequest) => actionService.createPost(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });  
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
     },

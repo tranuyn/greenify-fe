@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { PaginationParams } from 'types/common.types';
 import { actionService } from 'services/action.service';
@@ -48,5 +48,28 @@ export const usePendingReviewPosts = (params?: PaginationParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.pendingReview(params),
     queryFn: () => actionService.getPendingReviewPosts(params),
+  });
+};
+
+export const usePostHistory = (params?: PaginationParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.posts.history(params),
+    queryFn: () => actionService.getPostHistory(params),
+  });
+};
+
+export const usePostHistoryInfinite = (size = 10) => {
+  return useInfiniteQuery({
+    queryKey: QUERY_KEYS.posts.history({ size }),
+    queryFn: ({ pageParam = 0 }) =>
+      actionService.getPostHistory({
+        page: pageParam,
+        size,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.page + 1;
+      return nextPage < lastPage.totalPages ? nextPage : undefined;
+    },
   });
 };

@@ -8,14 +8,17 @@ import { SortOption } from '@/constants/enums/sortOptions.enum';
 import { BaseQueryParams, PaginationParams } from './common.types';
 import { MediaDto } from './media.types';
 
-export type PostStatus =
-  | 'DRAFT'
-  | 'PENDING_REVIEW'
-  | 'PARTIALLY_APPROVED'
-  | 'VERIFIED'
-  | 'REJECTED'
-  | 'FLAGGED'
-  | 'REVOKED';
+export const POST_STATUS = {
+  DRAFT: 'DRAFT',
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  PARTIALLY_APPROVED: 'PARTIALLY_APPROVED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
+  FLAGGED: 'FLAGGED',
+  REVOKED: 'REVOKED',
+} as const;
+
+export type PostStatus = (typeof POST_STATUS)[keyof typeof POST_STATUS];
 
 export type ReviewDecision = 'APPROVE' | 'REJECT' | 'REPORT_SUSPICIOUS';
 
