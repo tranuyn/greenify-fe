@@ -33,9 +33,10 @@ export const useMyRegistrations = () => {
   });
 };
 
-export const useNgoEvents = (params?: PaginationParams) => {
+export const useNgoEvents = (ngoId: string, params?: PaginationParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.ngoList(params),
-    queryFn: () => eventService.getNgoEvents(params),
+    queryFn: () => eventService.getNgoEvents(ngoId, params),
+    enabled: !!ngoId, // Chỉ chạy khi có ngoId
   });
 };

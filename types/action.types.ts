@@ -156,7 +156,7 @@ export interface PostReviewDto {
   reviewerDisplayName: string;
   decision: ReviewDecision;
   createdAt: string;
-  rejectReasonNote?: string | null;
+  rejectReason?: string | null;
 }
 
 export interface GreenActionPostDetailDto {

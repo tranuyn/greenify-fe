@@ -4,8 +4,9 @@
 // ============================================================
 
 import { SortOption } from '@/constants/enums/sortOptions.enum';
-import { BaseQueryParams, SortParams } from './common.types';
+import { BaseQueryParams, PaginationParams, SortParams } from './common.types';
 import { MediaDto } from './media.types';
+import { UserProfile } from './user.type';
 
 export type EventStatus =
   | 'DRAFT'
@@ -44,6 +45,11 @@ export interface EventAddress {
 export interface EventImage extends MediaDto {
   id?: string;
 }
+export interface EventOrganizer {
+  id: string;
+  name: string;
+  avatar: MediaDto | null;
+}
 export interface Event {
   id: string;
   title: string;
@@ -64,39 +70,33 @@ export interface Event {
   address: EventAddress;
   thumbnail: EventImage;
   images: EventImage[];
+  participationConditions: string;
+  participantCount: number;
+  organizer: EventOrganizer;
   createdAt: string;
   lastModifiedAt: string;
-  // UI Helpers (Joined from other tables)
-  registeredCount?: number;
-  ngoName?: string;
 }
-export interface EventQueryParams extends BaseQueryParams, SortParams<SortOption> {
+export interface EventQueryParams extends PaginationParams {
   title?: string;
-  eventType?: EventType | 'all';
-  status?: EventStatus | 'all';
-}
-export interface EventApiRequestParams extends Omit<
-  EventQueryParams,
-  'eventType' | 'status' | 'sort'
-> {
-  eventType?: string;
-  status?: string;
+  eventType?: EventType;
+  statuses?: EventStatus[];
+  from?: string;
+  to?: string;
+  organizerId?: string;
   sort?: string[];
 }
 
 export interface EventRegistration {
   id: string;
-  event_id: string;
-  user_id: string;
-  qr_token: string;
+  eventId: string;
+  eventTitle?: string;
+  userId: string;
+  username?: string;
   status: RegistrationStatus;
-  checked_in_at: string | null;
-  checked_out_at: string | null;
-  attended_valid: boolean;
-  reward_status: RegistrationRewardStatus;
-  created_at: string;
-  // Joined
-  event?: Event;
+  note?: string;
+  registrationCode?: string;
+  userProfile?: UserProfile;
+  createdAt: string;
 }
 
 export interface EventPrediction {
@@ -127,13 +127,20 @@ export interface CreateEventRequest {
   reminderHoursBefore: number;
   thankYouHoursAfter: number;
   rewardPoints: number;
-  status: EventStatus; // Thường là 'DRAFT' hoặc 'APPROVAL_WAITING'
+  status: EventStatus;
   thumbnail: MediaDto;
   images: MediaDto[];
   address: Omit<EventAddress, 'id'>;
+  participationConditions: string;
 }
 
 export type UpdateEventRequest = CreateEventRequest;
+
+export interface ParticipatedEventQueryParams extends PaginationParams {
+  title?: string;
+  status?: RegistrationStatus | 'all'; 
+  address?: string;
+}
 
 export interface RejectEventRequest {
   reason: string;

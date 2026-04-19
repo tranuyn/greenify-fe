@@ -27,7 +27,7 @@ function formatTime(iso: string) {
 }
 
 function isFull(item: Event) {
-  return (item.registeredCount ?? 0) >= item.maxParticipants;
+  return (item.participantCount ?? 0) >= item.maxParticipants;
 }
 
 export function EventListCard({
@@ -76,10 +76,10 @@ export function EventListCard({
         <View className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
 
         {/* NGO badge — top left */}
-        {item.ngoName && (
+        {item.organizer?.name && (
           <View className="absolute left-3 top-3 flex-row items-center rounded-full bg-black/50 px-2.5 py-1">
             <Feather name="shield" size={10} color="white" />
-            <Text className="ml-1 font-inter-medium text-[10px] text-white">{item.ngoName}</Text>
+            <Text className="ml-1 font-inter-medium text-[10px] text-white">{item.organizer.name}</Text>
           </View>
         )}
 
@@ -135,7 +135,7 @@ export function EventListCard({
           <View className="mr-2 flex-1 flex-row items-center">
             <Feather name="users" size={13} color={colors.neutral400} />
             <Text className="text-foreground/50 ml-1.5 flex-shrink font-inter text-xs" numberOfLines={1}>
-              {item.registeredCount ?? 0}/{item.maxParticipants} {t('events.card.people', 'người')}
+              {item.participantCount ?? 0}/{item.maxParticipants} {t('events.card.people', 'người')}
             </Text>
             {/* Full warning */}
             {full && !isRegistered && (
