@@ -41,7 +41,7 @@ export default function ScanQrScreen() {
           setScanState('success');
           setResultMessage(
             t('events.scan_qr.result_success', {
-              name: res.data.user_name,
+              name: res.username || 'User',
             }),
           );
           // Reset sau 2.5s để scan tiếp

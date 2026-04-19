@@ -17,9 +17,10 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { useEventDetail, useMyRegistrations } from '@/hooks/queries/useEvents';
-import { useRegisterEvent } from '@/hooks/mutations/useEvents';
+import { useRegisterEvent, useCancelRegistration } from '@/hooks/mutations/useEvents';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { Event, REGISTRATION_STATUS } from '@/types/community.types';
+import { Event } from '@/types/community.types';
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -39,27 +40,26 @@ export default function EventDetailScreen() {
   const [showQR, setShowQR] = useState(false);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
 
+  const { data: user } = useCurrentUser();
   const { data: event, isLoading } = useEventDetail(id);
-  const { data: registrations = { content: [] } } = useMyRegistrations();
+  const { data: registrationsResponse } = useMyRegistrations(user?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
+  const { mutate: cancelRegistration } = useCancelRegistration(id);
 
-  const myRegistration = registrations.content?.find(
-    (registration: Event) =>
-      registration.id === id && registration.status !== REGISTRATION_STATUS.CANCELLED
-  );
+  const myRegistrationEvent = registrationsResponse?.content?.find((e: Event) => e.id === id);
 
-  const isRegistered = !!myRegistration;
-  const canShowQR =
-    myRegistration?.status === REGISTRATION_STATUS.REGISTERED ||
-    myRegistration?.status === REGISTRATION_STATUS.CHECKED_IN;
+  const isRegistered = !!myRegistrationEvent;
+  const canShowQR = isRegistered;
 
   const isFull = (event?.participantCount ?? 0) >= (event?.maxParticipants ?? 0);
 
   const handleRegister = useCallback(() => {
     if (!event) return;
     setRegisteringId(event.id);
-    registerEvent(event.id, {
-      onSuccess: () => setRegisteringId(null),
+    registerEvent(
+      { eventId: event.id },
+      {
+        onSuccess: () => setRegisteringId(null),
       onError: (err: any) => {
         setRegisteringId(null);
         Alert.alert(
@@ -257,24 +257,15 @@ export default function EventDetailScreen() {
 
             {/* QR Code */}
             <View className="mb-6 items-center justify-center rounded-3xl bg-white p-6 shadow-md shadow-black/50">
-              {myRegistration?.qr_token ? (
-                <QRCode
-                  value={myRegistration.qr_token}
-                  size={200}
-                  color={colors.primary500}
-                  backgroundColor="white"
-                />
-              ) : (
-                <View className="h-[200px] w-[200px] items-center justify-center">
-                  <Text className="text-foreground/50 text-sm">{t('events.detail.qr.empty')}</Text>
-                </View>
-              )}
+              <View className="h-[200px] w-[200px] items-center justify-center">
+                <Text className="text-foreground/50 text-sm">Quét mã QR tại sự kiện</Text>
+              </View>
             </View>
 
             {/* Registration code */}
             <Text className="mb-6 text-center font-inter-bold text-lg text-foreground">
-              {myRegistration?.id
-                ? `Cái mã gì đó#${myRegistration.id.slice(0, 6).toUpperCase()}`
+              {myRegistrationEvent?.id
+                ? `Mã: ${myRegistrationEvent.id.slice(0, 6).toUpperCase()}`
                 : ''}
             </Text>
 

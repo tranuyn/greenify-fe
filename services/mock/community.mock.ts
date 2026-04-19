@@ -42,7 +42,8 @@ export const MOCK_EVENTS: Event[] = [
     createdAt: '2026-03-20T10:00:00Z',
     lastModifiedAt: '2026-03-20T10:00:00Z',
     participantCount: 32,
-    ngoName: 'Green Future Vietnam', 
+    participationConditions: 'Mang bao tay và tinh thần xanh nhé!',
+    organizer: { id: 'ngo-01', name: 'Green Future Vietnam', avatar: null },
   },
   {
     id: 'evt-002',
@@ -74,7 +75,8 @@ export const MOCK_EVENTS: Event[] = [
     createdAt: '2026-03-22T08:00:00Z',
     lastModifiedAt: '2026-03-22T08:00:00Z',
     participantCount: 18,
-    ngoName: 'Green Future Vietnam',
+    participationConditions: 'Đem theo rác hữu cơ nếu có.',
+    organizer: { id: 'ngo-01', name: 'Green Future Vietnam', avatar: null },
   },
   {
     id: 'evt-003',
@@ -106,23 +108,18 @@ export const MOCK_EVENTS: Event[] = [
     createdAt: '2026-03-25T09:00:00Z',
     lastModifiedAt: '2026-03-25T09:00:00Z',
     participantCount: 67,
-    ngoName: 'Green Future Vietnam',
+    participationConditions: 'Nhiệt tình.',
+    organizer: { id: 'ngo-01', name: 'Green Future Vietnam', avatar: null },
   },
 ];
 
 export const MOCK_MY_REGISTRATIONS: EventRegistration[] = [
   {
     id: 'reg-001',
-    event_id: 'evt-001',
-    user_id: 'usr-001',
-    qr_token: 'QR_TOKEN_EVT001_USR001_REG001',
+    eventId: 'evt-001',
+    userId: 'usr-001',
     status: 'REGISTERED',
-    checked_in_at: null,
-    checked_out_at: null,
-    attended_valid: false,
-    reward_status: 'PENDING_REWARD',
-    created_at: '2026-03-28T15:00:00Z',
-    event: MOCK_EVENTS[0],
+    createdAt: '2026-03-28T15:00:00Z',
   },
 ];
 

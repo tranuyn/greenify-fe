@@ -40,8 +40,8 @@ export const QuickActions = ({ navigation }: any) => {
         router.push({
           pathname: '/(auth)/edit-profile',
           params: {
-            role: mapUserRoleToAccountRole(meData?.user?.role),
-            email: meData?.user?.email,
+            role: mapUserRoleToAccountRole(meData?.role?.[0]),
+            email: meData?.email,
           },
         });
         break;

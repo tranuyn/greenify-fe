@@ -41,7 +41,7 @@ export default function EditProfileScreen() {
           email={meData?.email ?? ''}
           initialAvatarUrl={meData?.userProfile?.avatarUrl ?? null}
           initialValues={{
-            displayName: isCitizenProfile ? meData.userProfile.displayName || '' : '',
+            displayName: isCitizenProfile ? meData?.userProfile?.displayName || '' : '',
             province: meData?.userProfile?.province ?? '',
             district: meData?.userProfile?.district ?? '',
             ward: meData?.userProfile?.ward ?? '',

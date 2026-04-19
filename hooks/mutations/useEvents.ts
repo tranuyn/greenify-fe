@@ -1,6 +1,6 @@
 import {
   CreateEventRequest,
-  RejectEventRequest,
+  RegisterEventPayload,
   UpdateEventRequest,
 } from '@/types/community.types';
 import { useMutation } from '@tanstack/react-query';
@@ -10,17 +10,23 @@ import { eventService } from 'services/community.service';
 
 export const useRegisterEvent = () => {
   return useMutation({
-    mutationFn: (eventId: string) => eventService.registerEvent(eventId),
-    onSuccess: (_, eventId) => {
-      // Số người đăng ký thay đổi → invalidate detail của event đó
+    mutationFn: (payload: RegisterEventPayload) => eventService.registerEvent(payload),
+    onSuccess: (_, payload) => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.events.detail(eventId),
+        queryKey: QUERY_KEYS.events.detail(payload.eventId),
       });
-      // Cập nhật danh sách event của mình
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
+    },
+  });
+};
+
+export const useRegisterWaitlistEvent = () => {
+  return useMutation({
+    mutationFn: (payload: RegisterEventPayload) => eventService.registerWaitlistEvent(payload),
+    onSuccess: (_, payload) => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.events.myRegistrations(),
+        queryKey: QUERY_KEYS.events.detail(payload.eventId),
       });
-      // Cập nhật danh sách chung (số người tham gia có thể được hiển thị)
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
     },
   });
@@ -32,7 +38,6 @@ export const useCreateEvent = () => {
       eventService.createEvent(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.ngoList() });
     },
   });
 };
@@ -46,37 +51,6 @@ export const useUpdateEvent = (eventId: string) => {
         queryKey: QUERY_KEYS.events.detail(eventId),
       });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.ngoList() });
-    },
-  });
-};
-
-export const useApproveEvent = () => {
-  return useMutation({
-    mutationFn: (eventId: string) => eventService.approveEvent(eventId),
-    onSuccess: (_, eventId) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.events.detail(eventId),
-      });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
-    },
-  });
-};
-
-export const useRejectEvent = () => {
-  return useMutation({
-    mutationFn: ({
-      eventId,
-      payload,
-    }: {
-      eventId: string;
-      payload: RejectEventRequest;
-    }) => eventService.rejectEvent(eventId, payload),
-    onSuccess: (_, { eventId }) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.events.detail(eventId),
-      });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
     },
   });
 };
@@ -86,20 +60,40 @@ export const useDeleteEvent = () => {
     mutationFn: (eventId: string) => eventService.deleteEvent(eventId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.ngoList() });
     },
   });
 };
 
 export const useCheckInAttendee = (eventId: string) => {
   return useMutation({
-    mutationFn: (qrToken: string) =>
-      eventService.checkInAttendee(eventId, qrToken),
+    mutationFn: (code: string) => eventService.checkInAttendee(code),
     onSuccess: () => {
-      // Check-in thành công có thể thay đổi trạng thái đăng ký của attendee đó
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.events.detail(eventId),
       });
+    },
+  });
+};
+
+export const useCheckOutAttendee = (eventId: string) => {
+  return useMutation({
+    mutationFn: (code: string) => eventService.checkOutAttendee(code),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.events.detail(eventId),
+      });
+    },
+  });
+};
+
+export const useCancelRegistration = (eventId: string) => {
+  return useMutation({
+    mutationFn: (registrationId: string) => eventService.cancelRegistration(registrationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.events.detail(eventId),
+      });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
     },
   });
 };
