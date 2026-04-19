@@ -50,14 +50,14 @@ export const useSeeds = () => {
 export const useAvailableVouchers = (params?: AvailableVouchersQueryParams) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.vouchers.available(), params],
-    queryFn: () => gamificationService.getAvailableVouchers(params).then((r) => r.data),
+    queryFn: () => gamificationService.getAvailableVouchers(params),
   });
 };
 
 export const useMyVouchers = (params?: MyVouchersQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.vouchers.mine(params),
-    queryFn: () => gamificationService.getMyVouchers(params).then((r) => r.data),
+    queryFn: () => gamificationService.getMyVouchers(params),
   });
 };
 

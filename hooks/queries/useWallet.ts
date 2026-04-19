@@ -21,6 +21,6 @@ export const useMyWallet = () => {
 export const usePointLedger = (params?: PointLedgerQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.wallet.ledger(params),
-    queryFn: () => walletService.getMyPointHistory(params).then((r) => r.data),
+    queryFn: () => walletService.getMyPointHistory(params),
   });
 };

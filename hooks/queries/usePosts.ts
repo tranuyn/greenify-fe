@@ -7,7 +7,7 @@ import { FeedQueryParams, MyPostsQueryParams } from '@/types/action.types';
 export const useFeedPosts = (params?: FeedQueryParams, enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.feed(params),
-    queryFn: () => actionService.getFeedPosts(params).then((r) => r.data),
+    queryFn: () => actionService.getFeedPosts(params),
     enabled,
   });
 };
@@ -15,7 +15,7 @@ export const useFeedPosts = (params?: FeedQueryParams, enabled = true) => {
 export const useMyPosts = (params?: MyPostsQueryParams, enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.mine(params),
-    queryFn: () => actionService.getMyPosts(params).then((r) => r.data),
+    queryFn: () => actionService.getMyPosts(params),
     enabled,
   });
 };
@@ -31,7 +31,7 @@ export const useActionTypes = () => {
 export const usePostDetail = (postId: string) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.detail(postId),
-    queryFn: () => actionService.getPostById(postId).then((r) => r.data),
+    queryFn: () => actionService.getPostById(postId),
     enabled: !!postId,
   });
 };
@@ -47,6 +47,6 @@ export const usePostDetail = (postId: string) => {
 export const usePendingReviewPosts = (params?: PaginationParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.pendingReview(params),
-    queryFn: () => actionService.getPendingReviewPosts(params).then((r) => r.data),
+    queryFn: () => actionService.getPendingReviewPosts(params),
   });
 };

@@ -14,8 +14,8 @@ import { Text } from '@/components/ui/Text';
 import type { TrashSpotListItem } from '@/types/community.types';
 import { SeverityTier } from '@/types/community.types';
 import { useTranslation } from 'react-i18next';
-import { MapViewTrashSpot } from './components/MapViewTrashSpot';
-import { TrashSpotBottomSheet } from './components/TrashSpotBottomSheet';
+import MapViewTrashSpot from './components/MapViewTrashSpot';
+import TrashSpotBottomSheet from './components/TrashSpotBottomSheet';
 export default function MapScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();

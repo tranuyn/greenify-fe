@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ---- Constants ----
-const BASE_URL = 'http://192.168.1.3:8080/api/v1';
+const BASE_URL = 'https://greenify.io.vn/api/v1';
 const ACCESS_TOKEN_KEY = 'auth.access_token';
 const REFRESH_TOKEN_KEY = 'auth.refresh_token';
 
@@ -33,6 +33,18 @@ export const publicApiClient = axios.create({
     Accept: 'application/json',
   },
 });
+
+const logApiError = (clientName: 'apiClient' | 'publicApiClient', error: AxiosError) => {
+  const method = error.config?.method?.toUpperCase() ?? 'UNKNOWN';
+  const url = error.config?.url ?? 'UNKNOWN_URL';
+  const status = error.response?.status ?? 'NO_STATUS';
+  const responseData = error.response?.data;
+
+  console.error(
+    `[${clientName}] ${method} ${url} failed with status ${status}`,
+    responseData ?? error.message
+  );
+};
 
 // ---- Request interceptor: attach Bearer token ----
 apiClient.interceptors.request.use(
@@ -78,6 +90,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry ||
       originalRequest.url?.includes('/auth/refresh')
     ) {
+      logApiError('apiClient', error);
       return Promise.reject(error);
     }
 
@@ -109,6 +122,11 @@ apiClient.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       return apiClient(originalRequest);
     } catch (refreshError) {
+      if (axios.isAxiosError(refreshError)) {
+        logApiError('apiClient', refreshError);
+      } else {
+        console.error('[apiClient] Refresh token failed', refreshError);
+      }
       processQueue(refreshError, null);
       // Clear tokens → user sẽ bị redirect về login (handle ở auth store)
       await tokenStorage.clear();
@@ -116,5 +134,13 @@ apiClient.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
+  }
+);
+
+publicApiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    logApiError('publicApiClient', error);
+    return Promise.reject(error);
   }
 );

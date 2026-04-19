@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/Button';
 import { useEventDetail, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useRegisterEvent } from '@/hooks/mutations/useEvents';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { REGISTRATION_STATUS } from '@/types/community.types';
+import { Event, REGISTRATION_STATUS } from '@/types/community.types';
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -40,13 +40,12 @@ export default function EventDetailScreen() {
   const [registeringId, setRegisteringId] = useState<string | null>(null);
 
   const { data: event, isLoading } = useEventDetail(id);
-  const { data: registrations = [] } = useMyRegistrations();
+  const { data: registrations = { content: [] } } = useMyRegistrations();
   const { mutate: registerEvent } = useRegisterEvent();
 
-  const myRegistration = registrations.find(
-    (registration) =>
-      registration.event_id === id &&
-      registration.status !== REGISTRATION_STATUS.CANCELLED
+  const myRegistration = registrations.content?.find(
+    (registration: Event) =>
+      registration.id === id && registration.status !== REGISTRATION_STATUS.CANCELLED
   );
 
   const isRegistered = !!myRegistration;
@@ -72,21 +71,17 @@ export default function EventDetailScreen() {
   }, [event, registerEvent, t]);
 
   const handleCancelConfirm = useCallback(() => {
-    Alert.alert(
-      t('events.detail.alert.cancel_title'),
-      t('events.detail.alert.cancel_message'),
-      [
-        { text: t('events.detail.alert.keep_registration'), style: 'cancel' },
-        {
-          text: t('events.detail.alert.confirm_cancel_registration'),
-          style: 'destructive',
-          onPress: () => {
-            // TODO: gọi cancelRegistration mutation khi BE có endpoint
-            Alert.alert(t('events.detail.alert.cancel_success'));
-          },
+    Alert.alert(t('events.detail.alert.cancel_title'), t('events.detail.alert.cancel_message'), [
+      { text: t('events.detail.alert.keep_registration'), style: 'cancel' },
+      {
+        text: t('events.detail.alert.confirm_cancel_registration'),
+        style: 'destructive',
+        onPress: () => {
+          // TODO: gọi cancelRegistration mutation khi BE có endpoint
+          Alert.alert(t('events.detail.alert.cancel_success'));
         },
-      ]
-    );
+      },
+    ]);
   }, [t]);
 
   if (isLoading || !event) {
@@ -278,7 +273,9 @@ export default function EventDetailScreen() {
 
             {/* Registration code */}
             <Text className="mb-6 text-center font-inter-bold text-lg text-foreground">
-              {myRegistration?.id ? `Cái mã gì đó#${myRegistration.id.slice(0, 6).toUpperCase()}` : ''}
+              {myRegistration?.id
+                ? `Cái mã gì đó#${myRegistration.id.slice(0, 6).toUpperCase()}`
+                : ''}
             </Text>
 
             <TouchableOpacity
