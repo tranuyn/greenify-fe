@@ -7,24 +7,21 @@ import { EventQueryParams } from 'types/community.types';
 export const useEvents = (params?: EventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.list(params),
-    queryFn: () => eventService.getEvents(params).then((r) => r.data),
+    queryFn: () => eventService.getEvents(params),
   });
 };
 
 export const usePublishedEvents = (params?: EventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.list({ ...params, status: 'PUBLISHED' }),
-    queryFn: () =>
-      eventService
-        .getEvents({ ...params, status: 'PUBLISHED' })
-        .then((r) => r.data),
+    queryFn: () => eventService.getEvents({ ...params, status: 'PUBLISHED' }),
   });
 };
 
 export const useEventDetail = (eventId: string) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.detail(eventId),
-    queryFn: () => eventService.getEventById(eventId).then((r) => r.data),
+    queryFn: () => eventService.getEventById(eventId),
     enabled: !!eventId,
   });
 };
@@ -32,13 +29,13 @@ export const useEventDetail = (eventId: string) => {
 export const useMyRegistrations = () => {
   return useQuery({
     queryKey: QUERY_KEYS.events.myRegistrations(),
-    queryFn: () => eventService.getMyRegistrations().then((r) => r.data),
+    queryFn: () => eventService.getMyRegistrations(),
   });
 };
 
 export const useNgoEvents = (params?: PaginationParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.ngoList(params),
-    queryFn: () => eventService.getNgoEvents(params).then((r) => r.data),
+    queryFn: () => eventService.getNgoEvents(params),
   });
 };

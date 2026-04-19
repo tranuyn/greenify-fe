@@ -14,7 +14,7 @@ import type {
   UserRole,
   NgoProfile,
 } from 'types/user.type';
-import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
+import { mockDelay, mockSuccess } from './mock/config';
 import { MOCK_AUTH_RESPONSE, MOCK_AUTHENTICATED_USER, MOCK_USER_PROFILE } from './mock/user.mock';
 import { ApiResponse } from 'types/common.types';
 
@@ -148,16 +148,9 @@ export const authService = {
    * Body: { refreshToken }
    */
   async logout(): Promise<void> {
-    if (!IS_MOCK_MODE) {
-      try {
-        const refreshToken = await tokenStorage.getRefresh();
-        if (refreshToken) {
-          await apiClient.post('/auth/logout', { refreshToken });
-        }
-      } catch {
-        // Ignore logout API errors — vẫn clear local token
-      }
-    }
+    const { data } = await apiClient.post<LoginResponse>('/auth/logout', {
+      refreshToken: await tokenStorage.getRefresh(),
+    });
     await tokenStorage.clear();
   },
 
@@ -205,11 +198,12 @@ export const authService = {
    * Lấy thông tin user hiện tại (dùng khi app khởi động)
    */
   async getMe(): Promise<AuthenticatedUser> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      return MOCK_AUTHENTICATED_USER;
-    }
-    const { data } = await apiClient.get<AuthenticatedUser>('/profile/me');
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   return MOCK_AUTHENTICATED_USER;
+    // }
+    const { data } = await apiClient.get<AuthenticatedUser>('/users/me');
+    console.log('Fetched user data:', data);
     return data;
   },
 };

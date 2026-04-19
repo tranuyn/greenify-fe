@@ -19,7 +19,7 @@ type Props = {
   onSelectStation: (station: TrashSpotListItem) => void;
 };
 
-export function MapViewTrashSpot({ trashSpots, selectedStation, onSelectStation }: Props) {
+const MapViewTrashSpot = ({ trashSpots, selectedStation, onSelectStation }: Props) => {
   const mapRef = useRef<RNMapView>(null);
   const colors = useThemeColor();
 
@@ -59,4 +59,6 @@ export function MapViewTrashSpot({ trashSpots, selectedStation, onSelectStation 
       ))}
     </RNMapView>
   );
-}
+};
+
+export default MapViewTrashSpot;

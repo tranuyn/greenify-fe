@@ -2,6 +2,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, TextInput, View } fro
 import { useEffect, useState } from 'react';
 
 import { Text } from '@/components/ui/Text';
+import { de } from 'zod/v4/locales';
 
 type NoteModalProps = {
   visible: boolean;
@@ -15,7 +16,7 @@ type NoteModalProps = {
   onConfirm: (note: string) => void;
 };
 
-export function NoteModal({
+const NoteModal = ({
   visible,
   title,
   placeholder,
@@ -25,7 +26,7 @@ export function NoteModal({
   isConfirming = false,
   onCancel,
   onConfirm,
-}: NoteModalProps) {
+}: NoteModalProps) => {
   const [note, setNote] = useState(initialValue);
 
   useEffect(() => {
@@ -81,4 +82,6 @@ export function NoteModal({
       </KeyboardAvoidingView>
     </Modal>
   );
-}
+};
+
+export default NoteModal;

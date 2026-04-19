@@ -8,7 +8,7 @@ const LOCATION_STALE_TIME = 30 * 60 * 1000;
 export const useProvinces = () => {
   return useQuery({
     queryKey: QUERY_KEYS.location.provinces(),
-    queryFn: () => locationService.getProvinces().then((r) => r.data),
+    queryFn: () => locationService.getProvinces(),
     staleTime: LOCATION_STALE_TIME,
   });
 };
@@ -16,7 +16,7 @@ export const useProvinces = () => {
 export const useWards = (provinceCode: string) => {
   return useQuery({
     queryKey: QUERY_KEYS.location.wards(provinceCode),
-    queryFn: () => locationService.getWards(provinceCode).then((r) => r.data),
+    queryFn: () => locationService.getWards(provinceCode),
     enabled: !!provinceCode,
     staleTime: LOCATION_STALE_TIME,
   });

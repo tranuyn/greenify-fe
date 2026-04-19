@@ -15,10 +15,16 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger } from 'react-native-reanimated';
 import { queryClient } from '../lib/queryClient';
 import '../global.css';
 import { StatusBar } from 'expo-status-bar';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
+configureReanimatedLogger({
+  strict: false,
+});
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {

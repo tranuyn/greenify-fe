@@ -18,7 +18,7 @@ import { useVerifyTrashSpot } from '@/hooks/mutations/useTrashReports';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { TrashSpotListItem, TrashSpotReport } from '@/types/community.types';
 import { openDirections } from '@/utils/directions.util';
-import { NoteModal } from './NoteModal';
+import NoteModal from './NoteModal';
 
 type Props = {
   station: TrashSpotListItem;
@@ -30,7 +30,7 @@ type Props = {
   onReport?: (spotId: string) => void;
 };
 
-export function TrashSpotBottomSheet({
+const TrashSpotBottomSheet = ({
   station,
   detail,
   resolvedAddress,
@@ -38,7 +38,7 @@ export function TrashSpotBottomSheet({
   isDetailLoading = false,
   onClose,
   onReport,
-}: Props) {
+}: Props) => {
   const colors = useThemeColor();
   const { t } = useTranslation();
   const { width: screenWidth } = useWindowDimensions();
@@ -263,4 +263,6 @@ export function TrashSpotBottomSheet({
       </BottomSheetView>
     </BottomSheet>
   );
-}
+};
+
+export default TrashSpotBottomSheet;

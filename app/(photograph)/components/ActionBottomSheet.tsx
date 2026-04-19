@@ -1,6 +1,10 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import {
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetBackdrop,
+} from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import type { GreenActionType } from '@/types/action.types';
 
@@ -33,7 +37,7 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
         borderRadius: 40,
       }}
       containerStyle={{ zIndex: 1000 }}>
-      <BottomSheetView className=" px-6 pb-5">
+      <BottomSheetScrollView className="px-6 pb-5" showsVerticalScrollIndicator={false}>
         <View className="mt-6">
           <Text className="mb-4 font-inter-bold text-lg text-white">
             {t('photograph.action_sheet.sections.action_tags')}
@@ -48,11 +52,9 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
                     props.onSelectActionType(type.id);
                     bottomSheetModalRef.current?.dismiss();
                   }}
-                  // Chỉnh lại padding và bo góc cho giống một thanh list item
                   className={`mb-3 w-full flex-row items-center justify-between rounded-2xl px-4 py-3 ${
                     isSelected ? 'bg-green-500' : 'bg-neutral-600'
                   }`}>
-                  {/* Bọc text trong 1 view có flex-1 để nó tự co giãn */}
                   <View className="flex-1 pr-2">
                     <Text className="mb-1 font-inter-medium text-base leading-5 text-white">
                       {type.actionName}
@@ -64,7 +66,7 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
             })}
           </View>
         </View>
-      </BottomSheetView>
+      </BottomSheetScrollView>
     </BottomSheetModal>
   );
 });
