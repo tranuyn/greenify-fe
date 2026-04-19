@@ -219,43 +219,101 @@ export type TrashSpotStatus =
   | 'REOPENED'
   | 'FLAGGED';
 
-export type SeverityLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export enum SeverityTier {
+  SEVERITY_LOW = 'SEVERITY_LOW',
+  SEVERITY_MEDIUM = 'SEVERITY_MEDIUM',
+  SEVERITY_HIGH = 'SEVERITY_HIGH',
+}
 
-export type VerificationDecision = 'VERIFY' | 'REPORT_FAKE';
+export interface TrashSpotQueryParams {
+  province?: string;
+  status?: TrashSpotStatus;
+  severityTier?: SeverityTier;
+  wasteTypeId?: string;
+}
 
-export interface TrashSpotReport {
+export interface TrashSpotListItem {
   id: string;
-  reporter_id: string;
+  name: string;
   description: string;
   latitude: number;
   longitude: number;
-  before_media_urls: string[];
-  after_media_urls: string[] | null;
-  severity_level: SeverityLevel;
-  verify_count: number;
-  hot_score: number;
-  assigned_ngo_id: string | null;
+  province: string;
   status: TrashSpotStatus;
-  resolve_note: string | null;
-  resolve_completed_at: string | null;
-  admin_resolve_note: string | null;
-  created_at: string;
-  updated_at: string;
+  severityTier: SeverityTier;
+  hotScore: number;
+  verificationCount: number;
+  primaryImageUrl: string;
+  wasteTypeNames: string[];
+  createdAt: string;
+}
+
+export interface TrashSpotReport {
+  id: string;
+  name: string;
+  reporterId: string;
+  reporterDisplayName: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  province: string;
+  status: TrashSpotStatus;
+  verificationCount: number;
+  hotScore: number;
+  severityTier: SeverityTier;
+  assignedNgoId: string | null;
+  assignedNgoDisplayName: string | null;
+  claimedAt: string | null;
+  resolvedAt: string | null;
+  imageUrls: string[];
+  wasteTypeIds: string[];
+  wasteTypeNames: string[];
+  verifications: TrashSpotVerification[];
+  resolveRequests: TrashSpotResolveRequest[];
+  createdAt: string;
+  lastModifiedAt: string;
 }
 
 export interface TrashSpotVerification {
   id: string;
-  report_id: string;
-  verifier_id: string;
-  decision: VerificationDecision;
-  is_valid: boolean;
-  created_at: string;
+  verifierId: string;
+  verifierDisplayName: string;
+  note: string;
+  createdAt: string;
 }
 
-export type CreateTrashReportRequest = Pick<
-  TrashSpotReport,
-  'description' | 'latitude' | 'longitude' | 'before_media_urls' | 'severity_level'
->;
+export interface CreateTrashSpotVerificationRequest {
+  note: string;
+}
+
+export type TrashSpotResolveRequestStatus = 'PENDING_ADMIN_REVIEW' | 'APPROVED' | 'REJECTED';
+
+export interface TrashSpotResolveRequest {
+  id: string;
+  trashSpotId: string;
+  ngoId: string;
+  ngoDisplayName: string;
+  description: string;
+  cleanedAt: string;
+  status: TrashSpotResolveRequestStatus;
+  rejectReason: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  imageUrls: string[];
+  createdAt: string;
+}
+
+export interface CreateTrashSpotReportRequest {
+  images: MediaDto[];
+  name: string;
+  latitude: number;
+  longitude: number;
+  province: string;
+  wasteTypeIds: string[];
+  description: string;
+}
+
+export type CreateTrashReportRequest = CreateTrashSpotReportRequest;
 
 // ============================================================
 // NOTIFICATION TYPES

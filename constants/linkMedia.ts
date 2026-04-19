@@ -51,4 +51,12 @@ export const IMAGES = {
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/hat%201.png?updatedAt=1776237615298',
   baobab:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Garden/baobab.png?updatedAt=1776237615275',
+  coexistence:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/coexistence.png?updatedAt=1776540848669',
+  map: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/maps.png?updatedAt=1775669299389',
+  vegetable:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/vegetables.png?updatedAt=1775669299323',
+  winner: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/winner.png?updatedAt=1775669299345',
+  calendarImg:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/calendar.png?updatedAt=1775669299335',
 };
