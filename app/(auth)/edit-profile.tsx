@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { View, Pressable, ScrollView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useUpdateProfile } from '@/hooks/mutations/useAuth';
+import { useCompleteProfile, useUpdateProfile } from '@/hooks/mutations/useAuth';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import type { CompleteProfileRequest } from '@/types/user.type';
 import { ProfileForm } from '@/components/shared/auth/ProfileForm';
@@ -9,13 +9,22 @@ import { ProfileForm } from '@/components/shared/auth/ProfileForm';
 export default function EditProfileScreen() {
   const { data: meData, isLoading: isLoadingUser } = useCurrentUser();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
+  const { mutate: completeProfile, isPending: isCompleteProfilePending } = useCompleteProfile();
   const isCitizenProfile = meData?.userProfile && 'displayName' in meData.userProfile;
   const handleUpdateProfile = (data: CompleteProfileRequest) => {
-    updateProfile(data, {
-      onSuccess: () => {
-        router.back();
-      },
-    });
+    if (!meData) return;
+    if (meData?.userProfile?.id)
+      updateProfile(data, {
+        onSuccess: () => {
+          router.back();
+        },
+      });
+    else
+      completeProfile(data, {
+        onSuccess: () => {
+          router.back();
+        },
+      });
   };
 
   return (
@@ -41,7 +50,7 @@ export default function EditProfileScreen() {
           email={meData?.email ?? ''}
           initialAvatarUrl={meData?.userProfile?.avatarUrl ?? null}
           initialValues={{
-            displayName: isCitizenProfile ? meData.userProfile.displayName || '' : '',
+            displayName: isCitizenProfile ? meData?.userProfile?.displayName || '' : '',
             province: meData?.userProfile?.province ?? '',
             district: meData?.userProfile?.district ?? '',
             ward: meData?.userProfile?.ward ?? '',

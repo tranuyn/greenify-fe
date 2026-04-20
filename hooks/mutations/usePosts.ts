@@ -10,7 +10,7 @@ export const useCreatePost = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.mine() });
     },
   });
 };

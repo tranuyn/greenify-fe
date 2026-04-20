@@ -169,6 +169,7 @@ export const authService = {
     //   };
     //   return mockSuccess(profile);
     // }
+    console.log('Completing profile with payload:', payload);
     const { data } = await apiClient.post<UserProfile>('/profiles', payload);
     return data;
   },
@@ -185,11 +186,13 @@ export const authService = {
     //   };
     //   return mockSuccess(profile);
     // }
+    console.log('Updating profile with payload:', payload);
     const { data } = await apiClient.put<UserProfile>('/profiles', payload);
     return data;
   },
 
   async createNgoProfile(payload: CreateNgoProfileRequest): Promise<NgoProfile> {
+    console.log('Creating NGO profile with payload:', payload);
     const { data } = await apiClient.post<NgoProfile>('/ngo-profiles', payload);
     return data;
   },

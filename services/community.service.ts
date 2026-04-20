@@ -19,7 +19,7 @@ import type {
   ParticipatedEventQueryParams,
 } from '@/types/community.types';
 import { ApiResponse, PageResponse, PaginationParams } from '@/types/common.types';
-import { mockDelay, mockSuccess } from './mock/config';
+import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import {
   MOCK_EVENTS,
   MOCK_MY_REGISTRATIONS,
@@ -89,6 +89,16 @@ export const eventService = {
       page: params?.page ? params.page - 1 : 0,
       size: params?.size ?? 10,
     };
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      return {
+        content: MOCK_EVENTS,
+        totalElements: MOCK_EVENTS.length,
+        page: params?.page ?? 1,
+        size: params?.size ?? 20,
+        totalPages: 5,
+      };
+    }
 
     const { data } = await apiClient.get<PageResponse<Event>>('/events', {
       params: apiParams,
@@ -98,12 +108,12 @@ export const eventService = {
   },
 
   async getEventById(eventId: string): Promise<Event> {
-    // if (IS_MOCK_MODE) {
-    //   await mockDelay(400);
-    //   const event = MOCK_EVENTS.find((e) => e.id === eventId);
-    //   if (!event) throw new Error('Event not found');
-    //   return mockSuccess(event);
-    // }
+    if (IS_MOCK_MODE) {
+      await mockDelay(400);
+      const event = MOCK_EVENTS.find((e) => e.id === eventId);
+      if (!event) throw new Error('Event not found');
+      return event;
+    }
     const { data } = await apiClient.get<Event>(`/events/${eventId}`);
     return data;
   },

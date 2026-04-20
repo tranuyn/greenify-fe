@@ -51,7 +51,7 @@ export default function HomeScreen() {
   const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
 
   const registeredEventIds = new Set(
-    (myRegistrations ?? []).filter((r) => r.status !== 'CANCELLED').map((r) => r.event_id)
+    (myRegistrations?.content ?? []).filter((r) => r.status !== 'CANCELLED').map((r) => r.id)
   );
 
   const handleRegisterEvent = (eventId: string) => {
