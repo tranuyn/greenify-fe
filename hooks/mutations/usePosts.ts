@@ -21,7 +21,7 @@ export const useReviewPost = (postId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.detail(postId) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.pendingReview() });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.feed() });
+      queryClient.invalidateQueries({ queryKey: ['posts', 'feed'] });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
     },
   });

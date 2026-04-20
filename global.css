@@ -9,7 +9,7 @@
   --primary: #22c55e;
   --card: #f3f4f6; /* Tương đương neutral-100 của Tailwind */
   --border: #e5e7eb;
-  --muted-foreground: #71717a;
+  --muted-foreground: #929293;
   --accent: #ffd700;
   --on-primary: #ffffff;
   --danger-bg: #fee2e2;
@@ -49,4 +49,3 @@
     --status-text: #6ee7b7;
   }
 }
-

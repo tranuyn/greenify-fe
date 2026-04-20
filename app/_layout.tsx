@@ -63,6 +63,7 @@ export default function RootLayout() {
             <Stack.Screen name="history" />
             <Stack.Screen name="leaderboard" />
             <Stack.Screen name="calendar" />
+            <Stack.Screen name="faq" />
           </Stack>
         </BottomSheetModalProvider>
       </QueryClientProvider>

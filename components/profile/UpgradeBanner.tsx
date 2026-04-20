@@ -3,18 +3,46 @@ import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
 import { useState } from 'react';
 import UpgradeModal from './UpgradeModal';
+import { useMyStreak } from '@/hooks/queries/useGamification';
+import { useMyWallet } from '@/hooks/queries/useWallet';
+import { useAuthRole } from '@/hooks/queries/useAuth';
 
-const GP = 70; // ví dụ, bạn có thể truyền prop hoặc lấy từ state
-const GP_TARGET = 100;
-const percent = Math.min(GP / GP_TARGET, 1);
-const size = 120;
-const strokeWidth = 10;
-const radius = (size - strokeWidth) / 2;
-const circumference = 2 * Math.PI * radius;
-const progress = circumference * (1 - percent);
+// ví dụ, bạn có thể truyền prop hoặc lấy từ state
 
 export const UpgradeBanner = () => {
   const [isModalVisible, setModalVisible] = useState(false);
+  const { data: myWallet } = useMyWallet();
+  const GP = myWallet?.availablePoints ?? 0;
+  const GP_TARGET = 100;
+  const percent = Math.min(GP / GP_TARGET, 1);
+  const size = 120;
+  const strokeWidth = 10;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = circumference * (1 - percent);
+  const dataRole = useAuthRole();
+
+  if (dataRole.role?.length > 1) {
+    return (
+      <View className="px-4 pt-8">
+        {dataRole?.isCtv && (
+          <Text className="text-center text-foreground">
+            Hiện tại bạn đang làm Cộng tác viên của Greenify.
+          </Text>
+        )}
+        {dataRole?.isAdmin && (
+          <Text className="text-center text-foreground">
+            Hiện tại bạn đang làm Quản trị viên của Greenify.
+          </Text>
+        )}
+        {dataRole?.isNgo && (
+          <Text className="text-center text-foreground">
+            Hiện tại bạn đang làm Tổ chức phi chính phủ của Greenify.
+          </Text>
+        )}
+      </View>
+    );
+  }
   return (
     <View className="items-center px-4 py-4">
       <Text className="mb-3 w-full font-inter-bold text-lg text-foreground">

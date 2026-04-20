@@ -1,8 +1,18 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { Alert } from 'react-native';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { queryClient } from 'lib/queryClient';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
 import { CreatePlantDailyLogRequest } from 'types/gamification.types';
+
+const getErrorMessage = (error: any) => {
+  return (
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.message ||
+    'Đã có lỗi xảy ra. Vui lòng thử lại.'
+  );
+};
 
 export const useExchangeVoucher = () => {
   return useMutation({
@@ -10,6 +20,9 @@ export const useExchangeVoucher = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.vouchers.all });
+    },
+    onError: (error) => {
+      Alert.alert('Đổi voucher thất bại', getErrorMessage(error));
     },
   });
 };

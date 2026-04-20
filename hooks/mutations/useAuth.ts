@@ -48,6 +48,10 @@ export const useSetPassword = () => {
 export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginRequest) => authService.login(payload),
+    onSuccess: () => {
+      // Đăng nhập user mới -> xóa cache user cũ để các query refetch lại đúng tài khoản.
+      queryClient.clear();
+    },
   });
 };
 
@@ -80,11 +84,20 @@ export const useCreateNgoProfile = () => {
   });
 };
 
+export const useUpdateNgoProfile = () => {
+  return useMutation({
+    mutationFn: (payload: CreateNgoProfileRequest) => authService.updateNgoProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
+    },
+  });
+};
+
 export const useLogout = () => {
   return useMutation({
     mutationFn: () => authService.logout(),
-    onSuccess: () => {
-      // Xóa toàn bộ cache khi logout — tránh data của user cũ còn sót
+    onSettled: () => {
+      // Dù API logout thành công hay lỗi, vẫn dọn cache + về auth để tránh lộ data user cũ.
       queryClient.clear();
       router.replace('/(auth)');
     },

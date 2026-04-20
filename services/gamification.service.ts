@@ -23,8 +23,6 @@ import { mockDelay, mockSuccess } from './mock/config';
 import {
   MOCK_STREAK,
   MOCK_PLANT_PROGRESS,
-  MOCK_GARDEN_ARCHIVES,
-  MOCK_PLANT_DAILY_LOGS,
   MOCK_SEEDS,
   MOCK_SEED_REWARD_VOUCHERS,
   MOCK_VOUCHER_TEMPLATES,

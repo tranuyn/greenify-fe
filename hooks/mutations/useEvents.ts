@@ -1,5 +1,6 @@
 import {
   CreateEventRequest,
+  PredictEventRequest,
   RegisterEventPayload,
   UpdateEventRequest,
 } from '@/types/community.types';
@@ -34,18 +35,22 @@ export const useRegisterWaitlistEvent = () => {
 
 export const useCreateEvent = () => {
   return useMutation({
-    mutationFn: (payload: CreateEventRequest) =>
-      eventService.createEvent(payload),
+    mutationFn: (payload: CreateEventRequest) => eventService.createEvent(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events.all });
     },
   });
 };
 
+export const usePredictEvent = () => {
+  return useMutation({
+    mutationFn: (payload: PredictEventRequest) => eventService.predictEvent(payload),
+  });
+};
+
 export const useUpdateEvent = (eventId: string) => {
   return useMutation({
-    mutationFn: (payload: UpdateEventRequest) =>
-      eventService.updateEvent(eventId, payload),
+    mutationFn: (payload: UpdateEventRequest) => eventService.updateEvent(eventId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.events.detail(eventId),

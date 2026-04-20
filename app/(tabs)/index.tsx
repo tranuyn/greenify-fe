@@ -46,6 +46,7 @@ export default function HomeScreen() {
     page: 1,
     size: 5,
   });
+  const roleData = useAuthRole();
   const { data: myRegistrations } = useMyRegistrations(authData?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
   const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
@@ -66,11 +67,11 @@ export default function HomeScreen() {
   const { mutate: exchangeVoucher } = useExchangeVoucher();
 
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
-  const currentProfile = authData?.userProfile;
+
   let userName = t('home.welcome_guest', 'Công dân xanh');
 
-  if (currentProfile) {
-    userName = currentProfile.displayName;
+  if (roleData?.isNgo) {
+    userName = authData?.ngoProfile?.orgName || authData?.userProfile?.displayName || userName;
   }
   const events = eventsData?.content ?? [];
   const allVouchers: VoucherTemplate[] = availableVouchersData?.content ?? [];
@@ -91,8 +92,6 @@ export default function HomeScreen() {
     });
   };
 
-  const authRole = useAuthRole();
-
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -100,8 +99,10 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}>
       {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
       <HomeHeader
-        userName={userName}
-        avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatar.imageUrl}
+        userName={
+          authData?.userProfile?.displayName || authData?.ngoProfile?.orgName || 'Người dùng'
+        }
+        avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatar?.imageUrl}
         points={wallet?.availablePoints ?? 0}
       />
 

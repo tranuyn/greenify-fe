@@ -39,7 +39,7 @@ export function DropdownPicker({
       <Text className="mb-1 font-inter-medium text-sm text-foreground">{label}</Text>
 
       <Pressable
-        className={`flex-row items-center justify-between rounded-xl border bg-primary-50 px-3 py-3 ${borderClass} ${
+        className={`flex-row items-center justify-between rounded-xl border bg-background px-3 py-3 ${borderClass} ${
           disabled ? 'opacity-50' : ''
         }`}
         onPress={onToggle}

@@ -12,11 +12,49 @@ export const useFeedPosts = (params?: FeedQueryParams, enabled = true) => {
   });
 };
 
+export const useFeedPostsInfinite = (params?: FeedQueryParams, enabled = true) => {
+  const size = params?.size ?? 20;
+  const baseParams = { ...params, page: undefined, size };
+
+  return useInfiniteQuery({
+    queryKey: QUERY_KEYS.posts.feed(baseParams),
+    queryFn: ({ pageParam = 1 }) =>
+      actionService.getFeedPosts({
+        ...baseParams,
+        page: pageParam,
+      }),
+    initialPageParam: 1,
+    enabled,
+    getNextPageParam: (lastPage, allPages) => {
+      return allPages.length < lastPage.totalPages ? allPages.length + 1 : undefined;
+    },
+  });
+};
+
 export const useMyPosts = (params?: MyPostsQueryParams, enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.posts.mine(params),
     queryFn: () => actionService.getMyPosts(params),
     enabled,
+  });
+};
+
+export const useMyPostsInfinite = (params?: MyPostsQueryParams, enabled = true) => {
+  const size = params?.size ?? 20;
+  const baseParams = { ...params, page: undefined, size };
+
+  return useInfiniteQuery({
+    queryKey: QUERY_KEYS.posts.mine(baseParams),
+    queryFn: ({ pageParam = 1 }) =>
+      actionService.getMyPosts({
+        ...baseParams,
+        page: pageParam,
+      }),
+    initialPageParam: 1,
+    enabled,
+    getNextPageParam: (lastPage, allPages) => {
+      return allPages.length < lastPage.totalPages ? allPages.length + 1 : undefined;
+    },
   });
 };
 

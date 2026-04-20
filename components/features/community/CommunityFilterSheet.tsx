@@ -1,6 +1,6 @@
 import React, { useState, useCallback, forwardRef } from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
-import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Feather from '@expo/vector-icons/Feather';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -9,13 +9,14 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { SortOption } from '@/constants/enums/sortOptions.enum';
-
-import type { PostStatus } from '@/types/action.types';
+import { STATUS_OPTIONS } from '@/components/features/community/MyPostsFilterSheet';
+import { type PostStatus } from '@/types/action.types';
 
 // --- Types ---
 export interface FeedFilterState {
   actionTypeId: string;
   sortBy: SortOption;
+  status: PostStatus | 'all';
   fromDate?: string;
   toDate?: string;
 }
@@ -109,7 +110,10 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
         )}
         backgroundStyle={{ backgroundColor: colors.background, borderRadius: 24 }}
         handleIndicatorStyle={{ backgroundColor: colors.primary300, width: 40 }}>
-        <BottomSheetView className="flex-1 px-6 pb-8 pt-2">
+        <BottomSheetScrollView
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32, paddingTop: 8 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
           <View className="mb-6 flex-row items-center justify-between">
             <Text className="font-inter-bold text-xl text-foreground">
               {t('community.filters.title', 'Bộ lọc tìm kiếm')}
@@ -137,6 +141,18 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
               isSelected={tempFilters.sortBy === SortOption.POPULAR}
               onPress={() => setTempFilters({ ...tempFilters, sortBy: SortOption.POPULAR })}
             />
+          </View>
+
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">Trạng thái</Text>
+          <View className="mb-6 flex-row flex-wrap">
+            {STATUS_OPTIONS.map((status) => (
+              <FilterChip
+                key={status.value}
+                label={t(status.labelKey, status.fallback)}
+                isSelected={tempFilters.status === status.value}
+                onPress={() => setTempFilters({ ...tempFilters, status: status.value })}
+              />
+            ))}
           </View>
 
           <Text className="mb-3 font-inter-semibold text-base text-foreground">
@@ -209,10 +225,10 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
               isSelected={tempFilters.actionTypeId === 'all'}
               onPress={() => setTempFilters({ ...tempFilters, actionTypeId: 'all' })}
             />
-            {actionTypes.slice(0, 5).map((type) => (
+            {actionTypes.map((type) => (
               <FilterChip
                 key={type.id}
-                label={type.action_name}
+                label={type.actionName ?? type.action_name ?? ''}
                 isSelected={tempFilters.actionTypeId === type.id}
                 onPress={() => setTempFilters({ ...tempFilters, actionTypeId: type.id })}
               />
@@ -220,7 +236,7 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
           </View>
 
           {/* Nút Apply */}
-          <View className="flex-1" />
+          <View className="h-2" />
           <Button
             title={t('community.filters.apply', 'Áp dụng bộ lọc')}
             onPress={() => onApply(tempFilters)}
@@ -236,7 +252,7 @@ export const CommunityFilterSheet = forwardRef<BottomSheetModal, Props>(
               textColor={colors.foreground}
             />
           )}
-        </BottomSheetView>
+        </BottomSheetScrollView>
       </BottomSheetModal>
     );
   }

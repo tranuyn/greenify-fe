@@ -22,7 +22,7 @@ export const useCurrentUser = () => {
 export const useAuthRole = () => {
   const queryClient = useQueryClient();
   const authData = queryClient.getQueryData<AuthenticatedUser>(QUERY_KEYS.auth.me());
-  const roles = authData?.role ?? [];
+  const roles = authData?.roles ?? [];
 
   return {
     userId: authData?.id ?? null,

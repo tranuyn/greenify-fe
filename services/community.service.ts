@@ -12,6 +12,8 @@ import type {
   CreateTrashSpotReportRequest,
   CreateTrashSpotVerificationRequest,
   CreateEventRequest,
+  PredictEventRequest,
+  PredictEventResponse,
   EventQueryParams,
   UpdateEventRequest,
   WasteType,
@@ -19,6 +21,7 @@ import type {
   MyNgoEventQueryParams,
   RegisterEventPayload,
   PublicEventQueryParams,
+  EventParticipationSummary,
 } from '@/types/community.types';
 import { ApiResponse, PageResponse, PaginationParams } from '@/types/common.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
@@ -128,12 +131,12 @@ export const eventService = {
   },
 
   async getEventById(eventId: string): Promise<Event> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      const event = MOCK_EVENTS.find((e) => e.id === eventId);
-      if (!event) throw new Error('Event not found');
-      return event;
-    }
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   const event = MOCK_EVENTS.find((e) => e.id === eventId);
+    //   if (!event) throw new Error('Event not found');
+    //   return event;
+    // }
     const { data } = await apiClient.get<Event>(`/events/${eventId}`);
     return data;
   },
@@ -201,6 +204,13 @@ export const eventService = {
     return data;
   },
 
+  async getMyParticipationSummary(): Promise<EventParticipationSummary> {
+    const { data } = await apiClient.get<EventParticipationSummary>(
+      '/events/me/participation-summary'
+    );
+    return data;
+  },
+
   async createEvent(payload: CreateEventRequest): Promise<Event> {
     // if (IS_MOCK_MODE) {
     //   await mockDelay(900);
@@ -232,8 +242,14 @@ export const eventService = {
 
     //   return mockSuccess(newEvent);
     // }
+    const fixedPayload = { ...payload, status: 'APPROVAL_WAITING' };
+    console.log('Creating event with payload:', fixedPayload);
+    const { data } = await apiClient.post<Event>('/events', fixedPayload);
+    return data;
+  },
 
-    const { data } = await apiClient.post<Event>('/events', payload);
+  async predictEvent(payload: PredictEventRequest): Promise<PredictEventResponse> {
+    const { data } = await apiClient.post<PredictEventResponse>('/events/predict', payload);
     return data;
   },
 

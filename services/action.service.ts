@@ -91,8 +91,11 @@ export const actionService = {
     };
 
     if (params?.search) apiParams.authorDisplayName = params.search;
-    if (params?.action_type_id && params.action_type_id !== 'all') {
-      apiParams.actionTypeId = params.action_type_id;
+    if (params?.actionTypeId && params.actionTypeId !== 'all') {
+      apiParams.actionTypeId = params.actionTypeId;
+    }
+    if (params?.status && params.status !== 'all') {
+      apiParams.status = params.status;
     }
     if (params?.fromDate) apiParams.fromDate = params.fromDate;
     if (params?.toDate) apiParams.toDate = params.toDate;
@@ -231,8 +234,6 @@ export const actionService = {
     return data;
   },
   async createPost(payload: CreatePostRequest): Promise<GreenActionPostDetailDto> {
-    // 1. ADAPTER: CHUYỂN ĐỔI BODY TỪ UI -> BE
-    console.log('Creating post with payload:', payload);
     const apiPayload: CreatePostApiRequest = {
       actionTypeId: payload.action_type_id,
       caption: payload.caption,

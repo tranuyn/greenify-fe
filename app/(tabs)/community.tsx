@@ -25,7 +25,7 @@ import { MyPostsFilterSheet } from '../../components/features/community/MyPostsF
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { useFeedPosts, useActionTypes, useMyPosts } from '@/hooks/queries/usePosts';
+import { useFeedPostsInfinite, useActionTypes, useMyPostsInfinite } from '@/hooks/queries/usePosts';
 import { SortOption } from '@/constants/enums/sortOptions.enum';
 
 type TabKey = 'community' | 'mine';
@@ -43,6 +43,7 @@ export default function CommunityScreen() {
   const defaultFeedFilters: FeedFilterState = {
     actionTypeId: 'all',
     sortBy: SortOption.NEWEST,
+    status: 'all',
     fromDate: undefined,
     toDate: undefined,
   };
@@ -68,12 +69,15 @@ export default function CommunityScreen() {
     isError: isFeedError,
     refetch: refetchFeed,
     isRefetching: isFeedRefetching,
-  } = useFeedPosts(
+    fetchNextPage: fetchNextFeedPage,
+    hasNextPage: hasNextFeedPage,
+    isFetchingNextPage: isFetchingNextFeedPage,
+  } = useFeedPostsInfinite(
     {
-      page: 1,
       size: 10,
       search: searchQuery,
-      action_type_id: feedFilters.actionTypeId !== 'all' ? feedFilters.actionTypeId : undefined,
+      actionTypeId: feedFilters.actionTypeId !== 'all' ? feedFilters.actionTypeId : undefined,
+      status: feedFilters.status !== 'all' ? feedFilters.status : undefined,
       sort: feedFilters.sortBy,
       fromDate: feedFilters.fromDate,
       toDate: feedFilters.toDate,
@@ -87,9 +91,11 @@ export default function CommunityScreen() {
     isError: isMyError,
     refetch: refetchMy,
     isRefetching: isMyRefetching,
-  } = useMyPosts(
+    fetchNextPage: fetchNextMyPage,
+    hasNextPage: hasNextMyPage,
+    isFetchingNextPage: isFetchingNextMyPage,
+  } = useMyPostsInfinite(
     {
-      page: 1,
       size: 10,
       status: myFilters.status !== 'all' ? myFilters.status : undefined,
       fromDate: myFilters.fromDate,
@@ -104,8 +110,11 @@ export default function CommunityScreen() {
   const isError = isCommunityTab ? isFeedError : isMyError;
   const refetch = isCommunityTab ? refetchFeed : refetchMy;
   const isRefetching = isCommunityTab ? isFeedRefetching : isMyRefetching;
+  const hasNextPage = isCommunityTab ? hasNextFeedPage : hasNextMyPage;
+  const fetchNextPage = isCommunityTab ? fetchNextFeedPage : fetchNextMyPage;
+  const isFetchingNextPage = isCommunityTab ? isFetchingNextFeedPage : isFetchingNextMyPage;
 
-  const posts = activeData?.content || [];
+  const posts = activeData?.pages?.flatMap((page) => page.content) || [];
 
   const { data: actionTypesData } = useActionTypes();
   const actionTypes = actionTypesData || [];
@@ -148,6 +157,11 @@ export default function CommunityScreen() {
     refetch();
   };
 
+  const handleLoadMore = () => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    fetchNextPage();
+  };
+
   const renderEmpty = () => (
     <View className="items-center justify-center py-20">
       <FontAwesome6 name="seedling" size={48} color={colors.primary} />
@@ -185,10 +199,19 @@ export default function CommunityScreen() {
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl
-            refreshing={isRefetching}
+            refreshing={isRefetching && !isFetchingNextPage}
             onRefresh={handleRefresh}
             tintColor={colors.primary}
           />
+        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View className="py-4">
+              <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+          ) : null
         }
         ListEmptyComponent={renderEmpty}
       />

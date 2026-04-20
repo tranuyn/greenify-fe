@@ -93,8 +93,11 @@ export type UpdateActionTypeRequest = Partial<CreateActionTypeRequest>;
 // FEED PARAMS
 export interface FeedQueryParams extends BaseQueryParams {
   search?: string;
-  action_type_id?: string;
+  actionTypeId?: string;
   sort?: SortOption;
+  status?: PostStatus | 'all';
+  fromDate?: string;
+  toDate?: string;
 }
 
 export interface FeedApiRequestParams {
@@ -103,6 +106,7 @@ export interface FeedApiRequestParams {
   sort?: string[];
   authorDisplayName?: string;
   actionTypeId?: string;
+  status?: string;
   fromDate?: string;
   toDate?: string;
 }

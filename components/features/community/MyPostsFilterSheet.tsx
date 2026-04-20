@@ -38,7 +38,11 @@ const FilterChip = ({
   </TouchableOpacity>
 );
 
-const STATUS_OPTIONS: Array<{ value: PostStatus | 'all'; labelKey: string; fallback: string }> = [
+export const STATUS_OPTIONS: Array<{
+  value: PostStatus | 'all';
+  labelKey: string;
+  fallback: string;
+}> = [
   { value: 'all', labelKey: 'common.all', fallback: 'Tất cả' },
   { value: POST_STATUS.DRAFT, labelKey: 'community.post_status.draft', fallback: 'Nháp' },
   {

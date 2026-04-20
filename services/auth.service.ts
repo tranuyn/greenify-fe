@@ -148,10 +148,13 @@ export const authService = {
    * Body: { refreshToken }
    */
   async logout(): Promise<void> {
-    const { data } = await apiClient.post<LoginResponse>('/auth/logout', {
-      refreshToken: await tokenStorage.getRefresh(),
-    });
-    await tokenStorage.clear();
+    try {
+      await apiClient.post<LoginResponse>('/auth/logout', {
+        refreshToken: await tokenStorage.getRefresh(),
+      });
+    } finally {
+      await tokenStorage.clear();
+    }
   },
 
   /**
@@ -169,7 +172,6 @@ export const authService = {
     //   };
     //   return mockSuccess(profile);
     // }
-    console.log('Completing profile with payload:', payload);
     const { data } = await apiClient.post<UserProfile>('/profiles', payload);
     return data;
   },
@@ -186,14 +188,18 @@ export const authService = {
     //   };
     //   return mockSuccess(profile);
     // }
-    console.log('Updating profile with payload:', payload);
     const { data } = await apiClient.put<UserProfile>('/profiles', payload);
     return data;
   },
 
   async createNgoProfile(payload: CreateNgoProfileRequest): Promise<NgoProfile> {
-    console.log('Creating NGO profile with payload:', payload);
+    // console.log('Creating NGO profile with payload:', payload);
     const { data } = await apiClient.post<NgoProfile>('/ngo-profiles', payload);
+    return data;
+  },
+
+  async updateNgoProfile(payload: CreateNgoProfileRequest): Promise<NgoProfile> {
+    const { data } = await apiClient.put<NgoProfile>('/ngo-profiles', payload);
     return data;
   },
 
@@ -206,7 +212,7 @@ export const authService = {
     //   return MOCK_AUTHENTICATED_USER;
     // }
     const { data } = await apiClient.get<AuthenticatedUser>('/users/me');
-    console.log('Fetched user data:', data);
+    console.log('API /users/me response:', data);
     return data;
   },
 };

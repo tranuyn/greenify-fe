@@ -40,7 +40,7 @@ export const QuickActions = ({ navigation }: any) => {
         router.push({
           pathname: '/(auth)/edit-profile',
           params: {
-            role: mapUserRoleToAccountRole(meData?.role?.[0]),
+            role: mapUserRoleToAccountRole(meData?.roles?.[0]),
             email: meData?.email,
           },
         });
@@ -50,7 +50,7 @@ export const QuickActions = ({ navigation }: any) => {
         securityModalRef.current?.present();
         break;
       case 'help':
-        navigation?.navigate('QAndA');
+        router.push('/faq');
         break;
       case 'settings':
         // Dùng .present() để mở Modal
@@ -141,7 +141,7 @@ export const QuickActions = ({ navigation }: any) => {
             showChevron
             onPress={() => {
               settingsModalRef.current?.dismiss();
-              navigation?.navigate('QAndA');
+              router.push('/faq');
             }}
           />
 
