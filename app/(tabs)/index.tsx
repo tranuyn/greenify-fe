@@ -46,19 +46,20 @@ export default function HomeScreen() {
     page: 1,
     size: 5,
   });
-  const { data: myRegistrations } = useMyRegistrations();
+  const { data: myRegistrations } = useMyRegistrations(authData?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
   const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
 
-  const registeredEventIds = new Set(
-    (myRegistrations?.content ?? []).filter((r) => r.status !== 'CANCELLED').map((r) => r.id)
-  );
+  const registeredEventIds = new Set((myRegistrations?.content ?? []).map((r) => r.id));
 
   const handleRegisterEvent = (eventId: string) => {
     setRegisteringEventId(eventId);
-    registerEvent(eventId, {
-      onSettled: () => setRegisteringEventId(null),
-    });
+    registerEvent(
+      { eventId },
+      {
+        onSettled: () => setRegisteringEventId(null),
+      }
+    );
   };
   const { data: availableVouchersData, isLoading: isLoadingVouchers } = useAvailableVouchers();
   const { data: myVouchers } = useMyVouchers();

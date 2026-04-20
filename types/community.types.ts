@@ -85,6 +85,12 @@ export interface EventQueryParams extends PaginationParams {
   organizerId?: string;
   sort?: string[];
 }
+export interface PublicEventQueryParams extends PaginationParams {
+  title?: string;
+  eventType?: EventType | 'all';
+  from?: string;
+  to?: string;
+}
 
 export interface EventRegistration {
   id: string;
@@ -141,9 +147,17 @@ export interface ParticipatedEventQueryParams extends PaginationParams {
   status?: RegistrationStatus | 'all'; 
   address?: string;
 }
+export interface MyNgoEventQueryParams extends PaginationParams {
+  title?: string;
+  eventType?: EventType | 'all';
+  status?: EventStatus | 'all';
+  from?: string;
+  to?: string;
+}
 
-export interface RejectEventRequest {
-  reason: string;
+export interface RegisterEventPayload {
+  eventId: string;
+  note?: string;
 }
 // ============================================================
 // MAP / RECYCLING STATION TYPES

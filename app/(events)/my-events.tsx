@@ -1,4 +1,3 @@
-import { useState, useMemo } from 'react';
 import { View, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -7,30 +6,18 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { MyEventCard } from '@/components/features/events/MyEventCard';
-import {
-  EMPTY_LABEL_KEY,
-  getFilteredRegistrations,
-  getTabCounts,
-  MY_EVENT_TABS,
-  type MyEventTab,
-} from '@/components/features/events/myEventFilters';
 import { useMyRegistrations } from '@/hooks/queries/useEvents';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 
 export default function MyEventsScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
-  const [activeTab, setActiveTab] = useState<MyEventTab>('pending');
 
-  const { data: registrations = [], isLoading } = useMyRegistrations();
-
-  const filtered = useMemo(
-    () => getFilteredRegistrations(registrations, activeTab),
-    [registrations, activeTab]
-  );
-
-  const countByTab = useMemo(() => getTabCounts(registrations), [registrations]);
+  const { data: user } = useCurrentUser();
+  const { data: response, isLoading } = useMyRegistrations(user?.id ?? '');
+  const events = response?.content ?? [];
 
   return (
     <View className="flex-1 bg-background">
@@ -63,52 +50,9 @@ export default function MyEventsScreen() {
             className="relative h-10 w-10 items-center justify-center rounded-full bg-primary-50 dark:bg-card"
             hitSlop={8}>
             <Feather name="bell" size={20} color={colors.foreground} />
-            {/* Unread dot — hiện khi có thông báo chưa đọc */}
-            {/* TODO: thay bằng data thật từ notification service */}
             <View className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500" />
           </TouchableOpacity>
         </View>
-      </View>
-
-      {/* ── Tab bar ── */}
-      <View className="flex-row gap-2 px-5 py-3">
-        {MY_EVENT_TABS.map((tab) => {
-          const isActive = tab.key === activeTab;
-          const count = countByTab[tab.key];
-
-          return (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
-              activeOpacity={0.85}
-              className={`flex-1 flex-row items-center justify-center rounded-full px-3 py-2.5 ${
-                isActive ? 'bg-primary' : 'bg-primary-50 dark:bg-card'
-              }`}>
-              <Text
-                numberOfLines={1}
-                className={`font-inter-semibold text-xs ${
-                  isActive ? 'text-white' : 'text-foreground/60'
-                }`}>
-                {t(tab.labelKey)}
-              </Text>
-
-              {/* Badge count */}
-              {count > 0 && (
-                <View
-                  className={`ml-1.5 h-4 min-w-4 items-center justify-center rounded-full px-1 ${
-                    isActive ? 'bg-white/25' : 'bg-primary/15'
-                  }`}>
-                  <Text
-                    className={`font-inter-bold text-[10px] ${
-                      isActive ? 'text-white' : 'text-primary-700'
-                    }`}>
-                    {count}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
       </View>
 
       {/* ── Content ── */}
@@ -118,22 +62,22 @@ export default function MyEventsScreen() {
         </View>
       ) : (
         <FlatList
-          data={filtered}
+          data={events}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 4,
+            paddingTop: 16,
             paddingBottom: insets.bottom + 100,
             flexGrow: 1,
           }}
           renderItem={({ item }) => (
             <MyEventCard
-              registration={item}
+              event={item}
               onPress={() =>
                 router.push({
                   pathname: '/(events)/[id]',
-                  params: { id: item.event_id },
+                  params: { id: item.id },
                 })
               }
             />
@@ -147,7 +91,7 @@ export default function MyEventsScreen() {
                 {t('events.my_events.empty.title')}
               </Text>
               <Text className="text-foreground/50 mt-1 text-center font-inter text-sm">
-                {t(EMPTY_LABEL_KEY[activeTab])}
+                Bạn chưa tham gia sự kiện nào.
               </Text>
             </View>
           }

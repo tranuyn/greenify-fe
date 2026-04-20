@@ -14,9 +14,11 @@ import type {
   CreateEventRequest,
   EventQueryParams,
   UpdateEventRequest,
-  RejectEventRequest,
   WasteType,
   ParticipatedEventQueryParams,
+  MyNgoEventQueryParams,
+  RegisterEventPayload,
+  PublicEventQueryParams,
 } from '@/types/community.types';
 import { ApiResponse, PageResponse, PaginationParams } from '@/types/common.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
@@ -107,6 +109,24 @@ export const eventService = {
     return data;
   },
 
+  async getPublicEvents(params?: PublicEventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      title: params?.title,
+      eventType: params?.eventType === 'all' ? undefined : params?.eventType,
+      from: params?.from,
+      to: params?.to,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    // 2. GỌI API THẬT
+    const { data } = await apiClient.get<PageResponse<Event>>('/events/public', {
+      params: apiParams,
+    });
+
+    return data;
+  },
+
   async getEventById(eventId: string): Promise<Event> {
     if (IS_MOCK_MODE) {
       await mockDelay(400);
@@ -155,6 +175,24 @@ export const eventService = {
     const { data } = await apiClient.get<PageResponse<Event>>(`/events/ngo/${ngoId}`, {
       params: apiParams,
     });
+    return data;
+  },
+
+  async getMyNgoEvents(params?: MyNgoEventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      title: params?.title,
+      eventType: params?.eventType === 'all' ? undefined : params?.eventType,
+      status: params?.status === 'all' ? undefined : params?.status,
+      from: params?.from,
+      to: params?.to,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    const { data } = await apiClient.get<PageResponse<Event>>('/events/ngo/my-events', {
+      params: apiParams,
+    });
+
     return data;
   },
 
@@ -237,48 +275,24 @@ export const eventService = {
     return data;
   },
 
-  async registerEvent(eventId: string): Promise<EventRegistration> {
+  async registerEvent(payload: RegisterEventPayload): Promise<EventRegistration> {
+    // 1. MOCK DATA
     // if (IS_MOCK_MODE) {
     //   await mockDelay(700);
-    //   const event = MOCK_EVENTS.find((e) => e.id === eventId);
-    //   const reg: EventRegistration = {
-    //     id: `reg-${Date.now()}`,
-    //     event_id: eventId,
-    //     user_id: 'usr-001',
-    //     qr_token: `QR_${eventId}_USR001_${Date.now()}`,
-    //     status: 'REGISTERED',
-    //     checked_in_at: null,
-    //     checked_out_at: null,
-    //     attended_valid: false,
-    //     reward_status: 'PENDING_REWARD',
-    //     created_at: new Date().toISOString(),
-    //     event,
-    //   };
-    //   return mockSuccess(reg);
+    //   // ... logic mock nếu cần
     // }
-    const { data } = await apiClient.post<EventRegistration>(`/events/${eventId}/register`);
+
+    // 2. GỌI API THẬT
+    // Đã chuyển sang endpoint mới và truyền data qua Body
+    const { data } = await apiClient.post<EventRegistration>('/event-registrations', payload);
     return data;
   },
 
-  async approveEvent(eventId: string): Promise<null> {
-    // if (IS_MOCK_MODE) {
-    //   await mockDelay(500);
-
-    //   const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
-    //   if (eventIndex === -1) throw new Error('Event not found');
-
-    //   const updatedEvent: Event = {
-    //     ...MOCK_EVENTS[eventIndex],
-    //     status: 'PUBLISHED',
-    //     rejectReason: null,
-    //     lastModifiedAt: new Date().toISOString(),
-    //   };
-
-    //   MOCK_EVENTS[eventIndex] = updatedEvent;
-    //   return mockSuccess(null);
-    // }
-
-    const { data } = await apiClient.post<null>(`/events/${eventId}/approve`);
+  async registerWaitlistEvent(payload: RegisterEventPayload): Promise<EventRegistration> {
+    const { data } = await apiClient.post<EventRegistration>(
+      '/event-registrations/waitlist',
+      payload
+    );
     return data;
   },
 
@@ -298,21 +312,33 @@ export const eventService = {
     return data;
   },
 
-  async checkInAttendee(
-    eventId: string,
-    qrToken: string
-  ): Promise<{ registration_id: string; user_name: string; status: string }> {
-    // if (IS_MOCK_MODE) {
-    //   await mockDelay(500);
-    //   return mockSuccess({
-    //     registration_id: 'reg-001',
-    //     user_name: 'Nhã Uyên',
-    //     status: 'CHECKED_IN',
-    //   });
-    // }
-    const { data } = await apiClient.post(`/ngo/events/${eventId}/check-in`, {
-      qr_token: qrToken,
+  async checkInAttendee(code: string): Promise<EventRegistration> {
+    const { data } = await apiClient.post<EventRegistration>(
+      '/event-registrations/check-in',
+      null,
+      { params: { code } }
+    );
+    return data;
+  },
+
+  async checkOutAttendee(code: string): Promise<EventRegistration> {
+    const { data } = await apiClient.post<EventRegistration>(
+      '/event-registrations/check-out',
+      null,
+      { params: { code } }
+    );
+    return data;
+  },
+
+  async getRegistrationCode(eventId: string, userId: string): Promise<string> {
+    const { data } = await apiClient.get<string>('/event-registrations/code', {
+      params: { eventId, userId },
     });
+    return data;
+  },
+
+  async cancelRegistration(registrationId: string): Promise<null> {
+    const { data } = await apiClient.delete<null>(`/event-registrations/${registrationId}`);
     return data;
   },
 };

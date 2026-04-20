@@ -2,7 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { eventService } from 'services/community.service';
 import { PaginationParams } from 'types/common.types';
-import { EventQueryParams } from 'types/community.types';
+import {
+  EventQueryParams,
+  PublicEventQueryParams,
+  ParticipatedEventQueryParams,
+  MyNgoEventQueryParams,
+} from 'types/community.types';
 
 export const useEvents = (params?: EventQueryParams) => {
   return useQuery({
@@ -11,10 +16,10 @@ export const useEvents = (params?: EventQueryParams) => {
   });
 };
 
-export const usePublishedEvents = (params?: EventQueryParams) => {
+export const usePublishedEvents = (params?: PublicEventQueryParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.events.list({ ...params, status: 'PUBLISHED' }),
-    queryFn: () => eventService.getEvents({ ...params, status: 'PUBLISHED' }),
+    queryKey: QUERY_KEYS.events.publicList(params),
+    queryFn: () => eventService.getPublicEvents(params),
   });
 };
 
@@ -26,17 +31,28 @@ export const useEventDetail = (eventId: string) => {
   });
 };
 
-export const useMyRegistrations = () => {
+export const useMyRegistrations = (
+  userId: string,
+  params?: ParticipatedEventQueryParams
+) => {
   return useQuery({
-    queryKey: QUERY_KEYS.events.myRegistrations(),
-    queryFn: () => eventService.getMyRegistrations(),
+    queryKey: QUERY_KEYS.events.myRegistrations(userId, params),
+    queryFn: () => eventService.getMyRegistrations(userId, params),
+    enabled: !!userId,
   });
 };
 
 export const useNgoEvents = (ngoId: string, params?: PaginationParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.events.ngoList(params),
+    queryKey: QUERY_KEYS.events.ngoList(ngoId, params),
     queryFn: () => eventService.getNgoEvents(ngoId, params),
-    enabled: !!ngoId, // Chỉ chạy khi có ngoId
+    enabled: !!ngoId,
+  });
+};
+
+export const useMyNgoEvents = (params?: MyNgoEventQueryParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.events.myNgoList(params),
+    queryFn: () => eventService.getMyNgoEvents(params),
   });
 };

@@ -9,7 +9,7 @@ import { REGISTRATION_STATUS, type Event, type EventRegistration } from '@/types
 
 type Props = {
   events: Event[];
-  registrations: EventRegistration[];
+  registrations: Event[];
   isLoading: boolean;
   onPressEvent: (event: Event) => void;
   onRegisterEvent: (eventId: string) => void;
@@ -31,9 +31,7 @@ export function EventList({
 
   // Set để check O(1) thay vì .find() mỗi render
   const registeredEventIds = new Set(
-    registrations
-      .filter((registration) => registration.status !== REGISTRATION_STATUS.CANCELLED)
-      .map((registration) => registration.event_id)
+    registrations.map((registration) => registration.id)
   );
 
   if (isLoading) {

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { SearchBar } from '@/components/shared/SearchBar';
-import { useNgoEvents } from '@/hooks/queries/useEvents';
+import { useMyNgoEvents } from '@/hooks/queries/useEvents';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { Event, EventStatus } from '@/types/community.types';
 
@@ -154,7 +154,7 @@ export function NgoEventsScreen() {
   const [activeTab, setActiveTab] = useState<NgoEventTab>('pending');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: eventsData, isLoading } = useNgoEvents({ page: 1, size: 50 });
+  const { data: eventsData, isLoading } = useMyNgoEvents({ page: 1, size: 50 });
   const allEvents = eventsData?.content ?? [];
 
   const filtered = useMemo(

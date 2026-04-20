@@ -21,7 +21,7 @@ export default function ProfileScreen() {
           userName={
             authData?.userProfile?.displayName || authData?.ngoProfile?.orgName || 'Người dùng'
           }
-          avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatarUrl}
+          avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatar?.imageUrl}
           points={wallet?.availablePoints ?? 0}
         />
 

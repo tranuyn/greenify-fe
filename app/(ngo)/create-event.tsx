@@ -144,6 +144,7 @@ export default function CreateEventScreen() {
           status: 'DRAFT',
           thumbnail: { imageUrl: coverImage || '', objectKey: '', bucketName: '' },
           images: [],
+          participationConditions: 'Cần tuân thủ quy định của ban tổ chức.',
           address: {
             province: 'TP. HCM', // default or use data.city
             ward: '',

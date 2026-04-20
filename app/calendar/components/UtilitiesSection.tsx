@@ -18,7 +18,7 @@ const UtilitiesSection = ({ onPressFarm }: UtilitiesSectionProps) => {
   const [selectedSeedId, setSelectedSeedId] = useState<string | null>(null);
 
   const { data: authData } = useCurrentUser();
-  const userId = authData?.user?.id;
+  const userId = authData?.id;
 
   const { data: seeds = [], isLoading: isSeedsLoading } = useSeeds();
 
