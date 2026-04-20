@@ -329,6 +329,7 @@ export const eventService = {
   },
 
   async checkInAttendee(code: string): Promise<EventRegistration> {
+    console.log('Checking in with code:', code);
     const { data } = await apiClient.post<EventRegistration>(
       '/event-registrations/check-in',
       null,
@@ -338,6 +339,7 @@ export const eventService = {
   },
 
   async checkOutAttendee(code: string): Promise<EventRegistration> {
+    console.log('Checking out with code:', code);
     const { data } = await apiClient.post<EventRegistration>(
       '/event-registrations/check-out',
       null,

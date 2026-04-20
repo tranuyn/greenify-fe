@@ -34,6 +34,10 @@ import {
 // GAMIFICATION SERVICE
 // ============================================================
 export const gamificationService = {
+  async restoreStreak(): Promise<Streak> {
+    const { data } = await apiClient.post<Streak>('/streak/restore');
+    return data;
+  },
   async getMyStreak(): Promise<Streak> {
     // if (IS_MOCK_MODE) {
     //   await mockDelay(300);
@@ -92,7 +96,6 @@ export const gamificationService = {
     const { data } = await apiClient.get<PlantDailyLog[]>('/garden/plant/daily-logs', {
       params,
     });
-    console.log('API Plant Daily Logs:', data);
     return data;
   },
 

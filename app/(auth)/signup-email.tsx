@@ -44,8 +44,8 @@ export default function SignupEmailScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title={t('auth.signup_email.title')}
-        subtitle={t('auth.signup_email.subtitle')}
+        title={t('auth.signup_email.title', 'Đăng ký tài khoản')}
+        subtitle={t('auth.signup_email.subtitle', 'Nhập email để đăng ký tài khoản')}
       />
 
       <View className="gap-4">
@@ -55,8 +55,8 @@ export default function SignupEmailScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.signup_email.email_label')}
-              placeholder={t('auth.signup_email.email_placeholder')}
+              label={t('auth.signup_email.email_label', 'Email')}
+              placeholder={t('auth.signup_email.email_placeholder', 'Nhập email')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -70,7 +70,7 @@ export default function SignupEmailScreen() {
       </View>
 
       <Button
-        title={t('auth.signup_email.submit_btn')}
+        title={t('auth.signup_email.submit_btn', 'Tiếp tục')}
         className="mt-5"
         disabled={isPending}
         onPress={handleSubmit(onSubmit)}
@@ -81,10 +81,12 @@ export default function SignupEmailScreen() {
       </View>
 
       <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-foreground/70 text-sm">{t('auth.signup_email.has_account')}</Text>
+        <Text className="text-foreground/70 text-sm">
+          {t('auth.signup_email.has_account', 'Đã có tài khoản?')}
+        </Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
           <Text className="font-inter-semibold text-sm text-primary-700">
-            {t('auth.login.title')}
+            {t('auth.login.title', 'Đăng nhập')}
           </Text>
         </Pressable>
       </View>

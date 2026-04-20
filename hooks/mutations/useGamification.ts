@@ -14,6 +14,20 @@ const getErrorMessage = (error: any) => {
   );
 };
 
+export const useRestoreStreak = () => {
+  return useMutation({
+    mutationFn: () => gamificationService.restoreStreak(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
+      Alert.alert('Khôi phục streak thành công', 'Streak của bạn đã được khôi phục!');
+    },
+
+    onError: (error) => {
+      Alert.alert('Khôi phục streak thất bại', getErrorMessage(error));
+    },
+  });
+};
+
 export const useExchangeVoucher = () => {
   return useMutation({
     mutationFn: (templateId: string) => gamificationService.exchangeVoucher(templateId),

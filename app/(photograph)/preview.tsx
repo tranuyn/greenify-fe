@@ -50,8 +50,8 @@ export default function PreviewScreen() {
   const handleCreatePost = async () => {
     if (!imageUri || typeof imageUri !== 'string') {
       Alert.alert(
-        t('photograph.preview.download.unavailable_title'),
-        t('photograph.preview.download.unavailable_message')
+        t('photograph.preview.download.unavailable_title', 'Không thể tải ảnh'),
+        t('photograph.preview.download.unavailable_message', 'Ảnh này không thể tải về.'),
       );
       return;
     }
@@ -96,8 +96,8 @@ export default function PreviewScreen() {
   const handleDownloadImage = async () => {
     if (!imageUri || typeof imageUri !== 'string') {
       Alert.alert(
-        t('photograph.preview.download.unavailable_title'),
-        t('photograph.preview.download.unavailable_message')
+        t('photograph.preview.download.unavailable_title', 'Không thể tải ảnh'),
+        t('photograph.preview.download.unavailable_message', 'Ảnh này không thể tải về.'),
       );
       return;
     }
@@ -108,22 +108,22 @@ export default function PreviewScreen() {
 
       if (permission.status !== 'granted') {
         Alert.alert(
-          t('photograph.preview.download.permission_title'),
-          t('photograph.preview.download.permission_message')
+          t('photograph.preview.download.permission_title', 'Cần quyền lưu trữ'),
+          t('photograph.preview.download.permission_message', 'Ứng dụng cần quyền lưu trữ để tải ảnh.'),
         );
         return;
       }
 
       await MediaLibrary.saveToLibraryAsync(imageUri);
       Alert.alert(
-        t('photograph.preview.download.success_title'),
-        t('photograph.preview.download.success_message')
+        t('photograph.preview.download.success_title', 'Tải ảnh thành công'),
+        t('photograph.preview.download.success_message', 'Ảnh đã được lưu vào thiết bị.'),
       );
     } catch (error: any) {
       console.error('Lỗi khi lưu ảnh:', error.response || error);
       Alert.alert(
-        t('photograph.preview.download.error_title'),
-        t('photograph.preview.download.error_message')
+        t('photograph.preview.download.error_title', 'Tải ảnh thất bại'),
+        t('photograph.preview.download.error_message', 'Không thể tải ảnh. Vui lòng thử lại.'),
       );
     } finally {
       setIsSavingImage(false);

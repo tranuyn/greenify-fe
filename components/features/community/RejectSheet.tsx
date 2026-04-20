@@ -1,6 +1,10 @@
 import React, { useMemo, useState, forwardRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { BottomSheetModal, BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import {
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetTextInput,
+} from '@gorhom/bottom-sheet';
 import Feather from '@expo/vector-icons/Feather';
 import { useTranslation } from 'react-i18next';
 
@@ -44,20 +48,15 @@ export const RejectSheet = forwardRef<BottomSheetModal, RejectSheetProps>((props
           setSelectedReasonCode(null);
           setCustomNote('');
         }
-      }}
-    >
+      }}>
       <BottomSheetScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
-      >
+        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
         {/* Sheet header */}
         <View className="mb-5 flex-row items-center justify-between pt-2">
           <Text className="font-inter-bold text-lg text-foreground">
             {t('community.post_detail.reject_reasons_title', 'Lý do từ chối')}
           </Text>
-          <TouchableOpacity
-            onPress={() => (ref as any)?.current?.dismiss()}
-            hitSlop={8}
-          >
+          <TouchableOpacity onPress={() => (ref as any)?.current?.dismiss()} hitSlop={8}>
             <Feather name="x" size={20} color={colors.foreground} />
           </TouchableOpacity>
         </View>
@@ -74,22 +73,17 @@ export const RejectSheet = forwardRef<BottomSheetModal, RejectSheetProps>((props
                   isSelected
                     ? 'border-primary bg-primary-50'
                     : 'border-primary-100 bg-white dark:border-white/10 dark:bg-card'
-                }`}
-              >
+                }`}>
                 <View
                   className={`mr-3 h-5 w-5 items-center justify-center rounded-full border-2 ${
                     isSelected ? 'border-primary' : 'border-primary-200'
-                  }`}
-                >
-                  {isSelected && (
-                    <View className="h-2.5 w-2.5 rounded-full bg-primary" />
-                  )}
+                  }`}>
+                  {isSelected && <View className="h-2.5 w-2.5 rounded-full bg-primary" />}
                 </View>
                 <Text
                   className={`flex-1 font-inter-medium text-sm ${
                     isSelected ? 'text-primary-700' : 'text-foreground/80'
-                  }`}
-                >
+                  }`}>
                   {reason.label}
                 </Text>
               </TouchableOpacity>
@@ -100,12 +94,15 @@ export const RejectSheet = forwardRef<BottomSheetModal, RejectSheetProps>((props
         {/* Custom note */}
         {selectedReasonCode === 'OTHER' && (
           <View className="mt-4">
-            <Text className="mb-2 font-inter-medium text-sm text-foreground/70">
+            <Text className="text-foreground/70 mb-2 font-inter-medium text-sm">
               {t('community.post_detail.additional_note', 'Mô tả thêm *')}
             </Text>
             <BottomSheetTextInput
               className="min-h-[80px] rounded-2xl border border-primary-900 bg-card px-4 py-3 font-inter text-sm text-foreground"
-              placeholder={t('community.post_detail.additional_note_placeholder', 'Nhập lý do cụ thể...')}
+              placeholder={t(
+                'community.post_detail.additional_note_placeholder',
+                'Nhập lý do cụ thể...'
+              )}
               placeholderTextColor={colors.neutral400}
               value={customNote}
               onChangeText={setCustomNote}
@@ -115,8 +112,38 @@ export const RejectSheet = forwardRef<BottomSheetModal, RejectSheetProps>((props
           </View>
         )}
 
-        {/* Confirm button */}
-        <Button
+        <TouchableOpacity
+          onPress={handleConfirm}
+          disabled={
+            isReviewing ||
+            !selectedReasonCode ||
+            (selectedReasonCode === 'OTHER' && customNote.trim().length === 0)
+          }
+          style={{
+            marginTop: 20,
+            backgroundColor: selectedReasonCode ? colors.error : colors.rose200,
+            opacity:
+              isReviewing ||
+              !selectedReasonCode ||
+              (selectedReasonCode === 'OTHER' && customNote.trim().length === 0)
+                ? 0.5
+                : 1,
+            borderRadius: 12,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 14,
+          }}>
+          <Text
+            style={{
+              color: selectedReasonCode ? (colors.onError ?? '#fff') : colors.error,
+              fontWeight: 'bold',
+              fontSize: 13,
+            }}>
+            {t('community.post_detail.confirm_reject_btn', 'Xác nhận từ chối')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* <Button
           title={t('community.post_detail.confirm_reject_btn', 'Xác nhận từ chối')}
           onPress={handleConfirm}
           isLoading={isReviewing}
@@ -124,11 +151,15 @@ export const RejectSheet = forwardRef<BottomSheetModal, RejectSheetProps>((props
             !selectedReasonCode ||
             (selectedReasonCode === 'OTHER' && customNote.trim().length === 0)
           }
-          className={`mt-5 ${
-            selectedReasonCode ? 'bg-error' : 'bg-rose-200'
-          }`}
-          style={{ backgroundColor: selectedReasonCode ? colors.error : undefined }}
-        />
+          className="mt-5"
+          style={{
+            backgroundColor: selectedReasonCode ? colors.error : colors.rose200,
+            color: selectedReasonCode ? (colors.onError ?? '#fff') : colors.error, // fallback màu chữ
+          }}
+          textStyle={{
+            color: selectedReasonCode ? (colors.onError ?? '#fff') : colors.error,
+          }}
+        /> */}
       </BottomSheetScrollView>
     </BottomSheetModal>
   );
