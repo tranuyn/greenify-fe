@@ -12,15 +12,15 @@ import {
 import Feather from '@expo/vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { reverseGeocodeWithCache } from '@/utils/reverseGeocode.util';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/Button';
-import { DropdownPicker } from '@/components/ui/DropdownPicker';
+import ProvincePicker from '@/components/ui/ProvincePicker';
 import { Text } from '@/components/ui/Text';
 import { useCreateTrashSpotReport } from '@/hooks/mutations/useTrashReports';
-import { useProvinces } from '@/hooks/queries/useLocation';
 import { useWasteTypes } from '@/hooks/queries/useMap';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { uploadService } from '@/services/upload.service';
@@ -39,7 +39,6 @@ export default function CreateTrashSpotScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
-  const { data: provinces = [], isLoading: loadingProvinces } = useProvinces();
   const { data: wasteTypes = [] } = useWasteTypes();
   const { mutateAsync: createTrashSpot, isPending } = useCreateTrashSpotReport();
   const isMountedRef = useRef(true);
@@ -51,7 +50,6 @@ export default function CreateTrashSpotScreen() {
   const [longitude, setLongitude] = useState(DEFAULT_LONGITUDE);
   const [selectedWasteTypeIds, setSelectedWasteTypeIds] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
-  const [showProvince, setShowProvince] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
   const selectedWasteTypeNames = useMemo(
@@ -75,48 +73,70 @@ export default function CreateTrashSpotScreen() {
   }, []);
 
   const handleTakePhoto = useCallback(async () => {
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
 
-    if (!permission.granted) {
+      if (!permission.granted) {
+        Alert.alert(
+          t('coexistence.create_trash_spot.alert_error_title'),
+          t('coexistence.create_trash_spot.camera_permission_required')
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.9,
+      });
+
+      if (!result.canceled && result.assets.length > 0) {
+        addImages(result.assets);
+      }
+    } catch (error) {
+      console.error('Failed to open camera picker:', error);
       Alert.alert(
         t('coexistence.create_trash_spot.alert_error_title'),
-        t('coexistence.create_trash_spot.camera_permission_required')
+        t('coexistence.create_trash_spot.create_error')
       );
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.9,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      addImages(result.assets);
     }
   }, [addImages]);
 
   const handlePickImagesFromLibrary = useCallback(async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (!permission.granted) {
+      if (!permission.granted) {
+        Alert.alert(
+          t('coexistence.create_trash_spot.alert_error_title'),
+          t('coexistence.create_trash_spot.library_permission_required')
+        );
+        return;
+      }
+
+      const pickerOptions: ImagePicker.ImagePickerOptions = {
+        mediaTypes: ['images'],
+        allowsMultipleSelection: true,
+        selectionLimit: 0,
+        quality: 0.8,
+      };
+
+      if (Platform.OS === 'ios') {
+        (pickerOptions as any).preferredAssetRepresentationMode = 'compatible';
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync(pickerOptions);
+
+      if (!result.canceled && result.assets.length > 0) {
+        addImages(result.assets);
+      }
+    } catch (error: any) {
+      console.error('Failed to read picked image:', error);
       Alert.alert(
         t('coexistence.create_trash_spot.alert_error_title'),
-        t('coexistence.create_trash_spot.library_permission_required')
+        error?.message || t('coexistence.create_trash_spot.create_error')
       );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      selectionLimit: 0,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      addImages(result.assets);
     }
   }, [addImages]);
 
@@ -162,7 +182,7 @@ export default function CreateTrashSpotScreen() {
         accuracy: Location.Accuracy.Balanced,
       });
 
-      const geocoded = await Location.reverseGeocodeAsync({
+      const geocoded = await reverseGeocodeWithCache({
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       });
@@ -401,18 +421,11 @@ export default function CreateTrashSpotScreen() {
               />
             </View>
 
-            <View className="z-10">
-              <DropdownPicker
+            <View className="z-1000">
+              <ProvincePicker
                 label={t('coexistence.create_trash_spot.province_label')}
                 value={province}
-                options={provinces}
-                isLoading={loadingProvinces}
-                isOpen={showProvince}
-                onToggle={() => setShowProvince((p) => !p)}
-                onSelect={(opt) => {
-                  setProvince(opt.name);
-                  setShowProvince(false);
-                }}
+                onChange={setProvince}
               />
             </View>
 

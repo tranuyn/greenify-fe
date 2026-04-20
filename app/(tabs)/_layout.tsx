@@ -3,11 +3,14 @@ import { View, useColorScheme } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Feather from '@expo/vector-icons/Feather';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import { router } from 'expo-router';
+import { useAuthRole } from '@/hooks/queries/useAuth';
 
 export default function TabLayout() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const roleData = useAuthRole();
 
   return (
     <Tabs
@@ -55,9 +58,17 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' },
           tabBarIcon: () => (
             <View className="h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
-              <Feather name="camera" size={28} color="#ffffff" />
+              <Feather name={roleData?.isNgo ? 'plus' : 'camera'} size={28} color="#ffffff" />
             </View>
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (roleData?.isNgo) {
+              e.preventDefault();
+              router.push('/(ngo)/create-event');
+            }
+          },
         }}
       />
       <Tabs.Screen

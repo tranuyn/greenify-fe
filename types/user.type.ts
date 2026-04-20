@@ -141,7 +141,7 @@ export interface CreateNgoProfileRequest {
 export interface AuthenticatedUser {
   id: string;
   email: string;
-  role: UserRole[];
+  roles: UserRole[];
   phoneNumber: string;
   username: string;
   userProfile?: UserProfile;

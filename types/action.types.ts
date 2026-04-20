@@ -8,14 +8,17 @@ import { SortOption } from '@/constants/enums/sortOptions.enum';
 import { BaseQueryParams, PaginationParams } from './common.types';
 import { MediaDto } from './media.types';
 
-export type PostStatus =
-  | 'DRAFT'
-  | 'PENDING_REVIEW'
-  | 'PARTIALLY_APPROVED'
-  | 'VERIFIED'
-  | 'REJECTED'
-  | 'FLAGGED'
-  | 'REVOKED';
+export const POST_STATUS = {
+  DRAFT: 'DRAFT',
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  PARTIALLY_APPROVED: 'PARTIALLY_APPROVED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
+  FLAGGED: 'FLAGGED',
+  REVOKED: 'REVOKED',
+} as const;
+
+export type PostStatus = (typeof POST_STATUS)[keyof typeof POST_STATUS];
 
 export type ReviewDecision = 'APPROVE' | 'REJECT' | 'REPORT_SUSPICIOUS';
 
@@ -90,8 +93,11 @@ export type UpdateActionTypeRequest = Partial<CreateActionTypeRequest>;
 // FEED PARAMS
 export interface FeedQueryParams extends BaseQueryParams {
   search?: string;
-  action_type_id?: string;
+  actionTypeId?: string;
   sort?: SortOption;
+  status?: PostStatus | 'all';
+  fromDate?: string;
+  toDate?: string;
 }
 
 export interface FeedApiRequestParams {
@@ -100,6 +106,7 @@ export interface FeedApiRequestParams {
   sort?: string[];
   authorDisplayName?: string;
   actionTypeId?: string;
+  status?: string;
   fromDate?: string;
   toDate?: string;
 }

@@ -10,7 +10,8 @@ import { UserProfile } from './user.type';
 
 export type EventStatus =
   | 'DRAFT'
-  | 'PENDING_APPROVAL'
+  // | 'PENDING_APPROVAL'
+  | 'APPROVAL_WAITING'
   | 'APPROVED'
   | 'REJECTED'
   | 'NEEDS_REVISION'
@@ -105,6 +106,13 @@ export interface EventRegistration {
   createdAt: string;
 }
 
+export interface EventParticipationSummary {
+  registeredCount: number;
+  waitlistedCount: number;
+  cancelledCount: number;
+  attendedCount: number;
+}
+
 export interface EventPrediction {
   id: string;
   ngo_id: string;
@@ -118,6 +126,29 @@ export interface EventPrediction {
   feasibility_score: number; // 0–100
   predicted_attendance: number;
   created_at: string;
+}
+
+export interface PredictEventRequest {
+  province: string;
+  startTime: string;
+  endTime: string;
+  minParticipants: number;
+  expectedParticipants: number;
+  eventType: EventType;
+}
+
+export type EventPredictionConclusion =
+  | 'HIGHLY_FEASIBLE'
+  | 'FEASIBLE'
+  | 'NEEDS_ADJUSTMENT'
+  | 'UNFEASIBLE';
+
+export interface PredictEventResponse {
+  averageParticipants: number;
+  minRequirementRatio: number;
+  expectedRequirementRatio: number;
+  conclusion: EventPredictionConclusion;
+  message: string;
 }
 
 export interface CreateEventRequest {
@@ -144,7 +175,7 @@ export type UpdateEventRequest = CreateEventRequest;
 
 export interface ParticipatedEventQueryParams extends PaginationParams {
   title?: string;
-  status?: RegistrationStatus | 'all'; 
+  status?: RegistrationStatus | 'all';
   address?: string;
 }
 export interface MyNgoEventQueryParams extends PaginationParams {
@@ -301,6 +332,17 @@ export interface TrashSpotVerification {
   verifierDisplayName: string;
   note: string;
   createdAt: string;
+}
+
+export interface TrashSpotReport {
+  id: string;
+  reporterId: string;
+  reporterDisplayName: string;
+  reporterAvatarUrl: string;
+  note: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  trashSpot: TrashSpotListItem;
 }
 
 export interface CreateTrashSpotVerificationRequest {

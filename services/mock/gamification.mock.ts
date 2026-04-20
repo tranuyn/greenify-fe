@@ -259,52 +259,6 @@ export const MOCK_PLANT_PROGRESS: PlantProgress = {
   percentComplete: 23.33,
 };
 
-export const MOCK_GARDEN_ARCHIVES: GardenArchive[] = [
-  {
-    id: 'garden-001',
-    user_id: 'usr-001',
-    seed_id: 'seed-003',
-    seed: MOCK_SEEDS[2],
-    plant_progress_id: 'plant-000',
-    plant_progress: MOCK_PLANT_PROGRESS,
-    days_taken: 30,
-    reward_status: 'REWARDED',
-    user_voucher_id: 'uvoucher-001',
-    archived_at: '2026-02-28T00:00:00Z',
-    display_image_url: IMAGES.leafPlant,
-  },
-];
-
-export const MOCK_PLANT_DAILY_LOGS: PlantDailyLog[] = [
-  {
-    // id: 'plog-001',
-    // user_id: 'usr-001',
-    // user: MOCK_USER_PROFILE,
-    // plant_progress_id: 'plant-001',
-    // plant_progress: MOCK_PLANT_PROGRESS,
-    logDate: new Date('2026-03-29T00:00:00Z'),
-    stage: PlantStatus.SPROUT,
-    is_active_day: true,
-    greenPostUrl: 'https://greenify.app/posts/post-001',
-    imageUrl: IMAGES.growingPlant,
-    isChangeState: true,
-  },
-  {
-    // id: 'plog-002',
-    // user_id: 'usr-001',
-    // user: MOCK_USER_PROFILE,
-    // plant_progress_id: 'plant-001',
-    // plant_progress: MOCK_PLANT_PROGRESS,
-    logDate: new Date('2026-04-15T00:00:00Z'),
-    stage: PlantStatus.GROWING,
-    is_active_day: true,
-    greenPostUrl: 'https://greenify.app/posts/post-002',
-    imageUrl: IMAGES.leafPlant,
-    isChangeState: true,
-    // created_at: '2026-03-30T12:00:00Z',
-  },
-];
-
 export const MOCK_USER_VOUCHERS: UserVoucher[] = [
   {
     id: 'uvoucher-001',

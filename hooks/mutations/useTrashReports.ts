@@ -28,3 +28,14 @@ export const useVerifyTrashSpot = (trashSpotId: string) => {
     },
   });
 };
+
+export const useReportTrashSpot = (trashSpotId: string) => {
+  return useMutation({
+    mutationFn: (payload: CreateTrashSpotVerificationRequest) =>
+      trashService.reportTrashSpot(trashSpotId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trashSpots.detail(trashSpotId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trashSpots.list() });
+    },
+  });
+};

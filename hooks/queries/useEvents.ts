@@ -31,10 +31,7 @@ export const useEventDetail = (eventId: string) => {
   });
 };
 
-export const useMyRegistrations = (
-  userId: string,
-  params?: ParticipatedEventQueryParams
-) => {
+export const useMyRegistrations = (userId: string, params?: ParticipatedEventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.myRegistrations(userId, params),
     queryFn: () => eventService.getMyRegistrations(userId, params),
@@ -54,5 +51,12 @@ export const useMyNgoEvents = (params?: MyNgoEventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.myNgoList(params),
     queryFn: () => eventService.getMyNgoEvents(params),
+  });
+};
+
+export const useMyParticipationSummary = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.events.participationSummary(),
+    queryFn: () => eventService.getMyParticipationSummary(),
   });
 };

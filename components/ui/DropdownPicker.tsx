@@ -35,11 +35,11 @@ export function DropdownPicker({
   const borderClass = errorText ? 'border-rose-400' : 'border-primary-100';
 
   return (
-    <View>
-      <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">{label}</Text>
+    <View className="relative z-[9999]">
+      <Text className="mb-1 font-inter-medium text-sm text-foreground">{label}</Text>
 
       <Pressable
-        className={`flex-row items-center justify-between rounded-xl border bg-primary-50 px-3 py-3 ${borderClass} ${
+        className={`flex-row items-center justify-between rounded-xl border bg-background px-3 py-3 ${borderClass} ${
           disabled ? 'opacity-50' : ''
         }`}
         onPress={onToggle}
@@ -51,26 +51,25 @@ export function DropdownPicker({
       </Pressable>
 
       {isOpen && !isLoading && (
-        <View 
-          className="absolute inset-x-0 z-50 rounded-xl border border-primary-100 bg-white shadow-sm shadow-black/10 elevation-5"
-          style={{ top: '100%', marginTop: 8 }}
-        >
-          <ScrollView
-            className="max-h-48 p-2"
-            nestedScrollEnabled>
+        <View
+          className="elevation-5 absolute inset-x-0 z-[9999] rounded-xl border border-primary-100 bg-background shadow-sm shadow-black/10"
+          style={{ top: '100%', marginTop: 8 }}>
+          <ScrollView className="max-h-48 p-2" nestedScrollEnabled>
             {options.length === 0 ? (
-              <Text className="text-foreground/50 px-3 py-2 text-sm">Không có dữ liệu</Text>
+              <Text className="px-3 py-2 text-sm text-muted-foreground">Không có dữ liệu</Text>
             ) : (
               options.map((opt) => (
                 <Pressable
                   key={opt.code}
-                  className={`rounded-lg px-3 py-2 active:bg-primary-50 ${
-                    value === opt.name ? 'bg-primary-50' : ''
+                  className={`rounded-lg px-3 py-2 active:bg-primary ${
+                    value === opt.name ? 'bg-primary' : ''
                   }`}
                   onPress={() => onSelect(opt)}>
                   <Text
                     className={`text-sm ${
-                      value === opt.name ? 'font-inter-medium text-primary-700' : 'text-foreground/80'
+                      value === opt.name
+                        ? 'font-inter-medium text-primary-700'
+                        : 'text-muted-foreground'
                     }`}>
                     {opt.name}
                   </Text>

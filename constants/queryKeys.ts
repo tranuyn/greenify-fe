@@ -35,6 +35,7 @@ export const QUERY_KEYS = {
     detail: (postId: string) => ['posts', postId] as const,
     reviews: (postId: string) => ['posts', postId, 'reviews'] as const,
     pendingReview: (params?: object) => ['posts', 'pending-review', params] as const,
+    history: (params?: object) => ['posts', 'history', params] as const,
   },
 
   // Action types (master data — stale lâu hơn)
@@ -87,7 +88,9 @@ export const QUERY_KEYS = {
     ngoList: (ngoId: string, params?: object) => ['events', 'ngo-list', ngoId, params] as const,
     myNgoList: (params?: object) => ['events', 'my-ngo-list', params] as const,
     detail: (eventId: string) => ['events', eventId] as const,
-    myRegistrations: (userId: string, params?: object) => ['events', 'registrations', userId, params] as const,
+    myRegistrations: (userId: string, params?: object) =>
+      ['events', 'registrations', userId, params] as const,
+    participationSummary: () => ['events', 'participation-summary'] as const,
   },
 
   // Map
@@ -108,5 +111,12 @@ export const QUERY_KEYS = {
   location: {
     provinces: () => ['location', 'provinces'] as const,
     wards: (provinceCode: string) => ['location', 'wards', provinceCode] as const,
+  },
+
+  // Notifications
+  notifications: {
+    all: ['notifications'] as const,
+    me: (params?: object) => ['notifications', 'me', params] as const,
+    unreadCount: () => ['notifications', 'unread-count'] as const,
   },
 } as const;

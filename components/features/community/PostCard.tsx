@@ -5,7 +5,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { getTimeAgo } from '@/utils/date.util';
+import { formatDateTime } from '@/utils/date.util';
 import { GreenActionPostDetailDto, PostStatus } from '@/types/action.types';
 import { useAuthRole } from '@/hooks/queries/useAuth';
 import { Feather } from '@expo/vector-icons';
@@ -89,7 +89,7 @@ export function PostCard({ post }: { post: GreenActionPostDetailDto }) {
                 t('community.post_detail.anonymous_user', 'Người dùng ẩn danh')}
             </Text>
             <Text className="text-foreground/60 mt-0.5 font-inter text-sm">
-              {getTimeAgo(post.createdAt)}
+              {formatDateTime(post.createdAt)}
             </Text>
           </View>
         </View>

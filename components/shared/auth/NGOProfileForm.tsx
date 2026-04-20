@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +21,7 @@ import { useProvinces, useWards } from '@/hooks/queries/useLocation';
 import { uploadService } from '@/services/upload.service';
 import type { CreateNgoProfileRequest } from '@/types/user.type';
 import type { MediaDto } from '@/types/media.types';
+import ProvincePicker from '@/components/ui/ProvincePicker';
 
 type NGOProfileFormData = {
   orgName: string;
@@ -32,29 +41,74 @@ type UploadAsset = {
   uri: string;
   fileName?: string;
   mimeType?: string;
+  bucketName?: string;
+  objectKey?: string;
+  isLocal: boolean;
+};
+
+type NGOProfileFormInitialValues = {
+  orgName?: string;
+  representativeName?: string;
+  hotline?: string;
+  contactEmail?: string;
+  description?: string;
+  address?: {
+    province?: string;
+    district?: string;
+    ward?: string;
+    addressDetail?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  avatar?: MediaDto | null;
+  verificationDocs?: MediaDto[];
 };
 
 type Props = {
   email: string;
+  initialValues?: NGOProfileFormInitialValues;
+  isEditMode?: boolean;
   isLoading?: boolean;
   onSubmitForm: (data: CreateNgoProfileRequest) => void;
 };
 
-const toMediaDto = (media?: MediaDto | null): MediaDto => ({
+const toMediaDto = (media?: UploadAsset | null): MediaDto => ({
   bucketName: media?.bucketName ?? '',
   objectKey: media?.objectKey ?? '',
-  imageUrl: media?.imageUrl ?? '',
+  imageUrl: media?.uri ?? '',
 });
 
-export function NGOProfileForm({ email, isLoading = false, onSubmitForm }: Props) {
+export function NGOProfileForm({
+  email,
+  initialValues,
+  isEditMode = false,
+  isLoading = false,
+  onSubmitForm,
+}: Props) {
   const { t } = useTranslation();
 
   const [selectedProvinceCode, setSelectedProvinceCode] = useState('');
   const [showProvince, setShowProvince] = useState(false);
   const [showWard, setShowWard] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [avatarFile, setAvatarFile] = useState<UploadAsset | null>(null);
-  const [verificationDocs, setVerificationDocs] = useState<UploadAsset[]>([]);
+  const [avatarFile, setAvatarFile] = useState<UploadAsset | null>(
+    initialValues?.avatar
+      ? {
+          uri: initialValues.avatar.imageUrl,
+          bucketName: initialValues.avatar.bucketName,
+          objectKey: initialValues.avatar.objectKey,
+          isLocal: false,
+        }
+      : null
+  );
+  const [verificationDocs, setVerificationDocs] = useState<UploadAsset[]>(
+    (initialValues?.verificationDocs ?? []).map((doc) => ({
+      uri: doc.imageUrl,
+      bucketName: doc.bucketName,
+      objectKey: doc.objectKey,
+      isLocal: false,
+    }))
+  );
 
   const { data: provinces = [], isLoading: loadingProvinces } = useProvinces();
   const { data: wards = [] } = useWards(selectedProvinceCode);
@@ -64,22 +118,72 @@ export function NGOProfileForm({ email, isLoading = false, onSubmitForm }: Props
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<NGOProfileFormData>({
     defaultValues: {
-      orgName: '',
-      representativeName: '',
-      hotline: '',
-      contactEmail: email,
-      description: '',
-      province: '',
-      district: '',
-      ward: '',
-      addressDetail: '',
-      latitude: '',
-      longitude: '',
+      orgName: initialValues?.orgName ?? '',
+      representativeName: initialValues?.representativeName ?? '',
+      hotline: initialValues?.hotline ?? '',
+      contactEmail: initialValues?.contactEmail ?? email,
+      description: initialValues?.description ?? '',
+      province: initialValues?.address?.province ?? '',
+      district: initialValues?.address?.district ?? '',
+      ward: initialValues?.address?.ward ?? '',
+      addressDetail: initialValues?.address?.addressDetail ?? '',
+      latitude: initialValues?.address?.latitude?.toString() ?? '',
+      longitude: initialValues?.address?.longitude?.toString() ?? '',
     },
   });
+
+  useEffect(() => {
+    reset({
+      orgName: initialValues?.orgName ?? '',
+      representativeName: initialValues?.representativeName ?? '',
+      hotline: initialValues?.hotline ?? '',
+      contactEmail: initialValues?.contactEmail ?? email,
+      description: initialValues?.description ?? '',
+      province: initialValues?.address?.province ?? '',
+      district: initialValues?.address?.district ?? '',
+      ward: initialValues?.address?.ward ?? '',
+      addressDetail: initialValues?.address?.addressDetail ?? '',
+      latitude: initialValues?.address?.latitude?.toString() ?? '',
+      longitude: initialValues?.address?.longitude?.toString() ?? '',
+    });
+
+    setAvatarFile(
+      initialValues?.avatar
+        ? {
+            uri: initialValues.avatar.imageUrl,
+            bucketName: initialValues.avatar.bucketName,
+            objectKey: initialValues.avatar.objectKey,
+            isLocal: false,
+          }
+        : null
+    );
+
+    setVerificationDocs(
+      (initialValues?.verificationDocs ?? []).map((doc) => ({
+        uri: doc.imageUrl,
+        bucketName: doc.bucketName,
+        objectKey: doc.objectKey,
+        isLocal: false,
+      }))
+    );
+  }, [email, initialValues, reset]);
+
+  useEffect(() => {
+    const provinceName = initialValues?.address?.province?.trim().toLowerCase();
+    if (!provinceName || provinces.length === 0) return;
+
+    const matchedProvince = provinces.find(
+      (province) => province.name.trim().toLowerCase() === provinceName
+    );
+
+    if (matchedProvince && matchedProvince.code !== selectedProvinceCode) {
+      setSelectedProvinceCode(matchedProvince.code);
+    }
+  }, [initialValues?.address?.province, provinces, selectedProvinceCode]);
 
   const pickImageAsset = async (fromCamera: boolean, allowCrop = false) => {
     if (fromCamera) {
@@ -134,6 +238,7 @@ export function NGOProfileForm({ email, isLoading = false, onSubmitForm }: Props
         uri: asset.uri,
         fileName: asset.fileName ?? `ngo-avatar-${Date.now()}.jpg`,
         mimeType: asset.mimeType ?? 'image/jpeg',
+        isLocal: true,
       });
     });
   };
@@ -149,6 +254,7 @@ export function NGOProfileForm({ email, isLoading = false, onSubmitForm }: Props
           uri: asset.uri,
           fileName: asset.fileName ?? `ngo-doc-${Date.now()}.jpg`,
           mimeType: asset.mimeType ?? 'image/jpeg',
+          isLocal: true,
         },
       ]);
     });
@@ -159,6 +265,10 @@ export function NGOProfileForm({ email, isLoading = false, onSubmitForm }: Props
   };
 
   const uploadOneFile = async (file: UploadAsset) => {
+    if (!file.isLocal) {
+      return toMediaDto(file);
+    }
+
     const uploaded = await uploadService.uploadFile({
       uri: file.uri,
       name: file.fileName,
@@ -221,212 +331,220 @@ export function NGOProfileForm({ email, isLoading = false, onSubmitForm }: Props
   };
 
   return (
-    <ScrollView className="w-full" showsVerticalScrollIndicator={false}>
-      <View className="mb-5 mt-4 items-center">
-        <View className="relative h-16 w-16 items-center justify-center rounded-full bg-primary-100">
-          {avatarFile?.uri ? (
-            <Image source={{ uri: avatarFile.uri }} className="h-16 w-16 rounded-full" />
+    <KeyboardAvoidingView
+      className="w-full flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView
+        className="w-full flex-1"
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag">
+        <View className="mb-5 mt-4 items-center">
+          <View className="relative h-16 w-16 items-center justify-center rounded-full bg-primary-100">
+            {avatarFile?.uri ? (
+              <Image source={{ uri: avatarFile.uri }} className="h-16 w-16 rounded-full" />
+            ) : (
+              <FontAwesome5 name="building" size={28} color="#166534" />
+            )}
+            <Pressable
+              onPress={pickAvatar}
+              className="absolute bottom-0 right-0 h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-gray-800">
+              <FontAwesome5 name="pen" size={10} color="white" />
+            </Pressable>
+          </View>
+          <Text className="text-foreground/60 mt-2 text-xs">Avatar tổ chức</Text>
+        </View>
+
+        <View className="gap-4">
+          <AuthInput
+            label={t('auth.complete_profile.email_label')}
+            value={watch('contactEmail')}
+            editable={false}
+            placeholder="email@greenify.app"
+          />
+
+          <Controller
+            control={control}
+            name="orgName"
+            rules={{ required: 'Vui lòng nhập tên tổ chức' }}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AuthInput
+                ref={ref}
+                label="Tên tổ chức"
+                placeholder="Nhập tên tổ chức"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                errorText={errors.orgName?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="representativeName"
+            rules={{ required: 'Vui lòng nhập người đại diện' }}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AuthInput
+                ref={ref}
+                label="Người đại diện"
+                placeholder="Nhập tên người đại diện"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                errorText={errors.representativeName?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="hotline"
+            rules={{ required: 'Vui lòng nhập hotline' }}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AuthInput
+                ref={ref}
+                label="Hotline"
+                placeholder="Nhập hotline"
+                keyboardType="phone-pad"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                errorText={errors.hotline?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="contactEmail"
+            rules={{ required: 'Vui lòng nhập email liên hệ' }}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AuthInput
+                ref={ref}
+                label="Email liên hệ"
+                placeholder="Nhập email liên hệ"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={false}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                errorText={errors.contactEmail?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="description"
+            rules={{ required: 'Vui lòng nhập mô tả' }}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AuthInput
+                ref={ref}
+                label="Mô tả tổ chức"
+                placeholder="Nhập mô tả"
+                multiline
+                numberOfLines={4}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                className="py-3"
+                errorText={errors.description?.message}
+              />
+            )}
+          />
+
+          <View className="relative z-50" style={{ elevation: 50, zIndex: 50 }}>
+            <ProvincePicker
+              label={t('auth.complete_profile.province_label')}
+              value={watch('province')}
+              onChange={(provinceName) => {
+                setValue('province', provinceName, { shouldValidate: true });
+                const matchedProvince = provinces.find(
+                  (province) =>
+                    province.name.trim().toLowerCase() === provinceName.trim().toLowerCase()
+                );
+                setSelectedProvinceCode(matchedProvince?.code ?? '');
+                setValue('ward', '', { shouldValidate: true });
+                setShowWard(false);
+              }}
+            />
+          </View>
+
+          <View className="relative z-40 mt-4" style={{ elevation: 40, zIndex: 40 }}>
+            <DropdownPicker
+              label={t('auth.complete_profile.ward_label')}
+              value={watch('ward')}
+              options={wards}
+              disabled={!selectedProvinceCode}
+              isOpen={showWard}
+              onToggle={() => {
+                setShowWard((p) => !p);
+                setShowProvince(false);
+              }}
+              onSelect={(opt) => {
+                setValue('ward', opt.name, { shouldValidate: true });
+                setShowWard(false);
+              }}
+              errorText={errors.ward?.message}
+            />
+          </View>
+
+          <Controller
+            control={control}
+            name="addressDetail"
+            rules={{ required: 'Vui lòng nhập địa chỉ chi tiết' }}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AuthInput
+                ref={ref}
+                label="Địa chỉ chi tiết"
+                placeholder="Số nhà, tên đường..."
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                errorText={errors.addressDetail?.message}
+              />
+            )}
+          />
+        </View>
+
+        <View className="mt-5 rounded-xl border border-primary-100 bg-primary-50 p-3">
+          <Text className="font-inter-medium text-sm text-foreground">Tài liệu xác minh</Text>
+
+          {verificationDocs.length === 0 ? (
+            <Text className="text-foreground/60 mt-2 text-xs">Chưa có tài liệu nào được chọn.</Text>
           ) : (
-            <FontAwesome5 name="building" size={28} color="#166534" />
+            verificationDocs.map((doc, index) => (
+              <View
+                key={`${doc.uri}-${index}`}
+                className="mt-2 flex-row items-center justify-between">
+                <Text className="flex-1 text-xs text-foreground" numberOfLines={1}>
+                  {doc.fileName ?? `Tài liệu ${index + 1}`}
+                </Text>
+                <Pressable onPress={() => removeDoc(index)} hitSlop={6}>
+                  <Ionicons name="close-circle" size={18} color="#dc2626" />
+                </Pressable>
+              </View>
+            ))
           )}
+
           <Pressable
-            onPress={pickAvatar}
-            className="absolute bottom-0 right-0 h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-gray-800">
-            <FontAwesome5 name="pen" size={10} color="white" />
+            onPress={pickVerificationDoc}
+            className="mt-3 flex-row items-center justify-center rounded-lg border border-primary-300 bg-white px-3 py-2">
+            <Ionicons name="add" size={16} color="#166534" />
+            <Text className="ml-1 font-inter-medium text-xs text-primary-700">Thêm tài liệu</Text>
           </Pressable>
         </View>
-        <Text className="text-foreground/60 mt-2 text-xs">Avatar tổ chức</Text>
-      </View>
 
-      <View className="gap-4">
-        <AuthInput
-          label={t('auth.complete_profile.email_label')}
-          value={email}
-          editable={false}
-          placeholder="email@greenify.app"
-        />
-
-        <Controller
-          control={control}
-          name="orgName"
-          rules={{ required: 'Vui lòng nhập tên tổ chức' }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <AuthInput
-              ref={ref}
-              label="Tên tổ chức"
-              placeholder="Nhập tên tổ chức"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              errorText={errors.orgName?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="representativeName"
-          rules={{ required: 'Vui lòng nhập người đại diện' }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <AuthInput
-              ref={ref}
-              label="Người đại diện"
-              placeholder="Nhập tên người đại diện"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              errorText={errors.representativeName?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="hotline"
-          rules={{ required: 'Vui lòng nhập hotline' }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <AuthInput
-              ref={ref}
-              label="Hotline"
-              placeholder="Nhập hotline"
-              keyboardType="phone-pad"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              errorText={errors.hotline?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="contactEmail"
-          rules={{ required: 'Vui lòng nhập email liên hệ' }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <AuthInput
-              ref={ref}
-              label="Email liên hệ"
-              placeholder="Nhập email liên hệ"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              editable={false}
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              errorText={errors.contactEmail?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="description"
-          rules={{ required: 'Vui lòng nhập mô tả' }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <AuthInput
-              ref={ref}
-              label="Mô tả tổ chức"
-              placeholder="Nhập mô tả"
-              multiline
-              numberOfLines={4}
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              className="py-3"
-              errorText={errors.description?.message}
-            />
-          )}
-        />
-
-        <DropdownPicker
-          label={t('auth.complete_profile.province_label')}
-          value={watch('province')}
-          options={provinces}
-          isLoading={loadingProvinces}
-          isOpen={showProvince}
-          onToggle={() => {
-            setShowProvince((p) => !p);
-            setShowWard(false);
-          }}
-          onSelect={(opt) => {
-            setValue('province', opt.name, { shouldValidate: true });
-            setSelectedProvinceCode(opt.code);
-            setValue('ward', '', { shouldValidate: true });
-            setShowProvince(false);
-          }}
-          errorText={errors.province?.message}
-        />
-
-        <DropdownPicker
-          label={t('auth.complete_profile.ward_label')}
-          value={watch('ward')}
-          options={wards}
-          disabled={!selectedProvinceCode}
-          isOpen={showWard}
-          onToggle={() => {
-            setShowWard((p) => !p);
-            setShowProvince(false);
-          }}
-          onSelect={(opt) => {
-            setValue('ward', opt.name, { shouldValidate: true });
-            setShowWard(false);
-          }}
-          errorText={errors.ward?.message}
-        />
-
-        <Controller
-          control={control}
-          name="addressDetail"
-          rules={{ required: 'Vui lòng nhập địa chỉ chi tiết' }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <AuthInput
-              ref={ref}
-              label="Địa chỉ chi tiết"
-              placeholder="Số nhà, tên đường..."
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              errorText={errors.addressDetail?.message}
-            />
-          )}
-        />
-      </View>
-
-      <View className="mt-5 rounded-xl border border-primary-100 bg-primary-50 p-3">
-        <Text className="font-inter-medium text-sm text-foreground">Tài liệu xác minh</Text>
-
-        {verificationDocs.length === 0 ? (
-          <Text className="text-foreground/60 mt-2 text-xs">Chưa có tài liệu nào được chọn.</Text>
-        ) : (
-          verificationDocs.map((doc, index) => (
-            <View
-              key={`${doc.uri}-${index}`}
-              className="mt-2 flex-row items-center justify-between">
-              <Text className="flex-1 text-xs text-foreground" numberOfLines={1}>
-                {doc.fileName ?? `Tài liệu ${index + 1}`}
-              </Text>
-              <Pressable onPress={() => removeDoc(index)} hitSlop={6}>
-                <Ionicons name="close-circle" size={18} color="#dc2626" />
-              </Pressable>
-            </View>
-          ))
-        )}
-
-        <Pressable
-          onPress={pickVerificationDoc}
-          className="mt-3 flex-row items-center justify-center rounded-lg border border-primary-300 bg-white px-3 py-2">
-          <Ionicons name="add" size={16} color="#166534" />
-          <Text className="ml-1 font-inter-medium text-xs text-primary-700">Thêm tài liệu</Text>
-        </Pressable>
-      </View>
-
-      <View className="mt-6">
-        <Button
-          title="Tạo tài khoản Tổ chức"
-          isLoading={isLoading || isUploading}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </View>
-    </ScrollView>
+        <View className="mt-6">
+          <Button
+            title={isEditMode ? 'Cập nhật hồ sơ Tổ chức' : 'Tạo tài khoản Tổ chức'}
+            isLoading={isLoading || isUploading}
+            onPress={handleSubmit(onSubmit)}
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

@@ -60,20 +60,21 @@ const generateMonth = (
 
 export default function ScheduleScreen() {
   const { data: dailyLogs = [] } = usePlantDailyLogs();
-  const { data: userProfile } = useCurrentUser();
 
   const [monthCount, setMonthCount] = useState<number>(2);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Chuẩn hóa lại mapping cho đúng key từ API
   const activeDayImageByDate = useMemo(() => {
     return dailyLogs.reduce<DayImageMap>((acc, log) => {
-      if (!log?.is_active_day) return acc;
+      // API trả về isActiveDay, isChangeState, imageUrl, logDate
+      if (!log?.isActiveDay) return acc;
 
       const logDate = log.logDate instanceof Date ? log.logDate : new Date(log.logDate);
       if (Number.isNaN(logDate.getTime())) return acc;
 
       const dateKey = logDate.toISOString().slice(0, 10);
-      const sourceImage = log.isChangeState ? log.imageUrl : log.greenPostUrl;
+      const sourceImage = log.imageUrl;
 
       if (sourceImage) {
         acc[dateKey] = {

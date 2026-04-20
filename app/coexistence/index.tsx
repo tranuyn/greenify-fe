@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { router } from 'expo-router';
@@ -25,14 +25,15 @@ export default function MapScreen() {
   const [activeWasteTypeID, setActiveWasteTypeID] = useState<string | null>(null);
   const [activeSeverityTier, setActiveSeverityTier] = useState<SeverityTier | null>(null);
 
-  const { data: trashSpotsData, isLoading } = useTrashSpots(
-    activeWasteTypeID || activeSeverityTier
-      ? {
-          wasteTypeId: activeWasteTypeID || undefined,
-          severityTier: activeSeverityTier || undefined,
-        }
-      : undefined
+  const trashSpotParams = useMemo(
+    () => ({
+      wasteTypeId: activeWasteTypeID ?? undefined,
+      severityTier: activeSeverityTier ?? undefined,
+    }),
+    [activeWasteTypeID, activeSeverityTier]
   );
+
+  const { data: trashSpotsData, isLoading } = useTrashSpots(trashSpotParams);
   const { data: selectedTrashSpotDetail, isFetching: isLoadingTrashSpotDetail } =
     useTrashSpotDetail(selectedTrashSpot?.id);
 

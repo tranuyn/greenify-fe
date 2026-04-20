@@ -11,14 +11,31 @@ import MyGardenArchive from './components/MyGardenArchive';
 import { IMAGES } from '@/constants/linkMedia';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { usePostHistoryInfinite } from '@/hooks/queries/usePosts';
 
 export default function GreenCalendarScreen() {
   const { t } = useTranslation();
   const [isGardenArchiveMode, setIsGardenArchiveMode] = useState(false);
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    usePostHistoryInfinite(10);
+
+  const historyData = data?.pages.flatMap((page) => page.content) ?? [];
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-[var(--background)]">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        onScroll={({ nativeEvent }) => {
+          const isNearBottom =
+            nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
+            nativeEvent.contentSize.height - 120;
+
+          if (isNearBottom && !isGardenArchiveMode && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        scrollEventThrottle={16}>
         {/* 1. Header Background */}
         <ImageBackground
           source={{ uri: IMAGES.calendar }}
@@ -65,7 +82,11 @@ export default function GreenCalendarScreen() {
             <GiftSection />
 
             {/* 5. History List */}
-            <ActivityHistorySection />
+            <ActivityHistorySection
+              historyData={historyData}
+              isLoading={isLoading}
+              isFetchingNextPage={isFetchingNextPage}
+            />
           </>
         )}
       </ScrollView>

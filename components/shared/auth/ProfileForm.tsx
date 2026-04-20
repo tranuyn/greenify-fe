@@ -10,6 +10,7 @@ import { AuthInput } from '@/components/shared/auth/AuthInput';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { DropdownPicker } from '@/components/ui/DropdownPicker';
+import ProvincePicker from '@/components/ui/ProvincePicker';
 import { uploadService } from '@/services/upload.service';
 import type { CompleteProfileRequest } from '@/types/user.type';
 
@@ -85,7 +86,6 @@ export function ProfileForm({
   }, [initialAvatarUrl, avatar?.isLocal]);
 
   const [selectedProvinceCode, setSelectedProvinceCode] = useState('');
-  const [showProvince, setShowProvince] = useState(false);
   const [showWard, setShowWard] = useState(false);
 
   const { data: provinces = [], isLoading: loadingProvinces } = useProvinces();
@@ -257,33 +257,27 @@ export function ProfileForm({
         />
 
         {/* Location Pickers */}
-        <View className="z-10">
-          {/* <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">
-            {t('auth.complete_profile.province_label')}
-          </Text> */}
-          <DropdownPicker
-            label={t('auth.complete_profile.province_label')}
-            value={watch('province')}
-            options={provinces}
-            isLoading={loadingProvinces}
-            isOpen={showProvince}
-            onToggle={() => {
-              setShowProvince((p) => !p);
-              setShowWard(false);
-            }}
-            onSelect={(opt) => {
-              setValue('province', opt.name, { shouldValidate: true });
-              setSelectedProvinceCode(opt.code);
-              setValue('ward', ''); // Reset ward khi đổi province
-              setShowProvince(false);
-            }}
-            errorText={errors.province?.message}
-          />
+        <View className="relative z-10">
+          {/* BỌC PROVINCE: Cấp cho nó z-index và elevation cao nhất (VD: 50) */}
+          <View className="relative z-50" style={{ elevation: 50, zIndex: 50 }}>
+            <ProvincePicker
+              label={t('auth.complete_profile.province_label')}
+              value={watch('province')}
+              onChange={(provinceName) => {
+                setValue('province', provinceName, { shouldValidate: true });
+                const matchedProvince = provinces.find(
+                  (province) =>
+                    province.name.trim().toLowerCase() === provinceName.trim().toLowerCase()
+                );
+                setSelectedProvinceCode(matchedProvince?.code ?? '');
+                setValue('ward', '', { shouldValidate: true });
+                setShowWard(false);
+              }}
+            />
+          </View>
 
-          <View className="mt-4">
-            {/* <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">
-              {t('auth.complete_profile.ward_label')}
-            </Text> */}
+          {/* BỌC WARD: Cấp cho nó z-index và elevation thấp hơn cái ở trên (VD: 40) */}
+          <View className="relative z-40 mt-4" style={{ elevation: 40, zIndex: 40 }}>
             <DropdownPicker
               label={t('auth.complete_profile.ward_label')}
               value={watch('ward') ?? ''}
@@ -292,7 +286,6 @@ export function ProfileForm({
               isOpen={showWard}
               onToggle={() => {
                 setShowWard((p) => !p);
-                setShowProvince(false);
               }}
               onSelect={(opt) => {
                 setValue('ward', opt.name);

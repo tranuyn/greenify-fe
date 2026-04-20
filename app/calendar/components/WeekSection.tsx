@@ -45,9 +45,7 @@ const WeekSection = () => {
 
   const activeDates = useMemo(() => {
     return new Set(
-      dailyLogs
-        .filter((log) => log.is_active_day)
-        .map((log) => new Date(log.logDate).toDateString())
+      dailyLogs.filter((log) => log.isActiveDay).map((log) => new Date(log.logDate).toDateString())
     );
   }, [dailyLogs]);
 

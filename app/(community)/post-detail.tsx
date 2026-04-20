@@ -230,9 +230,9 @@ export default function PostDetailScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + (canReview ? 140 : 40) }}>
         <View className="flex-row items-center px-5 py-4">
-          {post.authorAvatarUrl  ? (
+          {post.authorAvatarUrl ? (
             <Image
-              source={{ uri: post.authorAvatarUrl  }}
+              source={{ uri: post.authorAvatarUrl }}
               className="mr-3 h-12 w-12 rounded-full border border-primary"
             />
           ) : (
@@ -351,9 +351,9 @@ export default function PostDetailScreen() {
                       </View>
 
                       {/* Lý do từ chối */}
-                      {review.rejectReason  && (
+                      {review.rejectReason && (
                         <Text className="text-foreground/50 mt-1 font-inter text-xs">
-                          {t('community.post_detail.reason', 'Lý do')}:{' '} `${review.rejectReason}`
+                          {t('community.post_detail.reason', 'Lý do')}: `${review.rejectReason}`
                           {/* {REJECT_REASONS.find((r) => r.code === review.rejectReasonCode)
                             ?.label ?? review.rejectReasonCode} */}
                         </Text>

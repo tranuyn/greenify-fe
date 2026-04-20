@@ -1,6 +1,6 @@
 import React, { useEffect, useState, forwardRef } from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
-import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Feather from '@expo/vector-icons/Feather';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { SortOption } from '@/constants/enums/sortOptions.enum';
+import { POST_STATUS, type PostStatus } from '@/types/action.types';
 import type { FeedFilterState } from '@/components/features/community/CommunityFilterSheet';
 
 interface Props {
@@ -37,6 +38,17 @@ const FilterChip = ({
     </Text>
   </TouchableOpacity>
 );
+
+const STATUS_OPTIONS: Array<{ value: PostStatus | 'all'; label: string }> = [
+  { value: 'all', label: 'Tất cả' },
+  { value: POST_STATUS.DRAFT, label: 'Nháp' },
+  { value: POST_STATUS.PENDING_REVIEW, label: 'Chờ duyệt' },
+  { value: POST_STATUS.PARTIALLY_APPROVED, label: 'Duyệt một phần' },
+  { value: POST_STATUS.VERIFIED, label: 'Đã duyệt' },
+  { value: POST_STATUS.REJECTED, label: 'Từ chối' },
+  { value: POST_STATUS.FLAGGED, label: 'Gắn cờ' },
+  { value: POST_STATUS.REVOKED, label: 'Thu hồi' },
+];
 
 export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
   ({ initialFilters, actionTypes, onApply, onClear }, ref) => {
@@ -82,7 +94,10 @@ export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
         )}
         backgroundStyle={{ backgroundColor: colors.background, borderRadius: 24 }}
         handleIndicatorStyle={{ backgroundColor: colors.primary300, width: 40 }}>
-        <BottomSheetView className="flex-1 px-6 pb-8 pt-2">
+        <BottomSheetScrollView
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32, paddingTop: 8 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
           <View className="mb-6 flex-row items-center justify-between">
             <Text className="font-inter-bold text-xl text-foreground">
               {t('community.filters.title', 'Bộ lọc cộng đồng')}
@@ -92,6 +107,13 @@ export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
               className="rounded-lg bg-rose-50 px-3 py-1.5 dark:bg-rose-500/10">
               <Text className="font-inter-medium text-sm text-rose-500">
                 {t('community.filters.clear', 'Xóa tất cả')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onApply(tempFilters)}
+              className="rounded-lg bg-primary px-3 py-1.5 dark:bg-primary-500/10">
+              <Text className="font-inter-medium text-sm text-on-primary">
+                {t('community.filters.apply', 'Áp dụng')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -110,6 +132,18 @@ export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
               isSelected={tempFilters.sortBy === SortOption.POPULAR}
               onPress={() => setTempFilters({ ...tempFilters, sortBy: SortOption.POPULAR })}
             />
+          </View>
+
+          <Text className="mb-3 font-inter-semibold text-base text-foreground">Trạng thái</Text>
+          <View className="mb-6 flex-row flex-wrap">
+            {STATUS_OPTIONS.map((status) => (
+              <FilterChip
+                key={status.value}
+                label={status.label}
+                isSelected={tempFilters.status === status.value}
+                onPress={() => setTempFilters({ ...tempFilters, status: status.value })}
+              />
+            ))}
           </View>
 
           <Text className="mb-3 font-inter-semibold text-base text-foreground">
@@ -180,17 +214,17 @@ export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
               isSelected={tempFilters.actionTypeId === 'all'}
               onPress={() => setTempFilters({ ...tempFilters, actionTypeId: 'all' })}
             />
-            {actionTypes.slice(0, 5).map((type) => (
+            {actionTypes.map((type) => (
               <FilterChip
                 key={type.id}
-                label={type.action_name}
+                label={type.actionName ?? type.action_name ?? ''}
                 isSelected={tempFilters.actionTypeId === type.id}
                 onPress={() => setTempFilters({ ...tempFilters, actionTypeId: type.id })}
               />
             ))}
           </View>
 
-          <View className="flex-1" />
+          <View className="h-2" />
           <Button
             title={t('community.filters.apply', 'Áp dụng bộ lọc')}
             onPress={() => onApply(tempFilters)}
@@ -206,7 +240,7 @@ export const FeedFilterSheet = forwardRef<BottomSheetModal, Props>(
               textColor={colors.foreground}
             />
           )}
-        </BottomSheetView>
+        </BottomSheetScrollView>
       </BottomSheetModal>
     );
   }

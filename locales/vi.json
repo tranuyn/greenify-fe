@@ -226,6 +226,8 @@
     "retry": "Thử lại",
     "empty": "Chưa có dữ liệu xếp hạng.",
     "anonymous": "Ẩn danh",
+    "select_province": "Vui lòng chọn tỉnh/thành phố",
+    "province_picker_label": "Tỉnh / Thành phố",
     "scope": {
       "provincial": "Khu vực",
       "national": "Toàn quốc"
@@ -308,7 +310,8 @@
       "verify_note_label": "Ghi chú xác thực",
       "verify_note_placeholder": "Nhập ghi chú xác thực",
       "verify_success": "Xác thực điểm rác thành công.",
-      "verify_error": "Không thể xác thực điểm rác. Vui lòng thử lại."
+      "verify_error": "Không thể xác thực điểm rác. Vui lòng thử lại.",
+      "report_error": "Không thể báo cáo điểm rác. Vui lòng thử lại."
     }
   },
   "auth": {
@@ -467,7 +470,7 @@
         "cancelled": "Đã hủy"
       },
       "status": {
-        "pending_approval": "Chờ duyệt",
+        "approval_waiting": "Chờ duyệt",
         "needs_revision": "Cần sửa",
         "approved": "Đã duyệt",
         "published": "Đã đăng",

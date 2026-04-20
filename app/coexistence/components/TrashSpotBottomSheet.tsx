@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { toLabel } from '@/constants/severityTierLabel';
-import { useVerifyTrashSpot } from '@/hooks/mutations/useTrashReports';
+import { useReportTrashSpot, useVerifyTrashSpot } from '@/hooks/mutations/useTrashReports';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { TrashSpotListItem, TrashSpotReport } from '@/types/community.types';
 import { openDirections } from '@/utils/directions.util';
@@ -45,13 +45,19 @@ const TrashSpotBottomSheet = ({
   const snapPoints = useMemo(() => ['50%', '90%'], []);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
+  const [noteAction, setNoteAction] = useState<'verify' | 'report'>('verify');
   const verifyTrashSpotMutation = useVerifyTrashSpot(station.id);
+  const reportTrashSpotMutation = useReportTrashSpot(station.id);
   const sliderWidth = Math.max(screenWidth - 40, 1);
   const imageUrls = useMemo(() => detail?.imageUrls ?? [], [detail?.imageUrls]);
   const description = detail?.description ?? '';
   const defaultVerifyNote = t(
     'coexistence.trash_spot_sheet.verify_note_default',
     'Xác thực từ bản đồ'
+  );
+  const defaultReportNote = t(
+    'coexistence.trash_spot_sheet.report_note_default',
+    'Báo cáo từ bản đồ'
   );
 
   useEffect(() => {
@@ -69,7 +75,8 @@ const TrashSpotBottomSheet = ({
     }
   };
 
-  const handleOpenVerifyModal = () => {
+  const handleOpenNoteModal = (action: 'verify' | 'report') => {
+    setNoteAction(action);
     setIsNoteModalVisible(true);
   };
 
@@ -99,6 +106,31 @@ const TrashSpotBottomSheet = ({
     }
   };
 
+  const handleReportTrashSpot = async (note: string) => {
+    try {
+      await reportTrashSpotMutation.mutateAsync({
+        note: note.trim() || defaultReportNote,
+      });
+
+      Alert.alert(
+        t('common.success', 'Thành công'),
+        t('coexistence.trash_spot_sheet.report_success', 'Báo cáo điểm rác thành công.')
+      );
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || t('common.error', 'Lỗi');
+
+      console.error('Error reporting trash spot:', error?.response || error);
+      Alert.alert(
+        t('common.error', 'Lỗi'),
+        errorMessage ||
+          t(
+            'coexistence.trash_spot_sheet.report_error',
+            'Không thể báo cáo điểm rác. Vui lòng thử lại.'
+          )
+      );
+    }
+  };
   return (
     <BottomSheet snapPoints={snapPoints} onClose={onClose} enablePanDownToClose>
       <BottomSheetView className="flex-1 rounded-t-3xl bg-background px-5 pb-6 pt-3">
@@ -213,7 +245,8 @@ const TrashSpotBottomSheet = ({
           <TouchableOpacity
             className="flex-1 items-center justify-center rounded-xl py-4"
             style={{ backgroundColor: '#F7DCDD' }}
-            onPress={() => onReport?.(station.id)}>
+            onPress={() => handleOpenNoteModal('report')}
+            disabled={reportTrashSpotMutation.isPending || verifyTrashSpotMutation.isPending}>
             <Text className="font-inter-medium text-base text-foreground">
               {t('coexistence.trash_spot_sheet.report_button')}
             </Text>
@@ -222,8 +255,8 @@ const TrashSpotBottomSheet = ({
           <TouchableOpacity
             className="flex-1 items-center justify-center rounded-xl py-4"
             style={{ backgroundColor: colors.primary }}
-            onPress={handleOpenVerifyModal}
-            disabled={verifyTrashSpotMutation.isPending}>
+            onPress={() => handleOpenNoteModal('verify')}
+            disabled={verifyTrashSpotMutation.isPending || reportTrashSpotMutation.isPending}>
             <Text className="font-inter-medium text-base text-on-primary">
               {t('coexistence.trash_spot_sheet.verify_button')}
             </Text>
@@ -241,23 +274,36 @@ const TrashSpotBottomSheet = ({
 
         <NoteModal
           visible={isNoteModalVisible}
-          title={t('coexistence.trash_spot_sheet.verify_note_label', 'Ghi chú xác thực')}
+          title={
+            noteAction === 'verify'
+              ? t('coexistence.trash_spot_sheet.verify_note_label', 'Ghi chú xác thực')
+              : t('coexistence.trash_spot_sheet.report_note_label', 'Ghi chú báo cáo')
+          }
           placeholder={t(
-            'coexistence.trash_spot_sheet.verify_note_placeholder',
-            'Nhập ghi chú xác thực'
+            noteAction === 'verify'
+              ? 'coexistence.trash_spot_sheet.verify_note_placeholder'
+              : 'coexistence.trash_spot_sheet.report_note_placeholder',
+            noteAction === 'verify' ? 'Nhập ghi chú xác thực' : 'Nhập ghi chú báo cáo'
           )}
-          initialValue={defaultVerifyNote}
+          initialValue={noteAction === 'verify' ? defaultVerifyNote : defaultReportNote}
           cancelText={t('common.cancel', 'Hủy')}
           confirmText={
-            verifyTrashSpotMutation.isPending
+            verifyTrashSpotMutation.isPending || reportTrashSpotMutation.isPending
               ? t('common.processing', 'Đang xử lý...')
-              : t('coexistence.trash_spot_sheet.verify_button')
+              : noteAction === 'verify'
+                ? t('coexistence.trash_spot_sheet.verify_button')
+                : t('coexistence.trash_spot_sheet.report_button')
           }
-          isConfirming={verifyTrashSpotMutation.isPending}
+          isConfirming={verifyTrashSpotMutation.isPending || reportTrashSpotMutation.isPending}
           onCancel={() => setIsNoteModalVisible(false)}
           onConfirm={async (note) => {
             setIsNoteModalVisible(false);
-            await handleVerifyTrashSpot(note);
+            if (noteAction === 'verify') {
+              await handleVerifyTrashSpot(note);
+              return;
+            }
+
+            await handleReportTrashSpot(note);
           }}
         />
       </BottomSheetView>

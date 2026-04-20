@@ -2,7 +2,7 @@
 // VOUCHER TYPES
 // Mapped from: voucher_templates, user_vouchers
 
-import { PageResponse, PaginationParams } from "./common.types";
+import { PageResponse, PaginationParams } from './common.types';
 
 // ============================================================
 export type VoucherTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DEPLETED';
@@ -151,7 +151,7 @@ export interface PlantDailyLog {
   //plant_progress: PlantProgress;
   logDate: Date;
   stage: PlantStatus;
-  is_active_day: boolean;
+  isActiveDay: boolean;
   isChangeState: boolean;
   greenPostUrl: string;
   imageUrl: string;
@@ -170,7 +170,7 @@ export interface CreatePlantDailyLogRequest {
   plant_progress_id: string;
   log_date: string;
   stage: PlantStatus;
-  is_active_day: boolean;
+  isActiveDay: boolean;
   green_post_url?: string;
   image_url?: string;
 }
@@ -180,11 +180,12 @@ export interface GardenArchive {
   user_id: string;
   seed_id: string;
   plant_progress_id: string;
-  days_taken: number;
-  reward_status: GardenRewardStatus;
-  display_image_url: string;
+  daysTaken: number;
+  rewardStatus: GardenRewardStatus;
+  displayImageUrl: string;
+  voucherCode: string | null;
   user_voucher_id: string | null;
-  archived_at: string;
+  archivedAt: string;
   // Joined
   seed?: Seed;
   plant_progress?: PlantProgress;

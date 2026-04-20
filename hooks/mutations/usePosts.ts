@@ -8,9 +8,9 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: (payload: CreatePostRequest) => actionService.createPost(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });  
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.mine() });
     },
   });
 };
@@ -21,7 +21,7 @@ export const useReviewPost = (postId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.detail(postId) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.pendingReview() });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.feed() });
+      queryClient.invalidateQueries({ queryKey: ['posts', 'feed'] });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
     },
   });

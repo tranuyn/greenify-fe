@@ -41,10 +41,9 @@ export default function EventDetailScreen() {
   const [registeringId, setRegisteringId] = useState<string | null>(null);
 
   const { data: user } = useCurrentUser();
-  const { data: event, isLoading } = useEventDetail(id);
+  const { data: event, isLoading, isError, error } = useEventDetail(id);
   const { data: registrationsResponse } = useMyRegistrations(user?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
-  const { mutate: cancelRegistration } = useCancelRegistration(id);
 
   const myRegistrationEvent = registrationsResponse?.content?.find((e: Event) => e.id === id);
 
@@ -60,14 +59,15 @@ export default function EventDetailScreen() {
       { eventId: event.id },
       {
         onSuccess: () => setRegisteringId(null),
-      onError: (err: any) => {
-        setRegisteringId(null);
-        Alert.alert(
-          t('events.detail.alert.register_failed_title'),
-          err?.response?.data?.message ?? t('events.detail.alert.register_failed_message')
-        );
-      },
-    });
+        onError: (err: any) => {
+          setRegisteringId(null);
+          Alert.alert(
+            t('events.detail.alert.register_failed_title'),
+            err?.response?.data?.message ?? t('events.detail.alert.register_failed_message')
+          );
+        },
+      }
+    );
   }, [event, registerEvent, t]);
 
   const handleCancelConfirm = useCallback(() => {
@@ -84,10 +84,39 @@ export default function EventDetailScreen() {
     ]);
   }, [t]);
 
-  if (isLoading || !event) {
+  console.log('Event detail:', event);
+  if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (isError || !event) {
+    const detailErrorMessage =
+      (error as any)?.response?.data?.message ??
+      (error as any)?.message ??
+      t('events.detail.load_failed', {
+        defaultValue: 'Không thể tải chi tiết sự kiện. Vui lòng thử lại.',
+      });
+
+    return (
+      <View className="flex-1 items-center justify-center bg-background px-6">
+        <Feather name="alert-circle" size={28} color={colors.error} />
+        <Text className="mt-3 text-center font-inter-semibold text-base text-foreground">
+          {t('common.error', { defaultValue: 'Đã có lỗi xảy ra' })}
+        </Text>
+        <Text className="text-foreground/60 mt-1 text-center font-inter text-sm">
+          {detailErrorMessage}
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mt-5 rounded-xl bg-primary px-4 py-2.5">
+          <Text className="font-inter-semibold text-sm text-white">
+            {t('common.back', { defaultValue: 'Quay lại' })}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -115,8 +144,8 @@ export default function EventDetailScreen() {
         </View>
 
         <View className="px-5 pt-5">
-          {/* NGO */}
-          {event.organizer.name && (
+          {/* Organizer info */}
+          {event.organizer && (
             <View className="mb-2 flex-row items-center">
               <View className="mr-2 h-6 w-6 items-center justify-center rounded-full bg-primary-100">
                 <Feather name="shield" size={12} color={colors.primary700} />
@@ -124,6 +153,19 @@ export default function EventDetailScreen() {
               <Text className="font-inter-semibold text-xs uppercase tracking-wider text-primary-700">
                 {event.organizer.name}
               </Text>
+              {/* Nếu có avatar hoặc logo tổ chức */}
+              {event.organizer?.avatar && (
+                <Image
+                  source={{
+                    uri:
+                      typeof event.organizer.avatar === 'string'
+                        ? event.organizer.avatar
+                        : event.organizer.avatar.imageUrl,
+                  }}
+                  className="ml-2 h-6 w-6 rounded-full"
+                  resizeMode="cover"
+                />
+              )}
             </View>
           )}
 
@@ -145,6 +187,22 @@ export default function EventDetailScreen() {
             </View>
           </View>
 
+          {/* Gallery images */}
+          {event.images && event.images.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="my-4">
+              <View className="flex-row gap-x-3">
+                {event.images.map((img, idx) => (
+                  <Image
+                    key={img.imageUrl || idx}
+                    source={{ uri: img.imageUrl }}
+                    className="h-24 w-36 rounded-xl"
+                    resizeMode="cover"
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          )}
+
           {/* Meta info */}
           <View className="mt-4 gap-2.5">
             <View className="flex-row items-center">
@@ -152,7 +210,7 @@ export default function EventDetailScreen() {
                 <Feather name="map-pin" size={15} color={colors.primary700} />
               </View>
               <Text className="text-foreground/70 flex-1 font-inter text-sm">
-                {event.address.addressDetail}
+                {event.address?.addressDetail}
               </Text>
             </View>
 
@@ -177,6 +235,16 @@ export default function EventDetailScreen() {
                 {formatDate(event.startTime)}
               </Text>
             </View>
+
+            {/* Event type */}
+            {event.eventType && (
+              <View className="flex-row items-center">
+                <View className="mr-3 h-8 w-8 items-center justify-center rounded-xl bg-primary-50">
+                  <Feather name="tag" size={15} color={colors.primary700} />
+                </View>
+                <Text className="text-foreground/70 font-inter text-sm">{event.eventType}</Text>
+              </View>
+            )}
           </View>
 
           {/* Divider */}
@@ -191,55 +259,55 @@ export default function EventDetailScreen() {
           </Text>
 
           {/* Participation conditions */}
-          {/* Participation conditions currently not in the new Event type, keeping logic but it might be null */}
           <View className="my-5 h-px bg-primary-50 dark:bg-white/5" />
           <Text className="mb-3 font-inter-bold text-base text-foreground">
             {t('events.detail.conditions_title')}
           </Text>
           <Text className="text-foreground/70 font-inter text-sm leading-6">
-            {/* Using description as fallback or a placeholder if conditions are separated in the future */}
-            Cần tuân thủ quy định của ban tổ chức.
+            {event.participationConditions || 'Cần tuân thủ quy định của ban tổ chức.'}
           </Text>
         </View>
       </ScrollView>
 
       {/* ── Bottom CTA ── */}
-      <View
-        className="absolute bottom-0 left-0 right-0 border-t border-primary-50 bg-background px-5 pt-3 dark:border-white/5"
-        style={{ paddingBottom: insets.bottom + 12 }}>
-        {isRegistered ? (
-          <View className="gap-3">
-            {/* Quét mã QR */}
-            {canShowQR && (
-              <Button
-                title={t('events.detail.actions.scan_qr')}
-                onPress={() => setShowQR(true)}
-                className="bg-primary"
-              />
-            )}
-            {/* Hủy đăng ký */}
-            <TouchableOpacity onPress={handleCancelConfirm} className="items-center py-2">
-              <Text className="font-inter-medium text-sm text-rose-500">
-                {t('events.detail.actions.cancel_registration')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <Button
-            title={
-              isFull
-                ? t('events.detail.actions.full')
-                : registeringId === event.id
-                  ? t('events.detail.actions.processing')
-                  : t('events.detail.actions.register')
-            }
-            disabled={isFull || registeringId === event.id}
-            isLoading={registeringId === event.id}
-            onPress={handleRegister}
-            className="bg-primary"
-          />
-        )}
-      </View>
+      {user?.ngoProfile?.id !== event.organizer?.id && (
+        <View
+          className="absolute bottom-0 left-0 right-0 border-t border-primary-50 bg-background px-5 pt-3 dark:border-white/5"
+          style={{ paddingBottom: insets.bottom + 12 }}>
+          {isRegistered ? (
+            <View className="gap-3">
+              {/* Quét mã QR */}
+              {canShowQR && (
+                <Button
+                  title={t('events.detail.actions.scan_qr')}
+                  onPress={() => setShowQR(true)}
+                  className="bg-primary"
+                />
+              )}
+              {/* Hủy đăng ký */}
+              <TouchableOpacity onPress={handleCancelConfirm} className="items-center py-2">
+                <Text className="font-inter-medium text-sm text-rose-500">
+                  {t('events.detail.actions.cancel_registration')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Button
+              title={
+                isFull
+                  ? t('events.detail.actions.full')
+                  : registeringId === event.id
+                    ? t('events.detail.actions.processing')
+                    : t('events.detail.actions.register')
+              }
+              disabled={isFull || registeringId === event.id}
+              isLoading={registeringId === event.id}
+              onPress={handleRegister}
+              className="bg-primary"
+            />
+          )}
+        </View>
+      )}
 
       {/* ── QR Modal ── */}
       <Modal
