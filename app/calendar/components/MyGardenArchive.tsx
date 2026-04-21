@@ -23,7 +23,7 @@ const MyGardenArchive = ({ onBack }: MyGardenArchiveProps) => {
           <Feather name="arrow-left" size={18} color={colors.foreground} />
         </TouchableOpacity>
         <Text className="font-inter-bold text-lg text-[var(--foreground)]">
-          {t('calendar.archive.title')}
+          {t('calendar.archive.title', 'Kho lưu trữ khu vườn')}
         </Text>
         <View className="h-9 w-9" />
       </View>
@@ -32,7 +32,7 @@ const MyGardenArchive = ({ onBack }: MyGardenArchiveProps) => {
         <View className="items-center py-8">
           <ActivityIndicator />
           <Text className="mt-2 text-sm text-[var(--muted-foreground)]">
-            {t('calendar.archive.loading')}
+            {t('calendar.archive.loading', 'Đang tải...')}
           </Text>
         </View>
       ) : null}
@@ -40,7 +40,7 @@ const MyGardenArchive = ({ onBack }: MyGardenArchiveProps) => {
       {!isLoading && archives.length === 0 ? (
         <View className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-5">
           <Text className="text-center text-sm text-[var(--muted-foreground)]">
-            {t('calendar.archive.empty')}
+            {t('calendar.archive.empty', 'Chưa có dữ liệu')}
           </Text>
         </View>
       ) : null}

@@ -44,6 +44,10 @@ i18n
   .use(languageDetector) // Nhúng detector vào đây
   .use(initReactI18next)
   .init({
+    compatibilityJSON: 'v3' as any,
+    nonExplicitSupportedLngs: true,
+    react: { useSuspense: false },
+
     resources: {
       vi: { translation: vi },
       en: { translation: en },

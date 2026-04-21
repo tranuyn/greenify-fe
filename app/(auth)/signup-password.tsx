@@ -67,8 +67,8 @@ export default function SignupPasswordScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title={t('auth.signup_password.title')}
-        subtitle={t('auth.signup_password.subtitle')}
+        title={t('auth.signup_password.title', 'Tạo mật khẩu')}
+        subtitle={t('auth.signup_password.subtitle', 'Tạo mật khẩu cho tài khoản của bạn')}
       />
 
       <View className="mt-6 gap-4">
@@ -78,8 +78,8 @@ export default function SignupPasswordScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.signup_password.password_label')}
-              placeholder={t('auth.signup_password.password_placeholder')}
+              label={t('auth.signup_password.password_label', 'Mật khẩu')}
+              placeholder={t('auth.signup_password.password_placeholder', 'Nhập mật khẩu')}
               secureTextEntry={!showPassword}
               value={value}
               onChangeText={onChange}
@@ -99,8 +99,8 @@ export default function SignupPasswordScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.signup_password.confirm_label')}
-              placeholder={t('auth.signup_password.confirm_placeholder')}
+              label={t('auth.signup_password.confirm_label', 'Xác nhận mật khẩu')}
+              placeholder={t('auth.signup_password.confirm_placeholder', 'Nhập lại mật khẩu')}
               secureTextEntry={!showConfirm}
               value={value}
               onChangeText={onChange}
@@ -116,7 +116,7 @@ export default function SignupPasswordScreen() {
       </View>
 
       <Button
-        title={t('auth.signup_password.submit_btn')}
+        title={t('auth.signup_password.submit_btn', 'Tiếp tục')}
         className="mt-6"
         disabled={isPending}
         onPress={handleSubmit(onSubmit)}

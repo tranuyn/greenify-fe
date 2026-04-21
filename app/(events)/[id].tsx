@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 import QRCode from 'react-native-qrcode-svg';
+import { eventService } from '@/services/community.service';
 import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
@@ -39,6 +40,8 @@ export default function EventDetailScreen() {
 
   const [showQR, setShowQR] = useState(false);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
 
   const { data: user } = useCurrentUser();
   const { data: event, isLoading, isError, error } = useEventDetail(id);
@@ -46,6 +49,25 @@ export default function EventDetailScreen() {
   const { mutate: registerEvent } = useRegisterEvent();
 
   const myRegistrationEvent = registrationsResponse?.content?.find((e: Event) => e.id === id);
+
+  // Always fetch registration code when modal is opened
+  useEffect(() => {
+    const fetchQr = async () => {
+      if (showQR && user?.id && id) {
+        setQrLoading(true);
+        try {
+          const code = await eventService.getRegistrationCode(id, user.id);
+          setQrCode(code);
+        } catch (e) {
+          setQrCode(null);
+        }
+        setQrLoading(false);
+      } else if (!showQR) {
+        setQrCode(null);
+      }
+    };
+    fetchQr();
+  }, [showQR, user?.id, id]);
 
   const isRegistered = !!myRegistrationEvent;
   const canShowQR = isRegistered;
@@ -62,8 +84,9 @@ export default function EventDetailScreen() {
         onError: (err: any) => {
           setRegisteringId(null);
           Alert.alert(
-            t('events.detail.alert.register_failed_title'),
-            err?.response?.data?.message ?? t('events.detail.alert.register_failed_message')
+            t('events.detail.alert.register_failed_title', 'Đăng ký thất bại'),
+            err?.response?.data?.message ??
+              t('events.detail.alert.register_failed_message', 'Không thể đăng ký sự kiện')
           );
         },
       }
@@ -71,20 +94,28 @@ export default function EventDetailScreen() {
   }, [event, registerEvent, t]);
 
   const handleCancelConfirm = useCallback(() => {
-    Alert.alert(t('events.detail.alert.cancel_title'), t('events.detail.alert.cancel_message'), [
-      { text: t('events.detail.alert.keep_registration'), style: 'cancel' },
-      {
-        text: t('events.detail.alert.confirm_cancel_registration'),
-        style: 'destructive',
-        onPress: () => {
-          // TODO: gọi cancelRegistration mutation khi BE có endpoint
-          Alert.alert(t('events.detail.alert.cancel_success'));
+    Alert.alert(
+      t('events.detail.alert.cancel_title', 'Hủy đăng ký'),
+      t('events.detail.alert.cancel_message', 'Bạn có chắc muốn hủy đăng ký sự kiện này?'),
+      [
+        { text: t('events.detail.alert.keep_registration', 'Giữ đăng ký'), style: 'cancel' },
+        {
+          text: t('events.detail.alert.confirm_cancel_registration', 'Xác nhận hủy đăng ký'),
+          style: 'destructive',
+          onPress: () => {
+            // TODO: gọi cancelRegistration mutation khi BE có endpoint
+            Alert.alert(t('events.detail.alert.cancel_success', 'Hủy đăng ký thành công'));
+          },
         },
-      },
-    ]);
+      ]
+    );
   }, [t]);
 
-  console.log('Event detail:', event);
+  const handlegetQrCode = useCallback(() => {
+    if (!event) return;
+    const res = setShowQR(true);
+  }, [event]);
+
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
@@ -178,7 +209,7 @@ export default function EventDetailScreen() {
             </Text>
             <View className="items-end">
               <Text className="text-foreground/50 font-inter text-xs">
-                {t('events.detail.reward_label')}
+                {t('events.detail.reward_label', 'Phần thưởng')}
               </Text>
               <Text className="font-inter-bold text-2xl text-primary">
                 {event.rewardPoints}
@@ -220,6 +251,7 @@ export default function EventDetailScreen() {
               </View>
               <Text className="text-foreground/70 font-inter text-sm">
                 {t('events.detail.participants', {
+                  defaultValue: 'Tham gia: {registered}/{total}',
                   registered: event.participantCount ?? 0,
                   total: event.maxParticipants,
                 })}
@@ -252,7 +284,7 @@ export default function EventDetailScreen() {
 
           {/* Description */}
           <Text className="mb-3 font-inter-bold text-base text-foreground">
-            {t('events.detail.description_title')}
+            {t('events.detail.description_title', 'Mô tả')}
           </Text>
           <Text className="text-foreground/70 font-inter text-sm leading-6">
             {event.description}
@@ -261,7 +293,7 @@ export default function EventDetailScreen() {
           {/* Participation conditions */}
           <View className="my-5 h-px bg-primary-50 dark:bg-white/5" />
           <Text className="mb-3 font-inter-bold text-base text-foreground">
-            {t('events.detail.conditions_title')}
+            {t('events.detail.conditions_title', 'Điều kiện tham gia')}
           </Text>
           <Text className="text-foreground/70 font-inter text-sm leading-6">
             {event.participationConditions || 'Cần tuân thủ quy định của ban tổ chức.'}
@@ -279,7 +311,7 @@ export default function EventDetailScreen() {
               {/* Quét mã QR */}
               {canShowQR && (
                 <Button
-                  title={t('events.detail.actions.scan_qr')}
+                  title={t('events.detail.actions.scan_qr', 'Quét mã QR')}
                   onPress={() => setShowQR(true)}
                   className="bg-primary"
                 />
@@ -287,7 +319,7 @@ export default function EventDetailScreen() {
               {/* Hủy đăng ký */}
               <TouchableOpacity onPress={handleCancelConfirm} className="items-center py-2">
                 <Text className="font-inter-medium text-sm text-rose-500">
-                  {t('events.detail.actions.cancel_registration')}
+                  {t('events.detail.actions.cancel_registration', 'Hủy đăng ký')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -295,10 +327,10 @@ export default function EventDetailScreen() {
             <Button
               title={
                 isFull
-                  ? t('events.detail.actions.full')
+                  ? t('events.detail.actions.full', 'Đã đủ người')
                   : registeringId === event.id
-                    ? t('events.detail.actions.processing')
-                    : t('events.detail.actions.register')
+                    ? t('events.detail.actions.processing', 'Đang xử lý...')
+                    : t('events.detail.actions.register', 'Đăng ký')
               }
               disabled={isFull || registeringId === event.id}
               isLoading={registeringId === event.id}
@@ -320,13 +352,19 @@ export default function EventDetailScreen() {
             <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-200" />
 
             <Text className="mb-6 text-center font-inter-bold text-lg text-foreground">
-              {t('events.detail.qr.title')}
+              {t('events.detail.qr.title', 'Mã QR sự kiện')}
             </Text>
 
             {/* QR Code */}
             <View className="mb-6 items-center justify-center rounded-3xl bg-white p-6 shadow-md shadow-black/50">
               <View className="h-[200px] w-[200px] items-center justify-center">
-                <Text className="text-foreground/50 text-sm">Quét mã QR tại sự kiện</Text>
+                {qrLoading ? (
+                  <ActivityIndicator size="large" color={colors.primary} />
+                ) : qrCode ? (
+                  <QRCode value={qrCode} size={200} />
+                ) : (
+                  <Text className="text-foreground/50 text-sm">Không lấy được mã QR</Text>
+                )}
               </View>
             </View>
 
@@ -341,7 +379,7 @@ export default function EventDetailScreen() {
               onPress={() => setShowQR(false)}
               className="items-center rounded-2xl bg-primary-50 py-3.5 dark:bg-card">
               <Text className="font-inter-semibold text-base text-primary-700">
-                {t('events.detail.qr.back')}
+                {t('events.detail.qr.back', 'Quay lại')}
               </Text>
             </TouchableOpacity>
           </View>

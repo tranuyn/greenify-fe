@@ -28,7 +28,7 @@ export default function NatureScreen() {
       {/* Cụm này sẽ được bao bọc bởi một View có flex-1 để chiếm không gian ở giữa */}
       <View className="mx-6 mt-8 flex-1 rounded-[40px] border border-white/20 bg-neutral-800  p-6  shadow-sm">
         <Text className="mb-6 font-inter-semibold text-xl text-[var(--primary)]">
-          {t('photograph.nature.collection_title')}
+          {t('photograph.nature.collection_title', 'Bộ sưu tập')}
         </Text>
 
         {/* Container cho Grid 7x10 */}

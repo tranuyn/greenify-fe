@@ -212,7 +212,6 @@ export const authService = {
     //   return MOCK_AUTHENTICATED_USER;
     // }
     const { data } = await apiClient.get<AuthenticatedUser>('/users/me');
-    console.log('API /users/me response:', data);
     return data;
   },
 };

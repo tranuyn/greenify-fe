@@ -1,6 +1,7 @@
 import Entypo from '@expo/vector-icons/Entypo';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from './Text';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export type DropdownOption = {
   code: string;
@@ -35,7 +36,7 @@ export function DropdownPicker({
   const borderClass = errorText ? 'border-rose-400' : 'border-primary-100';
 
   return (
-    <View className="relative z-[9999]">
+    <View className="relative z-[9999]" style={{ zIndex: 9999, elevation: 999 }}>
       <Text className="mb-1 font-inter-medium text-sm text-foreground">{label}</Text>
 
       <Pressable
@@ -54,7 +55,11 @@ export function DropdownPicker({
         <View
           className="elevation-5 absolute inset-x-0 z-[9999] rounded-xl border border-primary-100 bg-background shadow-sm shadow-black/10"
           style={{ top: '100%', marginTop: 8 }}>
-          <ScrollView className="max-h-48 p-2" nestedScrollEnabled>
+          <ScrollView
+            style={{ maxHeight: 220, padding: 8 }}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            persistentScrollbar>
             {options.length === 0 ? (
               <Text className="px-3 py-2 text-sm text-muted-foreground">Không có dữ liệu</Text>
             ) : (

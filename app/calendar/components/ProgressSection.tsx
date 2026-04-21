@@ -10,11 +10,11 @@ const ProgressSection = () => {
   const { t } = useTranslation();
 
   const STAGE_LABELS: Record<PlantStatus, string> = {
-    [PlantStatus.SEED]: t('calendar.progress.stage.seed'),
-    [PlantStatus.SPROUT]: t('calendar.progress.stage.sprout'),
-    [PlantStatus.GROWING]: t('calendar.progress.stage.growing'),
-    [PlantStatus.BLOOMING]: t('calendar.progress.stage.blooming'),
-    [PlantStatus.MATURED]: t('calendar.progress.stage.matured'),
+    [PlantStatus.SEED]: t('calendar.progress.stage.seed', 'Hạt giống'),
+    [PlantStatus.SPROUT]: t('calendar.progress.stage.sprout', 'Mầm'),
+    [PlantStatus.GROWING]: t('calendar.progress.stage.growing', 'Đang lớn'),
+    [PlantStatus.BLOOMING]: t('calendar.progress.stage.blooming', 'Nở hoa'),
+    [PlantStatus.MATURED]: t('calendar.progress.stage.matured', 'Trưởng thành'),
   };
 
   const { data: streak } = useMyStreak();
@@ -22,12 +22,21 @@ const ProgressSection = () => {
 
   const currentStage = myPlant?.currentStage
     ? STAGE_LABELS[myPlant.currentStage]
-    : t('calendar.progress.stage.not_started');
+    : t('calendar.progress.stage.not_started', 'Chưa bắt đầu');
 
-  const currentSeedName = myPlant?.seedName ?? t('calendar.progress.no_seed_selected');
+  const currentSeedName =
+    myPlant?.seedName ?? t('calendar.progress.no_seed_selected', 'Chưa chọn hạt giống');
   const currentStreak = streak?.currentStreak ?? 0;
-  const progressPercent = myPlant?.percentComplete ?? 0;
+  let progressPercent = 0;
+  if (myPlant?.daysToMature && streak?.currentStreak != null) {
+    progressPercent = Math.min(Math.max((currentStreak / myPlant.daysToMature) * 100, 0), 100);
+  } else {
+    progressPercent = myPlant?.percentComplete ?? 0;
+  }
   const currentImageUrl = myPlant?.currentStageImageUrl || IMAGES.treeAvatar;
+
+  console.log('Current Plant Data:', myPlant);
+  console.log('Current Streak Data:', streak);
 
   return (
     <View className="mt-[-110px] px-4">
@@ -41,7 +50,7 @@ const ProgressSection = () => {
         <View className="ml-4 flex-1">
           <View className="mb-3 flex-row items-start">
             <Text className="font-interW text-[var(--foreground)]">
-              {t('calendar.progress.stage_label')}
+              {t('calendar.progress.stage_label', 'Giai đoạn')}
             </Text>
             <Text className="flex-1 font-inter text-sm text-[var(--foreground)]">
               {currentStage} - {currentSeedName}
@@ -58,7 +67,7 @@ const ProgressSection = () => {
 
           <View className="mb-3 flex-row">
             <Text className="font-interW text-[var(--foreground)]">
-              {t('calendar.progress.green_streak_label')}
+              {t('calendar.progress.green_streak_label', 'Số ngày xanh')}
             </Text>
             <Text className="font-inter text-sm text-[var(--foreground)]">{currentStreak}</Text>
           </View>
@@ -68,7 +77,7 @@ const ProgressSection = () => {
       {/* Warning Banner */}
       <View className="mt-10 items-center rounded-lg bg-[var(--danger-bg)] p-2">
         <Text className="font-inter text-sm text-foreground">
-          {t('calendar.progress.today_no_action')}
+          {t('calendar.progress.today_no_action', 'Hôm nay chưa có hoạt động')}
         </Text>
       </View>
     </View>

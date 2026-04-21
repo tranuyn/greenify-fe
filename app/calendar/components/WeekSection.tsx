@@ -6,6 +6,7 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { IMAGES } from '@/constants/linkMedia';
 import { useMyStreak, usePlantDailyLogs } from '@/hooks/queries/useGamification';
+import { useRestoreStreak } from '@/hooks/mutations/useGamification';
 import { useTranslation } from 'react-i18next';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -22,6 +23,7 @@ const getStartOfWeek = (date: Date) => {
 const toApiDate = (date: Date) => date.toISOString().slice(0, 10);
 
 const WeekSection = () => {
+  const restoreStreakMutation = useRestoreStreak();
   const { t } = useTranslation();
   const colors = useThemeColor();
   const { data: streak } = useMyStreak();
@@ -102,7 +104,7 @@ const WeekSection = () => {
     <View className="mb-4 rounded-xl p-4">
       <View className="mb-6 flex-row items-center justify-between  ">
         <Text className="font-inter-medium text-[var(--foreground)]">
-          {t('calendar.week.title')}
+          {t('calendar.week.title', 'Tuần')}
         </Text>
         <Text className="font-inter-medium text-[var(--foreground)]">{selectedDateLabel}</Text>
         <TouchableOpacity onPress={openDatePicker}>
@@ -131,19 +133,25 @@ const WeekSection = () => {
         <View className="mt-3 flex-row items-center justify-center">
           <ActivityIndicator size="small" color={colors.primary} />
           <Text className="ml-2 text-xs text-[var(--muted-foreground)]">
-            {t('calendar.week.updating')}
+            {t('calendar.week.updating', 'Đang cập nhật...')}
           </Text>
         </View>
       )}
 
-      <TouchableOpacity className="mt-8 flex-row items-center justify-center rounded-lg border border-[var(--primary)] bg-transparent py-2">
+      <TouchableOpacity
+        className="mt-8 flex-row items-center justify-center rounded-lg border border-[var(--primary)] bg-transparent py-2"
+        onPress={() => restoreStreakMutation.mutate()}>
         <Text className="mr-2 font-inter-bold text-[var(--foreground)]">
-          {t('calendar.week.restore_streak')}
+          {t('calendar.week.restore_streak', 'Khôi phục streak')}
         </Text>
         <Image source={{ uri: IMAGES.recycle }} className="h-6 w-6" />
       </TouchableOpacity>
       <Text className="mt-4 text-center font-inter text-sm text-[var(--foreground)]">
-        {t('calendar.week.restore_count', { current: streak?.restoreUsedThisMonth ?? 0, total: 3 })}
+        {t('calendar.week.restore_count', {
+          current: streak?.restoreUsedThisMonth ?? 0,
+          total: 3,
+          defaultValue: 'Số lần khôi phục: {current}/{total}',
+        })}
       </Text>
 
       {showDatePicker && Platform.OS === 'android' && (
@@ -166,15 +174,15 @@ const WeekSection = () => {
           <View className="mb-2 flex-row items-center justify-between">
             <TouchableOpacity onPress={() => dateSheetRef.current?.dismiss()}>
               <Text className="font-inter-medium text-sm text-[var(--muted-foreground)]">
-                {t('common.cancel')}
+                {t('common.cancel', 'Hủy')}
               </Text>
             </TouchableOpacity>
             <Text className="font-inter-semibold text-base text-[var(--foreground)]">
-              {t('calendar.week.pick_date')}
+              {t('calendar.week.pick_date', 'Chọn ngày')}
             </Text>
             <TouchableOpacity onPress={handleConfirmDate}>
               <Text className="font-inter-semibold text-sm text-[var(--primary)]">
-                {t('common.done')}
+                {t('common.done', 'Xong')}
               </Text>
             </TouchableOpacity>
           </View>

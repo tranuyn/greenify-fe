@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { apiClient } from '@/lib/apiClient';
+import { queryClient } from '@/lib/queryClient';
+import { authService } from '@/services/auth.service';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 interface UpgradeModalProps {
   isVisible: boolean;
@@ -9,6 +21,7 @@ interface UpgradeModalProps {
 
 const UpgradeModal: React.FC<UpgradeModalProps> = ({ isVisible, onClose }) => {
   const [isAgreed, setIsAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const benefits = [
     'Quyền tham gia xác thực hành động xanh và báo cáo môi trường',
@@ -17,6 +30,21 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isVisible, onClose }) => {
     'Truy cập các tính năng và công cụ hỗ trợ dành cho Cộng tác viên',
     'Cơ hội đồng hành cùng cộng đồng và các chiến dịch môi trường',
   ];
+
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.patch('/users/me/ctv-upgrade');
+      const res = await authService.getMe();
+      queryClient.setQueryData(QUERY_KEYS.auth.me(), res);
+      Alert.alert('Thành công', 'Bạn đã nâng cấp thành Cộng tác viên!');
+      onClose();
+    } catch (err: any) {
+      Alert.alert('Lỗi', err?.response?.data?.message || 'Không thể nâng cấp. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Modal
@@ -84,11 +112,15 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isVisible, onClose }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              disabled={!isAgreed}
-              onPress={onClose}
+              disabled={!isAgreed || isLoading}
+              onPress={handleUpgrade}
               className={`flex-1 items-center rounded-2xl py-4 shadow-sm 
                 ${isAgreed ? 'bg-primary' : 'bg-primary-200'}`}>
-              <Text className="font-bold text-on-primary">Nâng cấp ngay</Text>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="font-bold text-on-primary">Nâng cấp ngay</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>

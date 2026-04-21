@@ -117,12 +117,17 @@ export default function LocketScreen() {
     return (
       <View className="flex-1 items-center justify-center bg-black px-4">
         <Text className="mb-4 text-center font-inter-medium text-lg text-white">
-          {t('photograph.permission_required')}
+          {t(
+            'photograph.permission_required',
+            'Ứng dụng cần quyền truy cập camera để sử dụng tính năng này'
+          )}
         </Text>
         <TouchableOpacity
           className="rounded-lg bg-[var(--primary)] px-6 py-3"
           onPress={requestPermission}>
-          <Text className="font-inter-bold text-white">{t('photograph.permission_button')}</Text>
+          <Text className="font-inter-bold text-white">
+            {t('photograph.permission_button', 'Cấp quyền')}
+          </Text>
         </TouchableOpacity>
       </View>
     );

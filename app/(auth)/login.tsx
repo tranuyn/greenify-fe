@@ -70,7 +70,10 @@ export default function LoginScreen() {
 
   return (
     <AuthScaffold>
-      <AuthBrandHeader title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
+      <AuthBrandHeader
+        title={t('auth.login.title', 'Đăng nhập')}
+        subtitle={t('auth.login.subtitle', 'Chào mừng bạn quay lại!')}
+      />
 
       <View className="mt-6 gap-4">
         <Controller
@@ -79,8 +82,8 @@ export default function LoginScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.login.email_label')}
-              placeholder={t('auth.login.email_placeholder')}
+              label={t('auth.login.email_label', 'Email hoặc số điện thoại')}
+              placeholder={t('auth.login.email_placeholder', 'Nhập email hoặc số điện thoại')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -98,8 +101,8 @@ export default function LoginScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.login.password_label')}
-              placeholder={t('auth.login.password_placeholder')}
+              label={t('auth.login.password_label', 'Mật khẩu')}
+              placeholder={t('auth.login.password_placeholder', 'Nhập mật khẩu')}
               secureTextEntry={!showPassword}
               value={value}
               onChangeText={onChange}
@@ -116,12 +119,12 @@ export default function LoginScreen() {
 
       <Pressable className="mt-3 self-end" hitSlop={6}>
         <Text className="font-inter-medium text-sm text-primary-700">
-          {t('auth.login.forgot_password')}
+          {t('auth.login.forgot_password', 'Quên mật khẩu?')}
         </Text>
       </Pressable>
 
       <Button
-        title={t('auth.login.login_btn')}
+        title={t('auth.login.login_btn', 'Đăng nhập')}
         className="mt-6"
         // isLoading={isPending} // Bật nếu Component Button có hỗ trợ xoay xoay
         disabled={isPending}
@@ -129,10 +132,12 @@ export default function LoginScreen() {
       />
 
       <View className="mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-foreground/70 text-sm">{t('auth.login.no_account')}</Text>
+        <Text className="text-foreground/70 text-sm">
+          {t('auth.login.no_account', 'Chưa có tài khoản?')}
+        </Text>
         <Pressable onPress={() => router.push('/(auth)/account-type')} hitSlop={6}>
           <Text className="font-inter-semibold text-sm text-primary-700">
-            {t('auth.login.register')}
+            {t('auth.login.register', 'Đăng ký')}
           </Text>
         </Pressable>
       </View>

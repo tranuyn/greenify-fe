@@ -97,7 +97,7 @@ function NgoEventCard({
           {badge && (
             <View className={`mb-1.5 self-start rounded-full px-2.5 py-0.5 ${badge.bg}`}>
               <Text className={`font-inter-semibold text-[10px] ${badge.text}`}>
-                {t(`events.ngo_events.status.${badge.i18nKey}`)}
+                {t(`events.ngo_events.status.${badge.i18nKey}`, 'Trạng thái')}
               </Text>
             </View>
           )}
@@ -117,6 +117,7 @@ function NgoEventCard({
               <Feather name="users" size={10} color={colors.neutral400} />
               <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
                 {t('events.ngo_events.registered_count', {
+                  defaultValue: 'Đăng ký: {registered}/{max}',
                   registered: item.participantCount ?? 0,
                   max: item.maxParticipants,
                 })}
@@ -127,19 +128,19 @@ function NgoEventCard({
           {/* Scan QR button — luôn hiển thị, mờ và disable nếu chưa diễn ra */}
           {onScanQr && (
             <TouchableOpacity
-              disabled={!isOngoing}
+              // disabled={!isOngoing}
               onPress={(e) => {
                 e.stopPropagation();
-                if (!isOngoing) return;
+                // if (!isOngoing) return;
                 onScanQr();
               }}
               className={`mt-2.5 flex-row items-center self-start rounded-xl px-3 py-1.5 ${
-                isOngoing ? 'bg-primary' : 'bg-primary-50 dark:bg-card'
+                isOngoing ? 'bg-primary' : 'bg-primary'
               }`}>
               <Feather name="camera" size={12} color={isOngoing ? 'white' : '#f3f4f6'} />
               <Text
                 className={`ml-1.5 font-inter-semibold text-xs ${
-                  isOngoing ? 'text-white' : 'text-muted-foreground'
+                  isOngoing ? 'text-white' : 'text-white'
                 }`}>
                 {c('scan_qr')}
               </Text>
@@ -210,10 +211,10 @@ export function NgoEventsScreen() {
         <View className="flex-row items-center justify-between">
           <View>
             <Text className="font-inter-bold text-2xl text-foreground">
-              {t('events.ngo_events.title')}
+              {t('events.ngo_events.title', 'Sự kiện của tôi')}
             </Text>
             <Text className="text-foreground/50 mt-0.5 font-inter text-sm">
-              {t('events.ngo_events.subtitle')}
+              {t('events.ngo_events.subtitle', 'Quản lý các sự kiện bạn đã tạo')}
             </Text>
           </View>
 
@@ -241,7 +242,7 @@ export function NgoEventsScreen() {
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder={t('events.search')}
+          placeholder={t('events.search', 'Tìm kiếm sự kiện')}
           containerClassName="mt-4"
         />
       </View>
@@ -269,7 +270,7 @@ export function NgoEventsScreen() {
                   className={`font-inter-semibold text-sm ${
                     isActive ? 'text-white' : 'text-foreground/60'
                   }`}>
-                  {t(`events.ngo_events.tabs.${tab.key}`)}
+                  {t(`events.ngo_events.tabs.${tab.key}`, 'Tab')}
                 </Text>
                 {count > 0 && (
                   <View
@@ -321,10 +322,10 @@ export function NgoEventsScreen() {
                 <Feather name="calendar" size={28} color={colors.primary300} />
               </View>
               <Text className="font-inter-semibold text-base text-foreground">
-                {t('events.ngo_events.empty.title')}
+                {t('events.ngo_events.empty.title', 'Không có sự kiện nào')}
               </Text>
               <Text className="text-foreground/50 mt-1 text-center font-inter text-sm">
-                {t('events.ngo_events.empty.subtitle')}
+                {t('events.ngo_events.empty.subtitle', 'Bạn chưa tạo sự kiện nào')}
               </Text>
             </View>
           }

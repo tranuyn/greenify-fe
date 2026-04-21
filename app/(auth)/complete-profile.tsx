@@ -67,12 +67,15 @@ export default function CompleteProfileScreen() {
   };
 
   const roleSubtitle = isOrganization
-    ? t('auth.complete_profile.subtitle_org')
-    : t('auth.complete_profile.subtitle_citizen');
+    ? t('auth.complete_profile.subtitle_org', 'Hoàn thành thông tin tổ chức')
+    : t('auth.complete_profile.subtitle_citizen', 'Hoàn thành thông tin cá nhân');
 
   return (
     <AuthScaffold>
-      <AuthBrandHeader title={t('auth.complete_profile.title')} subtitle={roleSubtitle} />
+      <AuthBrandHeader
+        title={t('auth.complete_profile.title', 'Thông tin cá nhân')}
+        subtitle={roleSubtitle}
+      />
 
       {isOrganization ? (
         <NGOProfileForm
@@ -90,10 +93,12 @@ export default function CompleteProfileScreen() {
       )}
 
       <View className="z-0 mt-6 flex-row items-center justify-center gap-1">
-        <Text className="text-foreground/70 text-sm">{t('auth.login.no_account')}</Text>
+        <Text className="text-foreground/70 text-sm">
+          {t('auth.login.no_account', 'Chưa có tài khoản?')}
+        </Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
           <Text className="font-inter-semibold text-sm text-primary-700">
-            {t('auth.login.title')}
+            {t('auth.login.title', 'Đăng Ký')}
           </Text>
         </Pressable>
       </View>

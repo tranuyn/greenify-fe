@@ -52,7 +52,7 @@ export default function VerifyEmailScreen() {
   const onVerify = () => {
     const code = otp.join('');
     if (code.length < OTP_LENGTH) {
-      setErrorMsg(t('auth.verify_email.incomplete_code'));
+      setErrorMsg(t('auth.verify_email.incomplete_code', 'Vui lòng nhập đầy đủ mã xác thực'));
       return;
     }
 
@@ -64,7 +64,7 @@ export default function VerifyEmailScreen() {
             response?.data?.verificationToken ?? (response as any)?.verificationToken;
 
           if (!verificationToken) {
-            setErrorMsg(t('auth.verify_email.invalid_response'));
+            setErrorMsg(t('auth.verify_email.invalid_response', 'Mã xác thực không hợp lệ'));
             return;
           }
 
@@ -79,7 +79,10 @@ export default function VerifyEmailScreen() {
         },
         onError: (err: any) => {
           console.log('Lỗi khi verify OTP:', err, err?.response?.data);
-          setErrorMsg(err?.response?.data?.message || t('auth.verify_email.invalid_code'));
+          setErrorMsg(
+            err?.response?.data?.message ||
+              t('auth.verify_email.invalid_code', 'Mã xác thực không đúng')
+          );
         },
       }
     );
@@ -88,8 +91,8 @@ export default function VerifyEmailScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title={t('auth.verify_email.title')}
-        subtitle={`${t('auth.verify_email.subtitle')} ${destination}.`}
+        title={t('auth.verify_email.title', 'Xác thực email')}
+        subtitle={`${t('auth.verify_email.subtitle', 'Nhập mã xác thực đã gửi tới')} ${destination}.`}
       />
 
       <View className="mb-2 mt-6 flex-row justify-center gap-3">
@@ -115,12 +118,12 @@ export default function VerifyEmailScreen() {
 
       <Pressable className="mt-4 self-center" hitSlop={8} onPress={() => router.back()}>
         <Text className="font-inter-medium text-sm text-primary-700">
-          {t('auth.verify_email.resend')}
+          {t('auth.verify_email.resend', 'Gửi lại mã')}
         </Text>
       </Pressable>
 
       <Button
-        title={t('auth.verify_email.submit_btn')}
+        title={t('auth.verify_email.submit_btn', 'Xác nhận')}
         className="mt-6"
         disabled={isPending}
         onPress={onVerify}
