@@ -33,8 +33,8 @@ Trước khi bắt đầu, hãy đảm bảo máy tính của bạn đã cài đ
 **Bước 1:** Clone kho lưu trữ này về máy của bạn:
 
 ```bash
-git clone [https://github.com/your-username/greenifile.git](https://github.com/your-username/greenifile.git)
-cd greenifile
+git clone https://github.com/tranuyn/greenify-fe.git
+cd greenify-fe
 ```
 
 **Bước 2:** Cài đặt các gói phụ thuộc (Dependencies):
