@@ -45,4 +45,8 @@ npm install
 yarn install
 ```
 
-**Sau khi cài đặt xong, bạn có thể khởi động Metro Bundler và chạy ứng dụng trên máy ảo (Emulator/Simulator) hoặc thiết bị thật.**
+**Sau khi cài đặt xong, bạn có thể khởi động Metro Bundler và chạy ứng dụng trên máy ảo (Emulator/Simulator) hoặc thiết bị thật với Expo Go.**
+
+```bash
+npm start
+```
