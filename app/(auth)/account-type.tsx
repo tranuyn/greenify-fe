@@ -41,8 +41,8 @@ export default function AccountTypeScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title={t('auth.account_type.title')}
-        subtitle={t('auth.account_type.subtitle')}
+        title={t('auth.account_type.title', 'Loại tài khoản')}
+        subtitle={t('auth.account_type.subtitle', 'Chọn loại tài khoản để tiếp tục')}
       />
 
       <View className="mt-6 gap-3">
@@ -51,13 +51,19 @@ export default function AccountTypeScreen() {
             key={option.role}
             title={
               option.role === 'organization'
-                ? t('auth.account_type.role_org_title')
-                : t('auth.account_type.role_citizen_title')
+                ? t('auth.account_type.role_org_title', 'Tổ chức/Doanh nghiệp')
+                : t('auth.account_type.role_citizen_title', 'Cá nhân/Công dân')
             }
             description={
               option.role === 'organization'
-                ? t('auth.account_type.role_org_desc')
-                : t('auth.account_type.role_citizen_desc')
+                ? t(
+                    'auth.account_type.role_org_desc',
+                    'Đăng ký tài khoản cho tổ chức, doanh nghiệp, trường học hoặc nhóm cộng đồng.'
+                  )
+                : t(
+                    'auth.account_type.role_citizen_desc',
+                    'Đăng ký tài khoản cho cá nhân tham gia các hoạt động, sự kiện.'
+                  )
             }
             icon={ROLE_ICONS[option.role]}
             onPress={() =>
@@ -71,10 +77,12 @@ export default function AccountTypeScreen() {
       </View>
 
       <View className="mt-8 flex-row items-center justify-center gap-1">
-        <Text className="text-foreground/70 text-sm">{t('auth.login.no_account')}</Text>
+        <Text className="text-foreground/70 text-sm">
+          {t('auth.login.no_account', 'Chưa có tài khoản?')}
+        </Text>
         <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={6}>
           <Text className="font-inter-semibold text-sm text-primary-700">
-            {t('auth.login.title')}
+            {t('auth.login.title', 'Đăng Ký')}
           </Text>
         </Pressable>
       </View>

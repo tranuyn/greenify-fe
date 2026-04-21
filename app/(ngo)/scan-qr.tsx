@@ -41,8 +41,9 @@ export default function ScanQrScreen() {
           setScanState('success');
           setResultMessage(
             t('events.scan_qr.result_success', {
-              name: res.data.user_name,
-            }),
+              defaultValue: 'Điểm danh thành công cho {name}',
+              name: res.username || 'User',
+            })
           );
           // Reset sau 2.5s để scan tiếp
           setTimeout(() => {
@@ -53,8 +54,11 @@ export default function ScanQrScreen() {
         },
         onError: (err: any) => {
           setScanState('error');
-          const msg = err?.response?.data?.message ?? t('events.scan_qr.invalid_qr');
-          setResultMessage(t('events.scan_qr.result_error', { message: msg }));
+          const msg =
+            err?.response?.data?.message ?? t('events.scan_qr.invalid_qr', 'Mã QR không hợp lệ');
+          setResultMessage(
+            t('events.scan_qr.result_error', { message: msg, defaultValue: 'Lỗi: {message}' })
+          );
           setTimeout(() => {
             setScanState('idle');
             setLastScannedToken(null);
@@ -79,14 +83,17 @@ export default function ScanQrScreen() {
           <Feather name="camera-off" size={28} color={colors.primary700} />
         </View>
         <Text className="mb-2 text-center font-inter-bold text-lg text-foreground">
-          {t('events.scan_qr.permission_title')}
+          {t('events.scan_qr.permission_title', 'Cần quyền camera')}
         </Text>
         <Text className="text-foreground/60 mb-6 text-center font-inter text-sm">
-          {t('events.scan_qr.permission_description')}
+          {t(
+            'events.scan_qr.permission_description',
+            'Ứng dụng cần quyền truy cập camera để quét mã QR'
+          )}
         </Text>
         <TouchableOpacity onPress={requestPermission} className="rounded-2xl bg-primary px-6 py-3">
           <Text className="font-inter-semibold text-base text-white">
-            {t('events.scan_qr.permission_button')}
+            {t('events.scan_qr.permission_button', 'Cấp quyền')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -113,7 +120,9 @@ export default function ScanQrScreen() {
             hitSlop={8}>
             <Feather name="x" size={20} color="white" />
           </TouchableOpacity>
-          <Text className="font-inter-bold text-lg text-white">{t('events.scan_qr.title')}</Text>
+          <Text className="font-inter-bold text-lg text-white">
+            {t('events.scan_qr.title', 'Quét mã QR')}
+          </Text>
         </View>
 
         {/* Scan frame */}
@@ -138,7 +147,7 @@ export default function ScanQrScreen() {
           </View>
 
           <Text className="mt-6 font-inter text-sm text-white/70">
-            {t('events.scan_qr.hint')}
+            {t('events.scan_qr.hint', 'Đưa mã QR vào khung để quét')}
           </Text>
         </View>
 

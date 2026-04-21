@@ -10,7 +10,7 @@ export type EventFilterInput = {
   filterDate: Date | null;
 };
 
-const PRIORITY_EVENT_TYPES = ['Dọn rác', 'Trồng cây', 'Workshop', 'Chiến dịch'] as const;
+const PRIORITY_EVENT_TYPES = ['CLEANUP', 'PLANTING', 'RECYCLING', 'EDUCATION'] as const;
 
 export function formatDateLabel(date: Date) {
   return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
@@ -25,14 +25,13 @@ export function filterEvents(events: Event[], input: EventFilterInput) {
     const matchSearch =
       normalizedSearch.length === 0 ||
       event.title.toLowerCase().includes(normalizedSearch) ||
-      event.location_address.toLowerCase().includes(normalizedSearch);
+      (event.address?.addressDetail || '').toLowerCase().includes(normalizedSearch);
 
     const matchType =
-      input.activeType === ALL_EVENT_TYPE_LABEL || event.event_type === input.activeType;
+      input.activeType === ALL_EVENT_TYPE_LABEL || event.eventType === input.activeType;
 
     const matchDate =
-      !input.filterDate ||
-      isSameCalendarDate(new Date(event.start_time), input.filterDate);
+      !input.filterDate || isSameCalendarDate(new Date(event.startTime), input.filterDate);
 
     return matchSearch && matchType && matchDate;
   });
@@ -40,7 +39,7 @@ export function filterEvents(events: Event[], input: EventFilterInput) {
 
 export function getEventTypeOptions(events: Event[]): EventTypeOption[] {
   const availableTypes = Array.from(
-    new Set(events.map((event) => event.event_type).filter((type) => type.trim().length > 0))
+    new Set(events.map((event) => event.eventType).filter((type) => type.trim().length > 0))
   );
 
   const orderedPriority = PRIORITY_EVENT_TYPES.filter((type) => availableTypes.includes(type));

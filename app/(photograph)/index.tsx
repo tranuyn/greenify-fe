@@ -7,10 +7,12 @@ import { router, useFocusEffect, usePathname } from 'expo-router';
 import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useTranslation } from 'react-i18next';
 import BottomNavBar from '../(photograph)/components/BottomNavBar';
 import TopBar from './components/TopBar';
 
 export default function LocketScreen() {
+  const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [hasCheckedInToday, setHasCheckedInToday] = useState<boolean>(true);
@@ -114,13 +116,18 @@ export default function LocketScreen() {
   if (!permission.granted) {
     return (
       <View className="flex-1 items-center justify-center bg-black px-4">
-        <Text className="mb-4 text-center text-lg text-white">
-          Ứng dụng cần quyền truy cập camera để bạn có thể check-in.
+        <Text className="mb-4 text-center font-inter-medium text-lg text-white">
+          {t(
+            'photograph.permission_required',
+            'Ứng dụng cần quyền truy cập camera để sử dụng tính năng này'
+          )}
         </Text>
         <TouchableOpacity
           className="rounded-lg bg-[var(--primary)] px-6 py-3"
           onPress={requestPermission}>
-          <Text className="font-bold text-white">Cấp quyền Camera</Text>
+          <Text className="font-inter-bold text-white">
+            {t('photograph.permission_button', 'Cấp quyền')}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -161,7 +168,7 @@ export default function LocketScreen() {
                 <TouchableOpacity
                   onPress={toggleZoom}
                   className="h-12 w-12 items-center justify-center rounded-full bg-black/60 backdrop-blur-md">
-                  <Text className="text-xs font-bold text-white">{displayZoomText}</Text>
+                  <Text className="font-inter-bold text-xs text-white">{displayZoomText}</Text>
                 </TouchableOpacity>
               </Animated.View>
 

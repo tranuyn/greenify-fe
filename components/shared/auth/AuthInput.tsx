@@ -32,17 +32,17 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(
 
     // Bố cục màu viền: Lỗi (Đỏ) -> Đang gõ (Xanh đậm) -> Bình thường (Xanh nhạt)
     const borderColor = hasError
-      ? 'border-rose-400'
+      ? 'border-rose-500'
       : isFocused
-        ? 'border-primary-500'
-        : 'border-primary-100';
+        ? 'border-primary-600'
+        : 'border-border';
 
     return (
       <View className={containerClassName}>
         <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">{label}</Text>
 
         <View
-          className={`flex-row items-center rounded-xl border bg-primary-50 px-3 transition-colors ${borderColor}`}>
+          className={`flex-row items-center rounded-xl border bg-background px-3 transition-colors ${borderColor}`}>
           <TextInput
             ref={ref}
             placeholderTextColor="#9ca3af"

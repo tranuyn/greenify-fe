@@ -15,7 +15,11 @@ import { SignupPasswordFormData, signupPasswordSchema } from '@/validations/auth
 
 export default function SignupPasswordScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ role?: string; email?: string; otp_code?: string }>();
+  const params = useLocalSearchParams<{
+    role?: string;
+    identifier?: string;
+    verificationToken?: string;
+  }>();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -29,7 +33,7 @@ export default function SignupPasswordScreen() {
 
   const onSubmit = (data: SignupPasswordFormData) => {
     // Đảm bảo có đủ params từ các bước trước
-    if (!params.email || !params.otp_code) {
+    if (!params.verificationToken) {
       setError('confirmPassword', {
         type: 'manual',
         message: 'Dữ liệu không hợp lệ. Vui lòng quay lại.',
@@ -38,12 +42,16 @@ export default function SignupPasswordScreen() {
     }
 
     setPassword(
-      { email: params.email, password: data.password, otp_code: params.otp_code },
+      {
+        verificationToken: params.verificationToken,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+      },
       {
         onSuccess: () => {
           router.push({
             pathname: '/(auth)/complete-profile',
-            params: { role: params.role ?? 'citizen', email: params.email },
+            params: { role: params.role ?? 'citizen', identifier: params.identifier },
           });
         },
         onError: (err: any) => {
@@ -59,8 +67,8 @@ export default function SignupPasswordScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title={t('auth.signup_password.title')}
-        subtitle={t('auth.signup_password.subtitle')}
+        title={t('auth.signup_password.title', 'Tạo mật khẩu')}
+        subtitle={t('auth.signup_password.subtitle', 'Tạo mật khẩu cho tài khoản của bạn')}
       />
 
       <View className="mt-6 gap-4">
@@ -70,8 +78,8 @@ export default function SignupPasswordScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.signup_password.password_label')}
-              placeholder={t('auth.signup_password.password_placeholder')}
+              label={t('auth.signup_password.password_label', 'Mật khẩu')}
+              placeholder={t('auth.signup_password.password_placeholder', 'Nhập mật khẩu')}
               secureTextEntry={!showPassword}
               value={value}
               onChangeText={onChange}
@@ -91,8 +99,8 @@ export default function SignupPasswordScreen() {
           render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
             <AuthInput
               ref={ref}
-              label={t('auth.signup_password.confirm_label')}
-              placeholder={t('auth.signup_password.confirm_placeholder')}
+              label={t('auth.signup_password.confirm_label', 'Xác nhận mật khẩu')}
+              placeholder={t('auth.signup_password.confirm_placeholder', 'Nhập lại mật khẩu')}
               secureTextEntry={!showConfirm}
               value={value}
               onChangeText={onChange}
@@ -108,7 +116,7 @@ export default function SignupPasswordScreen() {
       </View>
 
       <Button
-        title={t('auth.signup_password.submit_btn')}
+        title={t('auth.signup_password.submit_btn', 'Tiếp tục')}
         className="mt-6"
         disabled={isPending}
         onPress={handleSubmit(onSubmit)}

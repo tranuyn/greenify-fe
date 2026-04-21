@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { SearchBar } from '@/components/shared/SearchBar';
-import { useNgoEvents } from '@/hooks/queries/useEvents';
+import { useMyNgoEvents } from '@/hooks/queries/useEvents';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { Event, EventStatus } from '@/types/community.types';
 
@@ -15,7 +15,7 @@ import type { Event, EventStatus } from '@/types/community.types';
 type NgoEventTab = 'pending' | 'registered' | 'ongoing' | 'ended' | 'cancelled';
 
 const NGO_TABS: { key: NgoEventTab; statuses: EventStatus[] }[] = [
-  { key: 'pending', statuses: ['PENDING_APPROVAL', 'NEEDS_REVISION'] },
+  { key: 'pending', statuses: ['APPROVAL_WAITING', 'NEEDS_REVISION'] },
   { key: 'registered', statuses: ['APPROVED', 'PUBLISHED'] },
   { key: 'ongoing', statuses: [] },
   { key: 'ended', statuses: ['CLOSED'] },
@@ -29,8 +29,7 @@ function getFilteredEvents(events: Event[], tabKey: NgoEventTab, search: string 
   let filtered: Event[];
   if (tabKey === 'ongoing') {
     filtered = events.filter(
-      (e) =>
-        e.status === 'PUBLISHED' && new Date(e.start_time) <= now && new Date(e.end_time) >= now
+      (e) => e.status === 'PUBLISHED' && new Date(e.startTime) <= now && new Date(e.endTime) >= now
     );
   } else {
     filtered = events.filter((e) => tab.statuses.includes(e.status));
@@ -45,7 +44,7 @@ function getFilteredEvents(events: Event[], tabKey: NgoEventTab, search: string 
 
 // ── Status badge config ──────────────────────────────────────
 const STATUS_BADGE: Partial<Record<EventStatus, { bg: string; text: string; i18nKey: string }>> = {
-  PENDING_APPROVAL: { bg: 'bg-amber-50', text: 'text-amber-600', i18nKey: 'pending_approval' },
+  APPROVAL_WAITING: { bg: 'bg-amber-50', text: 'text-amber-600', i18nKey: 'approval_waiting' },
   NEEDS_REVISION: { bg: 'bg-orange-50', text: 'text-orange-600', i18nKey: 'needs_revision' },
   APPROVED: { bg: 'bg-blue-50', text: 'text-blue-600', i18nKey: 'approved' },
   PUBLISHED: { bg: 'bg-primary-50', text: 'text-primary-700', i18nKey: 'published' },
@@ -77,18 +76,18 @@ function NgoEventCard({
   const badge = STATUS_BADGE[item.status];
   const isOngoing =
     item.status === 'PUBLISHED' &&
-    new Date(item.start_time) <= new Date() &&
-    new Date(item.end_time) >= new Date();
+    new Date(item.startTime) <= new Date() &&
+    new Date(item.endTime) >= new Date();
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.92}
-      className="mb-3 overflow-hidden rounded-2xl bg-white shadow-sm shadow-black/5 dark:bg-card">
+      className="mb-3 overflow-hidden rounded-2xl bg-white shadow-sm shadow-black/50 dark:bg-card">
       <View className="flex-row">
         {/* Thumbnail */}
         <Image
-          source={{ uri: item.cover_image_url }}
+          source={{ uri: item.thumbnail.imageUrl }}
           className="h-full w-24 bg-primary-100"
           resizeMode="cover"
         />
@@ -98,7 +97,7 @@ function NgoEventCard({
           {badge && (
             <View className={`mb-1.5 self-start rounded-full px-2.5 py-0.5 ${badge.bg}`}>
               <Text className={`font-inter-semibold text-[10px] ${badge.text}`}>
-                {t(`events.ngo_events.status.${badge.i18nKey}`)}
+                {t(`events.ngo_events.status.${badge.i18nKey}`, 'Trạng thái')}
               </Text>
             </View>
           )}
@@ -111,30 +110,38 @@ function NgoEventCard({
             <View className="flex-row items-center">
               <Feather name="calendar" size={10} color={colors.neutral400} />
               <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
-                {formatDate(item.start_time)}
+                {formatDate(item.startTime)}
               </Text>
             </View>
             <View className="flex-row items-center">
               <Feather name="users" size={10} color={colors.neutral400} />
               <Text className="text-foreground/50 ml-1.5 font-inter text-[11px]">
                 {t('events.ngo_events.registered_count', {
-                  registered: item.registered_count ?? 0,
-                  max: item.max_participants,
+                  defaultValue: 'Đăng ký: {registered}/{max}',
+                  registered: item.participantCount ?? 0,
+                  max: item.maxParticipants,
                 })}
               </Text>
             </View>
           </View>
 
-          {/* Scan QR button — chỉ hiện khi đang diễn ra */}
-          {isOngoing && onScanQr && (
+          {/* Scan QR button — luôn hiển thị, mờ và disable nếu chưa diễn ra */}
+          {onScanQr && (
             <TouchableOpacity
+              // disabled={!isOngoing}
               onPress={(e) => {
                 e.stopPropagation();
+                // if (!isOngoing) return;
                 onScanQr();
               }}
-              className="mt-2.5 flex-row items-center self-start rounded-xl bg-primary px-3 py-1.5">
-              <Feather name="camera" size={12} color="white" />
-              <Text className="ml-1.5 font-inter-semibold text-xs text-white">
+              className={`mt-2.5 flex-row items-center self-start rounded-xl px-3 py-1.5 ${
+                isOngoing ? 'bg-primary' : 'bg-primary'
+              }`}>
+              <Feather name="camera" size={12} color={isOngoing ? 'white' : '#f3f4f6'} />
+              <Text
+                className={`ml-1.5 font-inter-semibold text-xs ${
+                  isOngoing ? 'text-white' : 'text-white'
+                }`}>
                 {c('scan_qr')}
               </Text>
             </TouchableOpacity>
@@ -154,12 +161,39 @@ export function NgoEventsScreen() {
   const [activeTab, setActiveTab] = useState<NgoEventTab>('pending');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: eventsData, isLoading } = useNgoEvents({ page: 1, page_size: 50 });
-  const allEvents = eventsData?.items ?? [];
+  const activeTabStatusQuery = useMemo<EventStatus | 'all'>(() => {
+    const activeTabConfig = NGO_TABS.find((tab) => tab.key === activeTab);
+    if (!activeTabConfig) return 'all';
+
+    if (activeTab === 'ongoing') {
+      return 'PUBLISHED';
+    }
+
+    if (activeTabConfig.statuses.length === 1) {
+      return activeTabConfig.statuses[0];
+    }
+
+    return 'all';
+  }, [activeTab]);
+
+  const { data: allEventsData, isLoading: isLoadingAllEvents } = useMyNgoEvents({
+    page: 1,
+    size: 50,
+  });
+
+  const { data: eventsData, isLoading: isLoadingFilteredEvents } = useMyNgoEvents({
+    page: 1,
+    size: 50,
+    title: searchQuery.trim() || undefined,
+    status: activeTabStatusQuery,
+  });
+
+  const allEvents = allEventsData?.content ?? [];
+  const listSourceEvents = eventsData?.content ?? [];
 
   const filtered = useMemo(
-    () => getFilteredEvents(allEvents, activeTab, searchQuery),
-    [allEvents, activeTab, searchQuery]
+    () => getFilteredEvents(listSourceEvents, activeTab, searchQuery),
+    [listSourceEvents, activeTab, searchQuery]
   );
 
   const countByTab = useMemo(() => {
@@ -177,10 +211,10 @@ export function NgoEventsScreen() {
         <View className="flex-row items-center justify-between">
           <View>
             <Text className="font-inter-bold text-2xl text-foreground">
-              {t('events.ngo_events.title')}
+              {t('events.ngo_events.title', 'Sự kiện của tôi')}
             </Text>
             <Text className="text-foreground/50 mt-0.5 font-inter text-sm">
-              {t('events.ngo_events.subtitle')}
+              {t('events.ngo_events.subtitle', 'Quản lý các sự kiện bạn đã tạo')}
             </Text>
           </View>
 
@@ -208,7 +242,7 @@ export function NgoEventsScreen() {
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder={t('events.search')}
+          placeholder={t('events.search', 'Tìm kiếm sự kiện')}
           containerClassName="mt-4"
         />
       </View>
@@ -236,7 +270,7 @@ export function NgoEventsScreen() {
                   className={`font-inter-semibold text-sm ${
                     isActive ? 'text-white' : 'text-foreground/60'
                   }`}>
-                  {t(`events.ngo_events.tabs.${tab.key}`)}
+                  {t(`events.ngo_events.tabs.${tab.key}`, 'Tab')}
                 </Text>
                 {count > 0 && (
                   <View
@@ -258,7 +292,7 @@ export function NgoEventsScreen() {
       </View>
 
       {/* List */}
-      {isLoading ? (
+      {isLoadingAllEvents || isLoadingFilteredEvents ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -288,10 +322,10 @@ export function NgoEventsScreen() {
                 <Feather name="calendar" size={28} color={colors.primary300} />
               </View>
               <Text className="font-inter-semibold text-base text-foreground">
-                {t('events.ngo_events.empty.title')}
+                {t('events.ngo_events.empty.title', 'Không có sự kiện nào')}
               </Text>
               <Text className="text-foreground/50 mt-1 text-center font-inter text-sm">
-                {t('events.ngo_events.empty.subtitle')}
+                {t('events.ngo_events.empty.subtitle', 'Bạn chưa tạo sự kiện nào')}
               </Text>
             </View>
           }

@@ -1,49 +1,57 @@
-import { Feather, Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Feather, Ionicons } from '@expo/vector-icons';
+
 import { usePlantDailyLogs } from '@/hooks/queries/useGamification';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { IMAGES } from '@/constants/linkMedia';
+import TopBar from './components/TopBar';
+
+type DayImageMap = Record<
+  string,
+  {
+    uri: string;
+    isChangeState: boolean;
+  }
+>;
 
 interface DayData {
   id: string;
   imageUrl?: string;
-  imageSourceType?: 'image_url' | 'green_post_url';
+  isChangeState?: boolean;
 }
 
 interface MonthData {
-  id: string; // Định dạng "YYYY-MM"
+  id: string;
   year: number;
   month: number;
   days: DayData[];
 }
 
-// --- PHẦN 2: HELPER FUNCTIONS ---
+const padZero = (num: number): string => String(num).padStart(2, '0');
 
-// Hàm tạo dữ liệu cho 1 tháng cụ thể
 const generateMonth = (
   year: number,
   month: number,
-  activeDayImageByDate: Record<string, { uri: string; sourceType: 'image_url' | 'green_post_url' }>
+  activeDayImageByDate: DayImageMap
 ): MonthData => {
   const daysInMonth = new Date(year, month, 0).getDate();
   const days: DayData[] = [];
 
   for (let i = 1; i <= daysInMonth; i++) {
-    const dayKey = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    const dayKey = `${year}-${padZero(month)}-${padZero(i)}`;
     const imageData = activeDayImageByDate[dayKey];
-    const imageUrl = imageData?.uri;
 
     days.push({
-      id: `${year}-${month}-${i}`,
-      imageUrl,
-      imageSourceType: imageData?.sourceType,
+      id: dayKey,
+      imageUrl: imageData?.uri,
+      isChangeState: imageData?.isChangeState,
     });
   }
 
   return {
-    id: `${year}-${month}`,
+    id: `${year}-${padZero(month)}`,
     year,
     month,
     days,
@@ -51,58 +59,59 @@ const generateMonth = (
 };
 
 export default function ScheduleScreen() {
-  const [monthCount, setMonthCount] = useState(2);
-  const [loading, setLoading] = useState(false);
   const { data: dailyLogs = [] } = usePlantDailyLogs();
-  const { data: userProfile } = useCurrentUser();
 
+  const [monthCount, setMonthCount] = useState<number>(2);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Chuẩn hóa lại mapping cho đúng key từ API
   const activeDayImageByDate = useMemo(() => {
-    return dailyLogs.reduce<
-      Record<string, { uri: string; sourceType: 'image_url' | 'green_post_url' }>
-    >((acc, log) => {
-      if (!log?.is_active_day) return acc;
+    return dailyLogs.reduce<DayImageMap>((acc, log) => {
+      // API trả về isActiveDay, isChangeState, imageUrl, logDate
+      if (!log?.isActiveDay) return acc;
 
-      const sourceType = log.image_url ? 'image_url' : log.green_post_url ? 'green_post_url' : null;
-      const image = log.image_url || log.green_post_url;
-      if (!image) return acc;
-      if (!sourceType) return acc;
-
-      const logDate = log.log_date instanceof Date ? log.log_date : new Date(log.log_date);
+      const logDate = log.logDate instanceof Date ? log.logDate : new Date(log.logDate);
       if (Number.isNaN(logDate.getTime())) return acc;
 
-      acc[logDate.toISOString().slice(0, 10)] = {
-        uri: image,
-        sourceType,
-      };
+      const dateKey = logDate.toISOString().slice(0, 10);
+      const sourceImage = log.imageUrl;
+
+      if (sourceImage) {
+        acc[dateKey] = {
+          uri: sourceImage,
+          isChangeState: Boolean(log.isChangeState),
+        };
+      }
+
       return acc;
     }, {});
   }, [dailyLogs]);
 
+  // Tạo mảng dữ liệu các tháng
   const months = useMemo(() => {
     const generatedMonths: MonthData[] = [];
     const now = new Date();
-    let year = now.getFullYear();
-    let month = now.getMonth() + 1;
+    let currentYear = now.getFullYear();
+    let currentMonth = now.getMonth() + 1;
 
     for (let i = 0; i < monthCount; i++) {
-      generatedMonths.push(generateMonth(year, month, activeDayImageByDate));
-      month -= 1;
-      if (month === 0) {
-        month = 12;
-        year -= 1;
+      generatedMonths.push(generateMonth(currentYear, currentMonth, activeDayImageByDate));
+
+      currentMonth -= 1;
+      if (currentMonth === 0) {
+        currentMonth = 12;
+        currentYear -= 1;
       }
     }
 
     return generatedMonths;
   }, [monthCount, activeDayImageByDate]);
 
-  // Hàm tải thêm các tháng cũ hơn khi scroll
+  // Pagination (Tải thêm tháng cũ)
   const loadMoreMonths = useCallback(() => {
     if (loading) return;
-
     setLoading(true);
 
-    // Giả lập delay mạng một chút
     setTimeout(() => {
       setMonthCount((prev) => prev + 1);
       setLoading(false);
@@ -112,11 +121,14 @@ export default function ScheduleScreen() {
   // Render từng ô ngày
   const renderDayItem = (day: DayData) => (
     <View key={day.id} className="mb-2 aspect-square w-[14.28%] items-center justify-center">
-      {!day.imageUrl && <View className="h-4 w-4 rounded-full bg-gray-600/80" />}
-      {day.imageUrl && (
+      {!day.imageUrl ? (
+        <View className="h-4 w-4 rounded-full bg-gray-600/80" />
+      ) : (
         <Image
           source={{ uri: day.imageUrl }}
-          className={`h-10 w-10 ${day.imageSourceType === 'green_post_url' ? 'rounded-xl border-2 border-green-500' : ''}`}
+          className={`h-10 w-10 ${
+            !day.isChangeState ? 'rounded-xl border-2 border-green-500' : ''
+          }`}
         />
       )}
     </View>
@@ -125,8 +137,8 @@ export default function ScheduleScreen() {
   // Render từng khối tháng
   const renderMonthItem = ({ item }: { item: MonthData }) => (
     <View className="mx-4 mb-6 rounded-3xl bg-neutral-800 p-5">
-      <Text className="mb-4 text-lg font-bold text-[var(--primary)]">
-        {item.month < 10 ? `0${item.month}` : item.month}/{item.year}
+      <Text className="mb-4 font-inter-bold text-lg text-[var(--primary)]">
+        {padZero(item.month)}/{item.year}
       </Text>
       <View className="flex-row flex-wrap items-center">{item.days.map(renderDayItem)}</View>
     </View>
@@ -137,29 +149,15 @@ export default function ScheduleScreen() {
       {/* --- CỤM 1: TOP BAR --- */}
       <BlurView
         pointerEvents="box-none"
-        intensity={100} // Độ mờ (từ 1 đến 100)
-        tint="dark" // Màu nền (light, dark, hoặc default)
+        intensity={100}
+        tint="dark"
         className="absolute left-0 right-0 top-0 z-50">
-        <View className="flex-row items-center justify-between  px-6 pb-6 pt-16">
-          <TouchableOpacity className="rounded-full bg-white/10 p-3">
-            <Ionicons name="grid" size={24} color="white" />
-          </TouchableOpacity>
-
-          <View className="aspect-square w-14 overflow-hidden rounded-[40px] border border-neutral-500">
-            <Image
-              source={{
-                uri: userProfile?.profile?.avatar_url || IMAGES.treeAvatar,
-              }}
-              className="flex-1"
-            />
-          </View>
-
-          <TouchableOpacity className="rounded-2xl bg-white/10 p-3 shadow-sm">
-            <Feather name="download" size={24} color="white" />
-          </TouchableOpacity>
+        <View className=" px-6 pb-6 pt-16">
+          <TopBar />
         </View>
       </BlurView>
 
+      {/* --- CỤM 2: FLATLIST MONTHS --- */}
       <FlatList
         contentContainerStyle={{ paddingTop: 100 }}
         data={months}

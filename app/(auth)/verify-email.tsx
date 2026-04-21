@@ -21,7 +21,7 @@ function maskEmail(email: string) {
 
 export default function VerifyEmailScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ role?: string; email?: string }>();
+  const params = useLocalSearchParams<{ role?: string; identifier?: string }>();
   const [otp, setOtp] = useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ''));
   const [errorMsg, setErrorMsg] = useState('');
   const inputRefs = useRef<(TextInput | null)[]>([]);
@@ -29,8 +29,8 @@ export default function VerifyEmailScreen() {
   const { mutate: verifyOtp, isPending } = useVerifyOtp();
 
   const destination = useMemo(() => {
-    return params.email ? maskEmail(params.email) : 'địa chỉ của bạn';
-  }, [params.email]);
+    return params.identifier ? maskEmail(params.identifier) : 'địa chỉ của bạn';
+  }, [params.identifier]);
 
   const updateOtpValue = (index: number, value: string) => {
     setErrorMsg(''); // Xóa lỗi khi gõ lại
@@ -52,21 +52,37 @@ export default function VerifyEmailScreen() {
   const onVerify = () => {
     const code = otp.join('');
     if (code.length < OTP_LENGTH) {
-      setErrorMsg('Vui lòng nhập đủ mã xác nhận.');
+      setErrorMsg(t('auth.verify_email.incomplete_code', 'Vui lòng nhập đầy đủ mã xác thực'));
       return;
     }
 
     verifyOtp(
-      { email: params.email ?? '', otp_code: code },
+      { identifier: params.identifier ?? '', otp: code },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          const verificationToken =
+            response?.data?.verificationToken ?? (response as any)?.verificationToken;
+
+          if (!verificationToken) {
+            setErrorMsg(t('auth.verify_email.invalid_response', 'Mã xác thực không hợp lệ'));
+            return;
+          }
+
           router.push({
             pathname: '/(auth)/signup-password',
-            params: { role: params.role ?? 'citizen', email: params.email ?? '', otp_code: code },
+            params: {
+              role: params.role ?? 'citizen',
+              identifier: params.identifier ?? '',
+              verificationToken,
+            },
           });
         },
         onError: (err: any) => {
-          setErrorMsg(err?.response?.data?.message || 'Mã xác nhận không đúng.');
+          console.log('Lỗi khi verify OTP:', err, err?.response?.data);
+          setErrorMsg(
+            err?.response?.data?.message ||
+              t('auth.verify_email.invalid_code', 'Mã xác thực không đúng')
+          );
         },
       }
     );
@@ -75,8 +91,8 @@ export default function VerifyEmailScreen() {
   return (
     <AuthScaffold>
       <AuthBrandHeader
-        title={t('auth.verify_email.title')}
-        subtitle={`${t('auth.verify_email.subtitle')} ${destination}.`}
+        title={t('auth.verify_email.title', 'Xác thực email')}
+        subtitle={`${t('auth.verify_email.subtitle', 'Nhập mã xác thực đã gửi tới')} ${destination}.`}
       />
 
       <View className="mb-2 mt-6 flex-row justify-center gap-3">
@@ -100,14 +116,14 @@ export default function VerifyEmailScreen() {
 
       {errorMsg ? <Text className="mt-2 text-center text-sm text-red-500">{errorMsg}</Text> : null}
 
-      <Pressable className="mt-4 self-center" hitSlop={8}>
+      <Pressable className="mt-4 self-center" hitSlop={8} onPress={() => router.back()}>
         <Text className="font-inter-medium text-sm text-primary-700">
-          {t('auth.verify_email.resend')}
+          {t('auth.verify_email.resend', 'Gửi lại mã')}
         </Text>
       </Pressable>
 
       <Button
-        title={t('auth.verify_email.submit_btn')}
+        title={t('auth.verify_email.submit_btn', 'Xác nhận')}
         className="mt-6"
         disabled={isPending}
         onPress={onVerify}

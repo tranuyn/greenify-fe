@@ -1,11 +1,13 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { Text, TouchableOpacity, FlatList } from 'react-native';
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 
 const LOCATIONS = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Bình Dương', 'Đà Lạt'];
 
 const LocationBottomSheet = forwardRef(({ onSelect }: { onSelect: (loc: string) => void }, ref) => {
   const modalRef = useRef<BottomSheetModal>(null);
+  const { t } = useTranslation();
 
   useImperativeHandle(ref, () => ({
     present: () => modalRef.current?.present(),
@@ -21,7 +23,7 @@ const LocationBottomSheet = forwardRef(({ onSelect }: { onSelect: (loc: string) 
       )}
       containerStyle={{ zIndex: 1001 }}>
       <BottomSheetView className="p-6">
-        <Text className="mb-4 text-xl font-bold">Chọn vị trí</Text>
+        <Text className="font-inter-bold mb-4 text-xl">{t('photograph.location_sheet.title')}</Text>
         <FlatList
           data={LOCATIONS}
           keyExtractor={(item) => item}
@@ -32,7 +34,7 @@ const LocationBottomSheet = forwardRef(({ onSelect }: { onSelect: (loc: string) 
                 modalRef.current?.dismiss();
               }}
               className="border-b border-gray-100 py-4">
-              <Text className="text-lg">{item}</Text>
+              <Text className="font-inter text-lg">{item}</Text>
             </TouchableOpacity>
           )}
         />

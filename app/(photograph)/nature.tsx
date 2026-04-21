@@ -2,14 +2,17 @@ import React from 'react';
 import { View, Text, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenArchives } from '@/hooks/queries/useGamification';
+import { useTranslation } from 'react-i18next';
 import TopBar from './components/TopBar';
 
 const { width } = Dimensions.get('window');
 
 export default function NatureScreen() {
+  const { t } = useTranslation();
   const totalItems = 60;
   const { data: archives = [] } = useGardenArchives();
   const collectedItems = archives.slice(0, totalItems);
+  console.log('Fetched garden archives:', collectedItems);
 
   return (
     // Màu nền xanh cực nhạt theo ảnh
@@ -24,13 +27,16 @@ export default function NatureScreen() {
       {/* 2. CỤM BỘ SƯU TẬP (Main Content) */}
       {/* Cụm này sẽ được bao bọc bởi một View có flex-1 để chiếm không gian ở giữa */}
       <View className="mx-6 mt-8 flex-1 rounded-[40px] border border-white/20 bg-neutral-800  p-6  shadow-sm">
-        <Text className="mb-6 text-xl font-semibold text-[var(--primary)]">Bộ sưu tập</Text>
+        <Text className="mb-6 font-inter-semibold text-xl text-[var(--primary)]">
+          {t('photograph.nature.collection_title', 'Bộ sưu tập')}
+        </Text>
 
         {/* Container cho Grid 7x10 */}
         <View className="flex-row flex-wrap justify-between ">
           {[...Array(totalItems)].map((_, index) => {
             const archive = collectedItems[index];
-            const imageUrl = archive?.seed?.stage4_image_url || archive?.display_image_url;
+            // Ưu tiên displayImageUrl, fallback seed?.stage4ImageUrl
+            const imageUrl = archive?.displayImageUrl || archive?.seed?.stage4ImageUrl;
 
             return (
               <View

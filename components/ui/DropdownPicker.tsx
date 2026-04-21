@@ -1,6 +1,7 @@
 import Entypo from '@expo/vector-icons/Entypo';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from './Text';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export type DropdownOption = {
   code: string;
@@ -35,11 +36,11 @@ export function DropdownPicker({
   const borderClass = errorText ? 'border-rose-400' : 'border-primary-100';
 
   return (
-    <View>
-      <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">{label}</Text>
+    <View className="relative z-[9999]" style={{ zIndex: 9999, elevation: 999 }}>
+      <Text className="mb-1 font-inter-medium text-sm text-foreground">{label}</Text>
 
       <Pressable
-        className={`flex-row items-center justify-between rounded-xl border bg-primary-50 px-3 py-3 ${borderClass} ${
+        className={`flex-row items-center justify-between rounded-xl border bg-background px-3 py-3 ${borderClass} ${
           disabled ? 'opacity-50' : ''
         }`}
         onPress={onToggle}
@@ -51,29 +52,37 @@ export function DropdownPicker({
       </Pressable>
 
       {isOpen && !isLoading && (
-        <ScrollView
-          className="mt-2 max-h-48 rounded-xl border border-primary-100 bg-white p-2"
-          nestedScrollEnabled>
-          {options.length === 0 ? (
-            <Text className="text-foreground/50 px-3 py-2 text-sm">Không có dữ liệu</Text>
-          ) : (
-            options.map((opt) => (
-              <Pressable
-                key={opt.code}
-                className={`rounded-lg px-3 py-2 active:bg-primary-50 ${
-                  value === opt.name ? 'bg-primary-50' : ''
-                }`}
-                onPress={() => onSelect(opt)}>
-                <Text
-                  className={`text-sm ${
-                    value === opt.name ? 'font-inter-medium text-primary-700' : 'text-foreground/80'
-                  }`}>
-                  {opt.name}
-                </Text>
-              </Pressable>
-            ))
-          )}
-        </ScrollView>
+        <View
+          className="elevation-5 absolute inset-x-0 z-[9999] rounded-xl border border-primary-100 bg-background shadow-sm shadow-black/10"
+          style={{ top: '100%', marginTop: 8 }}>
+          <ScrollView
+            style={{ maxHeight: 220, padding: 8 }}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            persistentScrollbar>
+            {options.length === 0 ? (
+              <Text className="px-3 py-2 text-sm text-muted-foreground">Không có dữ liệu</Text>
+            ) : (
+              options.map((opt) => (
+                <Pressable
+                  key={opt.code}
+                  className={`rounded-lg px-3 py-2 active:bg-primary ${
+                    value === opt.name ? 'bg-primary' : ''
+                  }`}
+                  onPress={() => onSelect(opt)}>
+                  <Text
+                    className={`text-sm ${
+                      value === opt.name
+                        ? 'font-inter-medium text-primary-700'
+                        : 'text-muted-foreground'
+                    }`}>
+                    {opt.name}
+                  </Text>
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+        </View>
       )}
 
       {errorText ? <Text className="mt-1 text-xs text-rose-600">{errorText}</Text> : null}

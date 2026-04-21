@@ -8,23 +8,21 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: (payload: CreatePostRequest) => actionService.createPost(payload),
     onSuccess: () => {
-      // Invalidate feed + my posts cùng lúc vì posts.all là prefix chung
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
-      // Streak có thể tăng sau khi đăng bài → invalidate luôn
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.mine() });
     },
   });
 };
 
 export const useReviewPost = (postId: string) => {
   return useMutation({
-    mutationFn: (payload: ReviewPostRequest) =>
-      actionService.reviewPost(postId, payload),
+    mutationFn: (payload: ReviewPostRequest) => actionService.reviewPost(postId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.reviews(postId) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.pendingReview() });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.feed() });
+      queryClient.invalidateQueries({ queryKey: ['posts', 'feed'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet.all });
     },
   });
 };

@@ -2,21 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
-import { usePointLedger } from 'hooks/queries/useWallet';
+import { useMyWallet, usePointLedger } from 'hooks/queries/useWallet';
 import { IMAGES } from 'constants/linkMedia';
-import { PointLedgerEntry, PointSourceType } from 'types/action.types';
+import { PointHistoryEntry } from 'types/action.types';
 import HistoryItem from './_components/HistoryItem';
 import FilterModal, { LedgerFilterValue } from './_components/FilterModal';
-import { SOURCE_TYPE_LABELS } from '@/constants/sourceTypeLabel';
 import { router } from 'expo-router';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { useTranslation } from 'react-i18next';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
-
-const TIME_LABELS: Record<LedgerFilterValue['time'][number], string> = {
-  week: 'Tuần',
-  month: 'Tháng',
-};
 
 const isInSelectedTimeRange = (createdAt: string, selectedTime: LedgerFilterValue['time']) => {
   if (selectedTime.length === 0) {
@@ -37,27 +32,10 @@ const isInSelectedTimeRange = (createdAt: string, selectedTime: LedgerFilterValu
   });
 };
 
-const getLedgerIconUrl = (entry: PointLedgerEntry) => {
-  if (entry.source_type === PointSourceType.EVENT_ATTEND && entry.source_display_url) {
-    return entry.source_display_url;
-  }
-
-  switch (entry.source_type) {
-    case PointSourceType.GREEN_ACTION:
-      return IMAGES.blog;
-    case PointSourceType.LEADERBOARD:
-      return IMAGES.crownSilver;
-    case PointSourceType.LEADERBOARD_REWARD:
-      return IMAGES.crownGold;
-    case PointSourceType.VOUCHER_REDEEM:
-      return IMAGES.voucher;
-    case PointSourceType.REVIEW_REWARD:
-    default:
-      return IMAGES.gift;
-  }
-};
+const getLedgerIconUrl = (entry: PointHistoryEntry) => entry.sourceDisplayUrl || IMAGES.gift;
 
 export default function WalletScreen() {
+  const { t } = useTranslation();
   const [filterVisible, setFilterVisible] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<LedgerFilterValue>({
     time: [],
@@ -65,21 +43,21 @@ export default function WalletScreen() {
   });
 
   const colors = useThemeColor();
+  const timeLabels: Record<LedgerFilterValue['time'][number], string> = {
+    week: t('point_history.filter.time.week'),
+    month: t('point_history.filter.time.month'),
+  };
+
+  const { data: wallet } = useMyWallet();
 
   const { data: ledgerData, isLoading: isLedgerLoading } = usePointLedger({
     page: 1,
-    page_size: 20,
-    time: appliedFilters.time.length > 0 ? appliedFilters.time : undefined,
-    source_type: appliedFilters.sourceTypes.length > 0 ? appliedFilters.sourceTypes : undefined,
+    size: 20,
   });
 
-  const ledgerItems = (ledgerData?.items ?? []).filter((entry) => {
-    const matchSourceType =
-      appliedFilters.sourceTypes.length === 0 ||
-      appliedFilters.sourceTypes.includes(entry.source_type);
-    const matchTime = isInSelectedTimeRange(entry.created_at, appliedFilters.time);
-    return matchSourceType && matchTime;
-  });
+  const ledgerItems = (ledgerData?.content ?? []).filter((entry) =>
+    isInSelectedTimeRange(entry.createdAt, appliedFilters.time)
+  );
 
   const handleApplyFilter = (value: LedgerFilterValue) => {
     setAppliedFilters(value);
@@ -89,10 +67,7 @@ export default function WalletScreen() {
     setAppliedFilters({ time: [], sourceTypes: [] });
   };
 
-  const appliedFilterLabels = [
-    ...appliedFilters.time.map((item) => TIME_LABELS[item] ?? item),
-    ...appliedFilters.sourceTypes.map((item) => SOURCE_TYPE_LABELS[item] ?? item),
-  ];
+  const appliedFilterLabels = [...appliedFilters.time.map((item) => timeLabels[item] ?? item)];
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -103,7 +78,7 @@ export default function WalletScreen() {
           className="h-10 w-10 items-center justify-center rounded-full bg-primary-light">
           <AntDesign name="left" size={20} color={colors.foreground} />
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-foreground">Ví & Điểm</Text>
+        <Text className="text-lg font-bold text-foreground">{t('point_history.header_title')}</Text>
         <TouchableOpacity
           onPress={() => router.replace('/(tabs)/')}
           className="h-10 w-10 items-center justify-center rounded-full bg-primary-light">
@@ -118,20 +93,29 @@ export default function WalletScreen() {
         keyboardShouldPersistTaps="handled">
         {/* Thẻ Điểm (PointsCard) */}
         <View className="mx-4 mt-4 rounded-2xl bg-primary p-5 shadow-sm">
-          <Text className="text-right text-sm font-medium text-on-primary">Điểm</Text>
-          <Text className="mt-1 text-right text-4xl text-on-primary">20 GP</Text>
+          <Text className="text-right text-sm font-medium text-on-primary">
+            {t('point_history.points_label')}
+          </Text>
+          <Text className="mt-1 text-right text-4xl text-on-primary">
+            {wallet?.availablePoints ?? 0}
+          </Text>
         </View>
         <Text className="mt-3 text-center text-xs text-muted-foreground">
-          10GP sẽ hết hạn vào ngày 01/02/2026
+          {t('point_history.expiring_points_text', {
+            points: wallet?.accumulatedPoints ?? 0,
+            date: '01/02/2026',
+          })}
         </Text>
 
         {/* Khung Tìm kiếm & Lọc */}
         <View className="mt-6 px-4">
-          <Text className="mb-3 text-base font-bold text-foreground">Lịch sử điểm</Text>
+          <Text className="mb-3 text-base font-bold text-foreground">
+            {t('point_history.history_title')}
+          </Text>
           <View className="mb-2 flex-row items-center gap-x-2">
             <View className="flex-1 flex-row items-center rounded-full border border-primary px-4 py-2.5">
               <TextInput
-                placeholder="Tìm kiếm"
+                placeholder={t('point_history.search_placeholder')}
                 placeholderTextColor={colors.foreground}
                 className="flex-1 p-0 text-[15px]"
               />
@@ -148,8 +132,9 @@ export default function WalletScreen() {
           {appliedFilters.sourceTypes.length > 0 || appliedFilters.time.length > 0 ? (
             <View>
               <Text className="mb-1 text-foreground">
-                Đang áp dụng {appliedFilters.time.length + appliedFilters.sourceTypes.length} bộ
-                lọc:
+                {t('point_history.applied_filters', {
+                  count: appliedFilters.time.length + appliedFilters.sourceTypes.length,
+                })}
               </Text>
               <Text className="mt-1 text-foreground">{appliedFilterLabels.join(' • ')}</Text>
             </View>
@@ -159,7 +144,9 @@ export default function WalletScreen() {
         {/* Danh sách Lịch sử */}
         <View className="flex-1 px-4 pb-10">
           {isLedgerLoading ? (
-            <Text className="py-6 text-center text-sm text-gray-500">Đang tải lịch sử điểm...</Text>
+            <Text className="py-6 text-center text-sm text-gray-500">
+              {t('point_history.loading')}
+            </Text>
           ) : ledgerItems.length === 0 ? (
             <View className="flex-1 items-center justify-center">
               <Image
@@ -168,20 +155,20 @@ export default function WalletScreen() {
                 resizeMode="contain"
               />
               <Text className="mt-4 text-center text-sm text-gray-500">
-                Không tìm thấy kết quả phù hợp
+                {t('point_history.empty_result')}
               </Text>
             </View>
           ) : (
             ledgerItems.map((entry) => (
               <HistoryItem
                 key={entry.id}
-                title={entry.source_name || 'Hoạt động không xác định'}
+                title={entry.sourceName || t('point_history.unknown_activity')}
                 subtitle={
-                  entry.amount >= 0
-                    ? 'Bạn nhận được điểm từ hoạt động'
-                    : 'Hoạt động của bạn bị trừ điểm'
+                  entry.points >= 0
+                    ? t('point_history.subtitle_positive')
+                    : t('point_history.subtitle_negative')
                 }
-                points={entry.amount}
+                points={entry.points}
                 iconUrl={getLedgerIconUrl(entry)}
               />
             ))

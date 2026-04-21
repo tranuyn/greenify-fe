@@ -5,8 +5,8 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { getTimeAgo } from '@/utils/date.util';
-import { GreenActionPost, PostStatus } from '@/types/action.types';
+import { formatDateTime } from '@/utils/date.util';
+import { GreenActionPostDetailDto, PostStatus } from '@/types/action.types';
 import { useAuthRole } from '@/hooks/queries/useAuth';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router/build/exports';
@@ -64,7 +64,7 @@ const STATUS_CONFIG: Record<PostStatus, PostStatusConfig> = {
   },
 };
 
-export function PostCard({ post }: { post: GreenActionPost }) {
+export function PostCard({ post }: { post: GreenActionPostDetailDto }) {
   const { t } = useTranslation();
   const colors = useThemeColor();
   const { isCtv } = useAuthRole();
@@ -72,14 +72,11 @@ export function PostCard({ post }: { post: GreenActionPost }) {
   const statusCfg = STATUS_CONFIG[post.status as PostStatus];
 
   return (
-    <View className="mb-8 mt-6 rounded-xl bg-card p-2 shadow-sm shadow-black/50">
+    <View className="mt-6 rounded-2xl bg-card px-3 py-4 shadow-sm shadow-black/50">
       <View className="mb-4 flex-row items-center justify-between">
         <View className="flex-row items-center">
-          {post.user_avatar_url ? (
-            <Image
-              source={{ uri: post.user_avatar_url }}
-              className="mr-3 h-14 w-14 rounded-full border border-primary"
-            />
+          {post.authorAvatarUrl ? (
+            <Image source={{ uri: post.authorAvatarUrl }} className="mr-3 h-14 w-14 rounded-full" />
           ) : (
             <View className="mr-3 h-14 w-14 items-center justify-center rounded-full border border-primary bg-primary-50">
               <FontAwesome6 name="tree" size={24} color={colors.primary} />
@@ -88,11 +85,11 @@ export function PostCard({ post }: { post: GreenActionPost }) {
 
           <View>
             <Text className="font-inter-medium text-lg text-foreground">
-              {post.user_display_name ||
+              {post.authorDisplayName ||
                 t('community.post_detail.anonymous_user', 'Người dùng ẩn danh')}
             </Text>
             <Text className="text-foreground/60 mt-0.5 font-inter text-sm">
-              {getTimeAgo(post.created_at)}
+              {formatDateTime(post.createdAt)}
             </Text>
           </View>
         </View>
@@ -101,16 +98,15 @@ export function PostCard({ post }: { post: GreenActionPost }) {
           <View className={`rounded-xl px-3 py-1 ${statusCfg.bgClass}`}>
             <Text
               useDefaultColor={false}
-              className={`font-inter-semibold text-xs ${statusCfg.textClass}`}
-            >
+              className={`font-inter-semibold text-xs ${statusCfg.textClass}`}>
               {t(statusCfg.labelKey)}
             </Text>
           </View>
         )}
       </View>
 
-      <View className="relative h-[320px] w-full overflow-hidden rounded-[32px] border-2 border-primary">
-        <Image source={{ uri: post.media_url }} className="h-full w-full" resizeMode="cover" />
+      <View className="relative h-[320px] w-full overflow-hidden rounded-2xl border-2 border-primary">
+        <Image source={{ uri: post.mediaUrl }} className="h-full w-full" resizeMode="cover" />
         <View className="absolute bottom-4 left-4 flex-row items-center">
           <TouchableOpacity className="mr-2 h-10 w-10 items-center justify-center rounded-full bg-primary-100 shadow-sm">
             <FontAwesome6 name="leaf" size={20} color={colors.primary800} />
@@ -118,23 +114,21 @@ export function PostCard({ post }: { post: GreenActionPost }) {
           <View className="rounded-full bg-primary-100 px-4 py-2 shadow-sm">
             <Text className="font-inter-medium text-primary-800">
               {t('community.post_card.approve_count', {
-                count: post.approve_count,
-                defaultValue: `${post.approve_count} Lượt duyệt`,
+                count: post.approveCount,
+                defaultValue: `${post.approveCount} Lượt duyệt`,
               })}
             </Text>
           </View>
         </View>
       </View>
 
-      <View className="mt-4 flex-row flex-wrap">
-        <Tag label={t('community.tags.greenDaily', 'Sống xanh mỗi ngày')} />
-        {post.action_type && <Tag label={post.action_type.action_name} />}
+      <View className="mt-4 flex-row flex-wrap ">
+        {/* <Tag label={t('community.tags.greenDaily', 'Sống xanh mỗi ngày')} /> */}
+        {post.actionTypeName && <Tag label={post.actionTypeName} />}
       </View>
 
-      <View className="mt-2 rounded-2xl bg-primary-50 p-4">
-        <Text className="font-inter text-base leading-relaxed text-primary-800">
-          {post.caption}
-        </Text>
+      <View className="mt-2 rounded-2xl bg-background p-4">
+        <Text className="font-inter text-base leading-relaxed text-foreground">{post.caption}</Text>
       </View>
 
       {isCtv && (

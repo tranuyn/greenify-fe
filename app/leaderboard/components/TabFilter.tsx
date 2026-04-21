@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { LeaderboardScope } from '@/types/gamification.types';
+import { useTranslation } from 'react-i18next';
 
 interface TabFilterProps {
   scope: LeaderboardScope;
@@ -8,6 +9,7 @@ interface TabFilterProps {
 }
 
 const TabFilter = ({ scope, onChangeScope }: TabFilterProps) => {
+  const { t } = useTranslation();
   const isProvincial = scope === LeaderboardScope.PROVINCIAL;
 
   return (
@@ -19,7 +21,7 @@ const TabFilter = ({ scope, onChangeScope }: TabFilterProps) => {
           className={
             isProvincial ? 'text-base font-bold text-white' : 'text-base font-bold text-white/60'
           }>
-          Khu vực
+          {t('leaderboard.scope.provincial')}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -29,7 +31,7 @@ const TabFilter = ({ scope, onChangeScope }: TabFilterProps) => {
           className={
             !isProvincial ? 'text-base font-bold text-white' : 'text-base font-bold text-white/60'
           }>
-          Toàn quốc
+          {t('leaderboard.scope.national')}
         </Text>
       </TouchableOpacity>
     </View>

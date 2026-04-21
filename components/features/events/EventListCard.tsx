@@ -27,7 +27,7 @@ function formatTime(iso: string) {
 }
 
 function isFull(item: Event) {
-  return (item.registered_count ?? 0) >= item.max_participants;
+  return (item.participantCount ?? 0) >= item.maxParticipants;
 }
 
 export function EventListCard({
@@ -67,7 +67,7 @@ export function EventListCard({
       {/* Cover image */}
       <View className="relative h-44">
         <Image
-          source={{ uri: item.cover_image_url }}
+          source={{ uri: item.thumbnail.imageUrl }}
           className="h-full w-full bg-primary-100"
           resizeMode="cover"
         />
@@ -76,22 +76,22 @@ export function EventListCard({
         <View className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
 
         {/* NGO badge — top left */}
-        {item.ngo_name && (
+        {item.organizer?.name && (
           <View className="absolute left-3 top-3 flex-row items-center rounded-full bg-black/50 px-2.5 py-1">
             <Feather name="shield" size={10} color="white" />
-            <Text className="ml-1 font-inter-medium text-[10px] text-white">{item.ngo_name}</Text>
+            <Text className="ml-1 font-inter-medium text-[10px] text-white">{item.organizer.name}</Text>
           </View>
         )}
 
         {/* Event type badge — top right */}
         <View className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1">
-          <Text className="font-inter-medium text-[10px] text-primary-700">{item.event_type}</Text>
+          <Text className="font-inter-medium text-[10px] text-primary-700">{item.eventType}</Text>
         </View>
 
         {/* GP reward — bottom right over image */}
         <View className="absolute bottom-3 right-3 flex-row items-center rounded-full bg-primary px-3 py-1">
           <Feather name="zap" size={10} color="white" />
-          <Text className="ml-1 font-inter-bold text-xs text-white">+{item.reward_points} GP</Text>
+          <Text className="ml-1 font-inter-bold text-xs text-white">+{item.rewardPoints} GP</Text>
         </View>
       </View>
 
@@ -110,7 +110,7 @@ export function EventListCard({
               <Feather name="map-pin" size={11} color={colors.primary700} />
             </View>
             <Text className="text-foreground/60 flex-1 font-inter text-xs" numberOfLines={1}>
-              {item.location_address}
+              {item.address.addressDetail}
             </Text>
           </View>
 
@@ -120,8 +120,8 @@ export function EventListCard({
               <Feather name="calendar" size={11} color={colors.primary700} />
             </View>
             <Text className="text-foreground/60 font-inter text-xs">
-              {formatDate(item.start_time)} · {formatTime(item.start_time)} –{' '}
-              {formatTime(item.end_time)}
+              {formatDate(item.startTime)} · {formatTime(item.startTime)} –{' '}
+              {formatTime(item.endTime)}
             </Text>
           </View>
         </View>
@@ -135,7 +135,7 @@ export function EventListCard({
           <View className="mr-2 flex-1 flex-row items-center">
             <Feather name="users" size={13} color={colors.neutral400} />
             <Text className="text-foreground/50 ml-1.5 flex-shrink font-inter text-xs" numberOfLines={1}>
-              {item.registered_count ?? 0}/{item.max_participants} {t('events.card.people', 'người')}
+              {item.participantCount ?? 0}/{item.maxParticipants} {t('events.card.people', 'người')}
             </Text>
             {/* Full warning */}
             {full && !isRegistered && (

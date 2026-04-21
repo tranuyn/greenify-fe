@@ -31,7 +31,7 @@ export function StreakPlantCard() {
 
   // Plant progress
   const progressDays = plant?.progress_days ?? 0;
-  const totalDays = plant?.seed?.days_to_mature ?? 1;
+  const totalDays = plant?.daysToMature ?? 1;
   const progressPercent = Math.min((progressDays / totalDays) * 100, 100);
 
   return (
@@ -45,13 +45,13 @@ export function StreakPlantCard() {
 
         {/* Streak count */}
         <Text className="font-inter-bold text-2xl text-foreground">
-          {streak?.current_streak ?? 0}
+          {streak?.currentStreak ?? 0}
         </Text>
         <Text className="font-inter-medium text-xs text-foreground/60">
           {t('home.streak_days')}
         </Text>
         <Text className="mt-1 font-inter text-[10px] text-foreground/40">
-          {t('home.streak_record', { count: streak?.longest_streak ?? 0 })}
+          {t('home.streak_record', { count: streak?.longestStreak ?? 0 })}
         </Text>
       </View>
 
@@ -64,7 +64,7 @@ export function StreakPlantCard() {
         {plant ? (
           <>
             <Text className="line-clamp-1 font-inter-bold text-sm text-foreground">
-              {plant.seed?.name ?? ''}
+              {plant.seedName ?? ''}
             </Text>
             <Text className="mt-0.5 font-inter text-xs text-primary-700 dark:text-primary-400">
               {t('home.plant_progress', {

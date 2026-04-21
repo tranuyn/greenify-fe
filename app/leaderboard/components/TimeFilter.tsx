@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const getCountdownToThisWeekSundayEnd = () => {
   const now = new Date(Date.now());
@@ -20,6 +21,7 @@ const getCountdownToThisWeekSundayEnd = () => {
 };
 
 const TimeFilter = () => {
+  const { t } = useTranslation();
   const [countdown, setCountdown] = React.useState(getCountdownToThisWeekSundayEnd());
 
   React.useEffect(() => {
@@ -32,9 +34,15 @@ const TimeFilter = () => {
 
   return (
     <View className="my-6 mt-4 flex-row justify-between px-12">
-      <Text className="font-bold text-white">{countdown.days} ngày</Text>
-      <Text className="font-bold text-white">{countdown.hours} giờ</Text>
-      <Text className="font-bold text-white">{countdown.minutes} phút</Text>
+      <Text className="font-bold text-white">
+        {t('leaderboard.countdown.days', { count: countdown.days })}
+      </Text>
+      <Text className="font-bold text-white">
+        {t('leaderboard.countdown.hours', { count: countdown.hours })}
+      </Text>
+      <Text className="font-bold text-white">
+        {t('leaderboard.countdown.minutes', { count: countdown.minutes })}
+      </Text>
     </View>
   );
 };

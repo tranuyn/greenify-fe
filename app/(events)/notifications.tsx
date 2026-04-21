@@ -1,38 +1,26 @@
-import { View, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
+import { useMemo } from 'react';
+import { View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { useReadAllNotifications, useReadNotification } from '@/hooks/mutations/useNotifications';
+import { useMyNotifications, useUnreadNotificationCount } from '@/hooks/queries/useNotifications';
+import type { UserNotification } from '@/types/notification.types';
 
-// Mock notifications — thay bằng hook thật khi BE có endpoint
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 'notif-001',
-    title: 'Thông báo sự kiện',
-    body: 'Đơn đăng ký của bạn đã được duyệt',
-    image_url: 'https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?w=100',
-    is_read: false,
-    created_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 phút trước
-  },
-  {
-    id: 'notif-002',
-    title: 'Thông báo sự kiện',
-    body: 'Sự kiện sắp diễn ra vào ngày mai',
-    image_url: 'https://images.unsplash.com/photo-1542601906897-ecd3d1c4b0a0?w=100',
-    is_read: false,
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 giờ trước
-  },
-  {
-    id: 'notif-003',
-    title: 'Thông báo sự kiện',
-    body: 'Đơn đăng ký của bạn đã được duyệt',
-    image_url: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100',
-    is_read: true,
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 ngày trước
-  },
-];
+type NotificationListLabel = {
+  rowType: 'label';
+  id: string;
+  label: string;
+};
+
+type NotificationListItem = {
+  rowType: 'item';
+} & UserNotification;
+
+type NotificationRenderItem = NotificationListLabel | NotificationListItem;
 
 function formatRelativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -46,18 +34,46 @@ function formatRelativeTime(iso: string): string {
 export default function EventNotificationsScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
+  const { data, isLoading, isRefetching } = useMyNotifications({ page: 1, size: 50 });
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
+  const { mutate: readNotification, isPending: isReadingNotification } = useReadNotification();
+  const { mutate: readAllNotifications, isPending: isReadingAll } = useReadAllNotifications();
 
-  const unread = MOCK_NOTIFICATIONS.filter((n) => !n.is_read);
-  const read = MOCK_NOTIFICATIONS.filter((n) => n.is_read);
+  const notifications = data?.content ?? [];
+  const unread = notifications.filter((n) => !n.read);
+  const read = notifications.filter((n) => n.read);
 
-  const sections = [
-    ...(unread.length > 0
-      ? [{ type: 'label' as const, label: 'Chưa đọc', id: 'label-unread' }]
-      : []),
-    ...unread.map((n) => ({ type: 'item' as const, ...n })),
-    ...(read.length > 0 ? [{ type: 'label' as const, label: 'Đã đọc', id: 'label-read' }] : []),
-    ...read.map((n) => ({ type: 'item' as const, ...n })),
-  ];
+  const sections: NotificationRenderItem[] = useMemo(
+    () => [
+      ...(unread.length > 0
+        ? [{ rowType: 'label' as const, label: 'Chưa đọc', id: 'label-unread' }]
+        : []),
+      ...unread.map((n) => ({ rowType: 'item' as const, ...n })),
+      ...(read.length > 0
+        ? [{ rowType: 'label' as const, label: 'Đã đọc', id: 'label-read' }]
+        : []),
+      ...read.map((n) => ({ rowType: 'item' as const, ...n })),
+    ],
+    [unread, read]
+  );
+
+  const handleReadNotification = (item: UserNotification) => {
+    if (item.read) return;
+    readNotification(item.id);
+  };
+
+  const handleReadAll = () => {
+    if (unreadCount === 0 || isReadingAll) return;
+    readAllNotifications();
+  };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-background">
@@ -71,7 +87,17 @@ export default function EventNotificationsScreen() {
           hitSlop={8}>
           <Feather name="chevron-left" size={20} color={colors.foreground} />
         </TouchableOpacity>
-        <Text className="font-inter-bold text-xl text-foreground">Thông báo</Text>
+        <Text className="flex-1 font-inter-bold text-xl text-foreground">Thông báo</Text>
+        <TouchableOpacity
+          onPress={handleReadAll}
+          disabled={unreadCount === 0 || isReadingAll}
+          className="rounded-full bg-primary-50 px-3 py-1.5 disabled:opacity-40">
+          {isReadingAll ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Text className="font-inter-semibold text-xs text-primary-700">Đọc tất cả</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -80,9 +106,18 @@ export default function EventNotificationsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: insets.bottom + 40,
+          flexGrow: sections.length === 0 ? 1 : undefined,
         }}
+        ListEmptyComponent={
+          <View className="flex-1 items-center justify-center px-5">
+            <Feather name="bell-off" size={28} color={colors.neutral400} />
+            <Text className="text-foreground/60 mt-2 text-center font-inter text-sm">
+              Bạn chưa có thông báo nào.
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => {
-          if (item.type === 'label') {
+          if (item.rowType === 'label') {
             return (
               <Text className="text-foreground/50 px-5 pb-2 pt-4 font-inter-semibold text-sm">
                 {item.label}
@@ -92,33 +127,34 @@ export default function EventNotificationsScreen() {
 
           return (
             <TouchableOpacity
+              onPress={() => handleReadNotification(item)}
+              disabled={isReadingNotification}
               activeOpacity={0.85}
               className={`flex-row items-center px-5 py-3.5 ${
-                !item.is_read ? 'bg-primary-50/60 dark:bg-primary-950/20' : ''
+                !item.read ? 'bg-primary-50/60 dark:bg-primary-950/20' : ''
               }`}>
               {/* Thumbnail */}
               <View className="mr-3.5 h-12 w-12 overflow-hidden rounded-xl bg-primary-100">
-                <Image
-                  source={{ uri: item.image_url }}
-                  className="h-full w-full"
-                  resizeMode="cover"
-                />
+                <View className="h-full w-full items-center justify-center">
+                  <Feather name="bell" size={18} color={colors.primary700} />
+                </View>
               </View>
 
               {/* Content */}
               <View className="flex-1">
                 <Text className="font-inter-semibold text-sm text-foreground">{item.title}</Text>
-                <Text className="text-foreground/60 mt-0.5 font-inter text-sm">{item.body}</Text>
+                <Text className="text-foreground/60 mt-0.5 font-inter text-sm">{item.content}</Text>
                 <Text className="text-foreground/40 mt-1 font-inter text-xs">
-                  {formatRelativeTime(item.created_at)}
+                  {formatRelativeTime(item.createdAt)}
                 </Text>
               </View>
 
               {/* Unread dot */}
-              {!item.is_read && <View className="ml-3 h-2.5 w-2.5 rounded-full bg-primary" />}
+              {!item.read && <View className="ml-3 h-2.5 w-2.5 rounded-full bg-primary" />}
             </TouchableOpacity>
           );
         }}
+        refreshing={isRefetching}
         ItemSeparatorComponent={() => <View className="mx-5 h-px bg-primary-50 dark:bg-white/5" />}
       />
     </View>

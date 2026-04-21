@@ -1,13 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
-import { LeaderboardScope, PlantDailyLogQueryParams } from 'types/gamification.types';
+import {
+  LeaderboardScope,
+  PlantDailyLogQueryParams,
+  MyVouchersQueryParams,
+  AvailableVouchersQueryParams,
+} from 'types/gamification.types';
 
 export const useMyStreak = () => {
   return useQuery({
     queryKey: QUERY_KEYS.streak.mine(),
-    queryFn: () => gamificationService.getMyStreak().then((r) => r.data),
-    // Streak quan trọng, cần tươi — stale sau 1 phút
+    queryFn: () => gamificationService.getMyStreak(),
     staleTime: 60 * 1000,
   });
 };
@@ -15,7 +19,7 @@ export const useMyStreak = () => {
 export const useMyPlant = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.active(),
-    queryFn: () => gamificationService.getMyPlant().then((r) => r.data),
+    queryFn: () => gamificationService.getMyPlant(),
     staleTime: 60 * 1000,
   });
 };
@@ -23,44 +27,59 @@ export const useMyPlant = () => {
 export const useGardenArchives = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.archives(),
-    queryFn: () => gamificationService.getGardenArchives().then((r) => r.data),
+    queryFn: () => gamificationService.getGardenArchives().then((r) => r.content),
   });
 };
 
 export const usePlantDailyLogs = (params?: PlantDailyLogQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.dailyLogs(params),
-    queryFn: () => gamificationService.getPlantDailyLogs(params).then((r) => r.data),
+    queryFn: () => gamificationService.getPlantDailyLogs(params).then((r) => r),
   });
 };
 
 export const useSeeds = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.seeds(),
-    queryFn: () => gamificationService.getSeeds().then((r) => r.data),
-    staleTime: 30 * 60 * 1000, // seed là master data
+    queryFn: () => gamificationService.getSeeds().then((r) => r.content),
+    staleTime: 30 * 60 * 1000,
   });
 };
 
-export const useAvailableVouchers = () => {
+// ĐÃ SỬA: Nhận thêm params để filter theo minRequiredPoints / maxRequiredPoints
+export const useAvailableVouchers = (params?: AvailableVouchersQueryParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.vouchers.available(),
-    queryFn: () => gamificationService.getAvailableVouchers().then((r) => r.data),
+    queryKey: [...QUERY_KEYS.vouchers.available(), params],
+    queryFn: () => gamificationService.getAvailableVouchers(params),
   });
 };
 
-export const useMyVouchers = () => {
+export const useMyVouchers = (params?: MyVouchersQueryParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.vouchers.mine(),
-    queryFn: () => gamificationService.getMyVouchers().then((r) => r.data),
+    queryKey: QUERY_KEYS.vouchers.mine(params),
+    queryFn: () => gamificationService.getMyVouchers(params),
   });
 };
 
-export const useLeaderboard = (scope: LeaderboardScope, province?: string) => {
+export const useVoucherBySeed = (seedId?: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.leaderboard.scope(scope, province),
-    queryFn: () => leaderboardService.getLeaderboard(scope, province).then((r) => r.data),
-    // Leaderboard update theo tuần, không cần fresh liên tục
+    queryKey: QUERY_KEYS.vouchers.bySeed(seedId ?? ''),
+    queryFn: () => gamificationService.getVoucherBySeed(seedId ?? ''),
+    enabled: Boolean(seedId),
+  });
+};
+
+export const useLeaderboard = (
+  scope: LeaderboardScope,
+  weekStartDate: string,
+  province?: string,
+  enabled = true
+) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.leaderboard.scope(scope, weekStartDate, province),
+    queryFn: () => leaderboardService.getLeaderboard(scope, weekStartDate, province),
+    enabled: Boolean(weekStartDate) && enabled,
+    // Leaderboard update theo tuần
     staleTime: 5 * 60 * 1000,
   });
 };

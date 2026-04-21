@@ -19,10 +19,10 @@ export function CommunityFeedPreview() {
 
   const { data: feedData, isLoading } = useFeedPosts({
     page: 1,
-    page_size: 3,
+    size: 3,
   });
 
-  const posts = feedData?.items ?? [];
+  const posts = feedData?.content ?? [];
 
   if (isLoading) {
     return (

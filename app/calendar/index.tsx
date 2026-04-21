@@ -10,13 +10,32 @@ import ActivityHistorySection from './components/ActivityHistorySection';
 import MyGardenArchive from './components/MyGardenArchive';
 import { IMAGES } from '@/constants/linkMedia';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { usePostHistoryInfinite } from '@/hooks/queries/usePosts';
 
 export default function GreenCalendarScreen() {
+  const { t } = useTranslation();
   const [isGardenArchiveMode, setIsGardenArchiveMode] = useState(false);
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    usePostHistoryInfinite(10);
+
+  const historyData = data?.pages.flatMap((page) => page.content) ?? [];
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-[var(--background)]">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        onScroll={({ nativeEvent }) => {
+          const isNearBottom =
+            nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
+            nativeEvent.contentSize.height - 120;
+
+          if (isNearBottom && !isGardenArchiveMode && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        scrollEventThrottle={16}>
         {/* 1. Header Background */}
         <ImageBackground
           source={{ uri: IMAGES.calendar }}
@@ -33,7 +52,9 @@ export default function GreenCalendarScreen() {
               <Feather name="chevron-left" size={24} className="text-[var(--on-primary)]" />
             </TouchableOpacity>
 
-            <Text className="font-inter-bold text-lg text-[var(--on-primary)]">Lịch Xanh</Text>
+            <Text className="font-inter-bold text-lg text-[var(--on-primary)]">
+              {t('calendar.header_title')}
+            </Text>
 
             {/* Nút Home */}
             <TouchableOpacity
@@ -61,7 +82,11 @@ export default function GreenCalendarScreen() {
             <GiftSection />
 
             {/* 5. History List */}
-            <ActivityHistorySection />
+            <ActivityHistorySection
+              historyData={historyData}
+              isLoading={isLoading}
+              isFetchingNextPage={isFetchingNextPage}
+            />
           </>
         )}
       </ScrollView>
@@ -70,7 +95,7 @@ export default function GreenCalendarScreen() {
       <View className="absolute bottom-0 left-0 right-0 border-t border-[var(--border)] bg-[var(--background)] p-4">
         <TouchableOpacity className="flex-row items-center justify-center space-x-2 rounded-xl bg-[var(--primary)] py-4">
           <Text className="mr-2 font-inter-bold text-lg text-[var(--on-primary)]">
-            Hành động xanh
+            {t('calendar.green_action_button')}
           </Text>
           <FontAwesome5 name="leaf" size={20} className="text-[var(--on-primary)]" />
         </TouchableOpacity>

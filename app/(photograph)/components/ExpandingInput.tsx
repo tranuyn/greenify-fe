@@ -1,7 +1,9 @@
 import React, { memo, useRef, useState } from 'react';
 import { Animated, Text, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const ExpandingInput = memo(({ description, setDescription }: any) => {
+  const { t } = useTranslation();
   const animWidth = useRef(new Animated.Value(150)).current;
   const animHeight = useRef(new Animated.Value(42)).current;
   const [currentHeight, setCurrentHeight] = useState(42);
@@ -31,18 +33,18 @@ const ExpandingInput = memo(({ description, setDescription }: any) => {
               tension: 50,
             }).start();
           }}
-          className="absolute font-medium opacity-0"
+          className="font-inter-medium absolute opacity-0"
           style={{ fontSize: 15 }}>
           {/* Chỉ lấy dòng cuối cùng hoặc nội dung ngắn để đo Width ngang */}
-          {description || 'Thêm mô tả'}
+          {description || t('photograph.expanding_input.placeholder')}
         </Text>
 
         <TextInput
           value={description}
           onChangeText={setDescription}
-          placeholder="Thêm mô tả"
+          placeholder={t('photograph.expanding_input.placeholder')}
           placeholderTextColor="#cbd5e1"
-          className="w-full text-center font-medium text-white"
+          className="font-inter-medium w-full text-center text-white"
           style={{
             fontSize: 15,
             padding: 0,

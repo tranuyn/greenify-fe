@@ -4,18 +4,20 @@ import { queryClient } from 'lib/queryClient';
 import { authService } from 'services/auth.service';
 import {
   CompleteProfileRequest,
+  CreateNgoProfileRequest,
   LoginRequest,
   RegisterEmailRequest,
   VerifyOtpRequest,
   SetPasswordRequest,
 } from 'types/user.type';
+import { QUERY_KEYS } from 'constants/queryKeys';
 
 /**
  * Gửi OTP về email.
  *
  * Cách dùng trong component:
  *   const { mutate: requestOtp, isPending } = useRequestOtp();
- *   requestOtp({ email }, {
+ *   requestOtp({ identifier: 'email@example.com' }, {
  *     onSuccess: () => router.push('/(auth)/verify-email'),
  *     onError: (err) => setError(parseApiError(err)),
  *   });
@@ -46,13 +48,9 @@ export const useSetPassword = () => {
 export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginRequest) => authService.login(payload),
-    onSuccess: (response) => {
-      // Sau login thành công → pre-populate cache với user data từ response
-      // Không cần gọi thêm /me nữa
-      queryClient.setQueryData(['auth', 'me'], {
-        user: response.data.user,
-        profile: response.data.profile,
-      });
+    onSuccess: () => {
+      // Đăng nhập user mới -> xóa cache user cũ để các query refetch lại đúng tài khoản.
+      queryClient.clear();
     },
   });
 };
@@ -62,7 +60,7 @@ export const useCompleteProfile = () => {
     mutationFn: (payload: CompleteProfileRequest) => authService.completeProfile(payload),
     onSuccess: () => {
       // Profile đã thay đổi → invalidate cache /me để refetch
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
     },
   });
 };
@@ -72,7 +70,25 @@ export const useUpdateProfile = () => {
     mutationFn: (payload: CompleteProfileRequest) => authService.updateProfile(payload),
     onSuccess: () => {
       // Profile đã thay đổi → invalidate cache /me để refetch
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
+    },
+  });
+};
+
+export const useCreateNgoProfile = () => {
+  return useMutation({
+    mutationFn: (payload: CreateNgoProfileRequest) => authService.createNgoProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
+    },
+  });
+};
+
+export const useUpdateNgoProfile = () => {
+  return useMutation({
+    mutationFn: (payload: CreateNgoProfileRequest) => authService.updateNgoProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
     },
   });
 };
@@ -80,8 +96,8 @@ export const useUpdateProfile = () => {
 export const useLogout = () => {
   return useMutation({
     mutationFn: () => authService.logout(),
-    onSuccess: () => {
-      // Xóa toàn bộ cache khi logout — tránh data của user cũ còn sót
+    onSettled: () => {
+      // Dù API logout thành công hay lỗi, vẫn dọn cache + về auth để tránh lộ data user cũ.
       queryClient.clear();
       router.replace('/(auth)');
     },

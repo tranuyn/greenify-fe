@@ -1,142 +1,362 @@
-import { apiClient } from 'lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 import type {
   Event,
   EventRegistration,
+  OpeningHours,
   RecyclingStation,
+  RecyclingStationApiModel,
+  TrashSpotListItem,
+  TrashSpotQueryParams,
   TrashSpotReport,
-  CreateTrashReportRequest,
+  TrashSpotVerification,
+  CreateTrashSpotReportRequest,
+  CreateTrashSpotVerificationRequest,
   CreateEventRequest,
-} from 'types/community.types';
-import { ApiResponse, PaginatedResponse, PaginationParams } from 'types/common.types';
-
+  PredictEventRequest,
+  PredictEventResponse,
+  EventQueryParams,
+  UpdateEventRequest,
+  WasteType,
+  ParticipatedEventQueryParams,
+  MyNgoEventQueryParams,
+  RegisterEventPayload,
+  PublicEventQueryParams,
+  EventParticipationSummary,
+} from '@/types/community.types';
+import { ApiResponse, PageResponse, PaginationParams } from '@/types/common.types';
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
 import {
   MOCK_EVENTS,
   MOCK_MY_REGISTRATIONS,
   MOCK_STATIONS,
-  MOCK_TRASH_REPORTS,
+  MOCK_TRASH_SPOT_DETAILS,
+  MOCK_TRASH_SPOTS,
 } from './mock/community.mock';
+import { SortOption } from '@/constants/enums/sortOptions.enum';
+
+const DAY_OF_WEEK_MAP: Record<string, string> = {
+  MONDAY: 'MON',
+  TUESDAY: 'TUE',
+  WEDNESDAY: 'WED',
+  THURSDAY: 'THU',
+  FRIDAY: 'FRI',
+  SATURDAY: 'SAT',
+  SUNDAY: 'SUN',
+};
+
+const formatTime = (time?: string) => (time ? time.slice(0, 5) : '');
+
+const mapOpenTimesToOpeningHours = (
+  openTimes: RecyclingStationApiModel['openTimes']
+): OpeningHours => {
+  const openingHours: OpeningHours = {};
+
+  openTimes.forEach((item) => {
+    const day = DAY_OF_WEEK_MAP[item.dayOfWeek];
+    if (!day) return;
+
+    openingHours[day] = {
+      open: formatTime(item.startTime),
+      close: formatTime(item.endTime),
+    };
+  });
+
+  return openingHours;
+};
+
+const mapStationFromApi = (station: RecyclingStationApiModel): RecyclingStation => ({
+  id: station.id,
+  name: station.name,
+  address: [
+    station.address?.addressDetail,
+    station.address?.ward,
+    station.address?.district,
+    station.address?.province,
+  ]
+    .filter(Boolean)
+    .join(', '),
+  latitude: station.address?.latitude ?? 0,
+  longitude: station.address?.longitude ?? 0,
+  waste_types: station.wasteTypes?.map((w) => w.name) ?? [],
+  opening_hours: mapOpenTimesToOpeningHours(station.openTimes ?? []),
+  contact_phone: station.phoneNumber,
+  notes: station.description || null,
+  status: station.status,
+});
 
 // ============================================================
 // EVENT SERVICE
 // ============================================================
 export const eventService = {
-  async getPublishedEvents(
-    params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<Event>>> {
+  async getEvents(params?: EventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      ...params,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
     if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      const published = MOCK_EVENTS.filter((e) => e.status === 'PUBLISHED');
-      return mockSuccess({
-        items: published,
-        total: published.length,
+      await mockDelay(500);
+      return {
+        content: MOCK_EVENTS,
+        totalElements: MOCK_EVENTS.length,
         page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
-      });
+        size: params?.size ?? 20,
+        totalPages: 5,
+      };
     }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/events', {
-      params,
+
+    const { data } = await apiClient.get<PageResponse<Event>>('/events', {
+      params: apiParams,
+    });
+
+    return data;
+  },
+
+  async getPublicEvents(params?: PublicEventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      title: params?.title,
+      eventType: params?.eventType === 'all' ? undefined : params?.eventType,
+      from: params?.from,
+      to: params?.to,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    // 2. GỌI API THẬT
+    const { data } = await apiClient.get<PageResponse<Event>>('/events/public', {
+      params: apiParams,
+    });
+
+    return data;
+  },
+
+  async getEventById(eventId: string): Promise<Event> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   const event = MOCK_EVENTS.find((e) => e.id === eventId);
+    //   if (!event) throw new Error('Event not found');
+    //   return event;
+    // }
+    const { data } = await apiClient.get<Event>(`/events/${eventId}`);
+    return data;
+  },
+
+  async getMyRegistrations(
+    userId: string,
+    params?: ParticipatedEventQueryParams
+  ): Promise<PageResponse<Event>> {
+    const apiParams = {
+      title: params?.title,
+      address: params?.address,
+      status: params?.status === 'all' ? undefined : params?.status,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    const { data } = await apiClient.get<PageResponse<Event>>(`/events/participated/${userId}`, {
+      params: apiParams,
     });
     return data;
   },
 
-  async getEventById(eventId: string): Promise<ApiResponse<Event>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      const event = MOCK_EVENTS.find((e) => e.id === eventId);
-      if (!event) throw new Error('Event not found');
-      return mockSuccess(event);
-    }
-    const { data } = await apiClient.get<ApiResponse<Event>>(`/events/${eventId}`);
-    return data;
-  },
+  async getNgoEvents(ngoId: string, params?: PaginationParams): Promise<PageResponse<Event>> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(600);
+    //   return mockSuccess({
+    //     content: MOCK_EVENTS,
+    //     totalElements: MOCK_EVENTS.length,
+    //     page: params?.page ?? 1,
+    //     size: params?.size ?? 20,
+    //     totalPages: Math.ceil(MOCK_EVENTS.length / (params?.size ?? 20)),
+    //   });
+    // }
+    const apiParams = {
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
 
-  async registerEvent(eventId: string): Promise<ApiResponse<EventRegistration>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(700);
-      const event = MOCK_EVENTS.find((e) => e.id === eventId);
-      const reg: EventRegistration = {
-        id: `reg-${Date.now()}`,
-        event_id: eventId,
-        user_id: 'usr-001',
-        qr_token: `QR_${eventId}_USR001_${Date.now()}`,
-        status: 'REGISTERED',
-        checked_in_at: null,
-        checked_out_at: null,
-        attended_valid: false,
-        reward_status: 'PENDING_REWARD',
-        created_at: new Date().toISOString(),
-        event,
-      };
-      return mockSuccess(reg);
-    }
-    const { data } = await apiClient.post<ApiResponse<EventRegistration>>(
-      `/events/${eventId}/register`
-    );
-    return data;
-  },
-
-  async getMyRegistrations(): Promise<ApiResponse<EventRegistration[]>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      return mockSuccess(MOCK_MY_REGISTRATIONS);
-    }
-    const { data } = await apiClient.get<ApiResponse<EventRegistration[]>>(
-      '/events/registrations/me'
-    );
-    return data;
-  },
-
-  async getNgoEvents(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Event>>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      return mockSuccess({
-        items: MOCK_EVENTS,
-        total: MOCK_EVENTS.length,
-        page: params?.page ?? 1,
-        page_size: params?.page_size ?? 20,
-        has_next: false,
-      });
-    }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/ngo/events', {
-      params,
+    const { data } = await apiClient.get<PageResponse<Event>>(`/events/ngo/${ngoId}`, {
+      params: apiParams,
     });
     return data;
   },
 
-  async createEvent(payload: CreateEventRequest): Promise<ApiResponse<Event>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(900);
-      const newEvent: Event = {
-        id: `evt-${Date.now()}`,
-        ngo_id: 'usr-003',
-        status: 'PENDING_APPROVAL',
-        admin_note: null,
-        created_at: new Date().toISOString(),
-        ngo_name: 'Green Future Vietnam',
-        registered_count: 0,
-        ...payload,
-      };
-      return mockSuccess(newEvent);
-    }
-    const { data } = await apiClient.post<ApiResponse<Event>>('/ngo/events', payload);
+  async getMyNgoEvents(params?: MyNgoEventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      title: params?.title,
+      eventType: params?.eventType === 'all' ? undefined : params?.eventType,
+      status: params?.status === 'all' ? undefined : params?.status,
+      from: params?.from,
+      to: params?.to,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    const { data } = await apiClient.get<PageResponse<Event>>('/events/ngo/my-events', {
+      params: apiParams,
+    });
+
     return data;
   },
 
-  async checkInAttendee(
-    eventId: string,
-    qrToken: string
-  ): Promise<ApiResponse<{ registration_id: string; user_name: string; status: string }>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      return mockSuccess({
-        registration_id: 'reg-001',
-        user_name: 'Nhã Uyên',
-        status: 'CHECKED_IN',
-      });
-    }
-    const { data } = await apiClient.post(`/ngo/events/${eventId}/check-in`, { qr_token: qrToken });
+  async getEventRegistrations(eventId: string): Promise<EventRegistration[]> {
+    const { data } = await apiClient.get<EventRegistration[]>(`/events/${eventId}/registrations`);
+    return data;
+  },
+
+  async getMyParticipationSummary(): Promise<EventParticipationSummary> {
+    const { data } = await apiClient.get<EventParticipationSummary>(
+      '/events/me/participation-summary'
+    );
+    return data;
+  },
+
+  async createEvent(payload: CreateEventRequest): Promise<Event> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(900);
+
+    //   const newEvent: Event = {
+    //     id: `evt-${Date.now()}`,
+    //     ...payload,
+    //     status: payload.status === 'DRAFT' ? 'DRAFT' : 'PENDING_APPROVAL',
+    //     rejectReason: null,
+    //     rejectedCount: 0,
+    //     address: {
+    //       id: `addr-${Date.now()}`,
+    //       ...payload.address,
+    //     },
+    //     // Thêm ID giả cho ảnh để React render key cho mượt
+    //     thumbnail: {
+    //       id: `img-${Date.now()}-thumb`,
+    //       ...payload.thumbnail,
+    //     },
+    //     images: payload.images.map((img, idx) => ({
+    //       id: `img-${Date.now()}-gal-${idx}`,
+    //       ...img,
+    //     })),
+    //     createdAt: new Date().toISOString(),
+    //     lastModifiedAt: new Date().toISOString(),
+    //   };
+
+    //   MOCK_EVENTS.unshift(newEvent);
+
+    //   return mockSuccess(newEvent);
+    // }
+    const fixedPayload = { ...payload, status: 'APPROVAL_WAITING' };
+    console.log('Creating event with payload:', fixedPayload);
+    const { data } = await apiClient.post<Event>('/events', fixedPayload);
+    return data;
+  },
+
+  async predictEvent(payload: PredictEventRequest): Promise<PredictEventResponse> {
+    const { data } = await apiClient.post<PredictEventResponse>('/events/predict', payload);
+    return data;
+  },
+
+  async updateEvent(eventId: string, payload: UpdateEventRequest): Promise<Event> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(700);
+
+    //   // Tìm vị trí của sự kiện trong mảng giả lập
+    //   const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
+    //   if (eventIndex === -1) throw new Error('Event not found');
+
+    //   // Cập nhật dữ liệu mới đè lên dữ liệu cũ
+    //   const updatedEvent: Event = {
+    //     ...MOCK_EVENTS[eventIndex],
+    //     ...payload,
+    //     // Cập nhật các object lồng nhau (tránh bị mất ID cũ)
+    //     address: {
+    //       ...MOCK_EVENTS[eventIndex].address,
+    //       ...payload.address,
+    //     },
+    //     thumbnail: {
+    //       ...MOCK_EVENTS[eventIndex].thumbnail,
+    //       ...payload.thumbnail,
+    //     },
+    //     images: payload.images.map((img, idx) => ({
+    //       id: `img-${Date.now()}-gal-${idx}`,
+    //       ...img,
+    //     })),
+    //     lastModifiedAt: new Date().toISOString(),
+    //   };
+
+    //   // Lưu lại vào mảng Mock
+    //   MOCK_EVENTS[eventIndex] = updatedEvent;
+
+    //   return mockSuccess(updatedEvent);
+    // }
+
+    const { data } = await apiClient.put<Event>(`/events/${eventId}`, payload);
+    return data;
+  },
+
+  async registerEvent(payload: RegisterEventPayload): Promise<EventRegistration> {
+    // 1. MOCK DATA
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(700);
+    //   // ... logic mock nếu cần
+    // }
+
+    // 2. GỌI API THẬT
+    // Đã chuyển sang endpoint mới và truyền data qua Body
+    const { data } = await apiClient.post<EventRegistration>('/event-registrations', payload);
+    return data;
+  },
+
+  async registerWaitlistEvent(payload: RegisterEventPayload): Promise<EventRegistration> {
+    const { data } = await apiClient.post<EventRegistration>(
+      '/event-registrations/waitlist',
+      payload
+    );
+    return data;
+  },
+
+  async deleteEvent(eventId: string): Promise<null> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(600);
+
+    //   const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
+    //   if (eventIndex === -1) throw new Error('Event not found');
+
+    //   MOCK_EVENTS.splice(eventIndex, 1);
+
+    //   return mockSuccess(null);
+    // }
+
+    const { data } = await apiClient.delete<null>(`/events/${eventId}`);
+    return data;
+  },
+
+  async checkInAttendee(code: string): Promise<EventRegistration> {
+    console.log('Checking in with code:', code);
+    const { data } = await apiClient.post<EventRegistration>(
+      '/event-registrations/check-in',
+      null,
+      { params: { code } }
+    );
+    return data;
+  },
+
+  async checkOutAttendee(code: string): Promise<EventRegistration> {
+    console.log('Checking out with code:', code);
+    const { data } = await apiClient.post<EventRegistration>(
+      '/event-registrations/check-out',
+      null,
+      { params: { code } }
+    );
+    return data;
+  },
+
+  async getRegistrationCode(eventId: string, userId: string): Promise<string> {
+    const { data } = await apiClient.get<string>('/event-registrations/code', {
+      params: { eventId, userId },
+    });
+    return data;
+  },
+
+  async cancelRegistration(registrationId: string): Promise<null> {
+    const { data } = await apiClient.delete<null>(`/event-registrations/${registrationId}`);
     return data;
   },
 };
@@ -145,12 +365,33 @@ export const eventService = {
 // MAP SERVICE
 // ============================================================
 export const mapService = {
-  async getStations(): Promise<ApiResponse<RecyclingStation[]>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      return mockSuccess(MOCK_STATIONS.filter((s) => s.status === 'ACTIVE'));
-    }
-    const { data } = await apiClient.get<ApiResponse<RecyclingStation[]>>('/stations');
+  async getStations(wasteTypeID?: string): Promise<RecyclingStation[]> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   return MOCK_STATIONS.filter((s) => s.status === 'ACTIVE');
+    // }
+    const { data } = await apiClient.get<RecyclingStationApiModel[]>('/recycling-stations', {
+      params: wasteTypeID ? { wasteTypeID } : undefined,
+    });
+    return data.map(mapStationFromApi);
+  },
+
+  async getAllWasteType(): Promise<WasteType[]> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(300);
+    //   const uniqueNames = new Set<string>();
+    //   MOCK_STATIONS.forEach((station) => {
+    //     station.waste_types.forEach((name) => uniqueNames.add(name));
+    //   });
+
+    //   return Array.from(uniqueNames).map((name) => ({
+    //     id: name.toLowerCase().replace(/\s+/g, '-'),
+    //     name,
+    //     description: '',
+    //   }));
+    // }
+
+    const { data } = await apiClient.get<WasteType[]>('/waste-types');
     return data;
   },
 };
@@ -159,47 +400,74 @@ export const mapService = {
 // COMMUNITY / TRASH REPORT SERVICE
 // ============================================================
 export const trashService = {
-  async getReports(
-    params?: PaginationParams
-  ): Promise<ApiResponse<PaginatedResponse<TrashSpotReport>>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      return mockSuccess({
-        items: MOCK_TRASH_REPORTS,
-        total: MOCK_TRASH_REPORTS.length,
-        page: params?.page ?? 1,
-        page_size: params?.page_size ?? 10,
-        has_next: false,
-      });
-    }
-    const { data } = await apiClient.get<ApiResponse<PaginatedResponse<TrashSpotReport>>>(
-      '/trash-reports',
-      { params }
+  async getTrashSpots(params?: TrashSpotQueryParams): Promise<TrashSpotListItem[]> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   return MOCK_TRASH_SPOTS;
+    // }
+    const requestParams = {
+      province: params?.province,
+      status: params?.status,
+      wasteTypeId: params?.wasteTypeId,
+      severityTier: params?.severityTier,
+    };
+    const { data } = await apiClient.get<TrashSpotListItem[]>('/trash-spots', {
+      params: requestParams,
+    });
+    return data;
+  },
+
+  async createTrashSpotReport(payload: CreateTrashSpotReportRequest): Promise<TrashSpotReport> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(800);
+    //   return MOCK_TRASH_SPOT_DETAILS;
+    // }
+    const { data } = await apiClient.post<TrashSpotReport>('/trash-spots', payload);
+    return data;
+  },
+
+  async getTrashSpotById(id: string): Promise<TrashSpotReport> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   return MOCK_TRASH_SPOT_DETAILS;
+    // }
+    const { data } = await apiClient.get<TrashSpotReport>(`/trash-spots/${id}`);
+    return data;
+  },
+
+  async verifyTrashSpot(
+    id: string,
+    payload: CreateTrashSpotVerificationRequest
+  ): Promise<TrashSpotVerification> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   const verification = {
+    //     id: `verify-${Date.now()}`,
+    //     verifierId: 'usr-001',
+    //     verifierDisplayName: 'Mock Verifier',
+    //     note: payload.note,
+    //     createdAt: new Date().toISOString(),
+    //   } satisfies TrashSpotVerification;
+
+    //   return verification;
+    // }
+
+    const { data } = await apiClient.post<TrashSpotVerification>(
+      `/trash-spots/${id}/verifications`,
+      {
+        note: payload.note,
+      }
     );
     return data;
   },
 
-  async createReport(payload: CreateTrashReportRequest): Promise<ApiResponse<TrashSpotReport>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(800);
-      const report: TrashSpotReport = {
-        id: `trash-${Date.now()}`,
-        reporter_id: 'usr-001',
-        after_media_urls: null,
-        verify_count: 0,
-        hot_score: 0,
-        assigned_ngo_id: null,
-        status: 'SUBMITTED',
-        resolve_note: null,
-        resolve_completed_at: null,
-        admin_resolve_note: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        ...payload,
-      };
-      return mockSuccess(report);
-    }
-    const { data } = await apiClient.post<ApiResponse<TrashSpotReport>>('/trash-reports', payload);
+  async reportTrashSpot(
+    id: string,
+    payload: CreateTrashSpotVerificationRequest
+  ): Promise<TrashSpotReport> {
+    const { data } = await apiClient.post<TrashSpotReport>(`/trash-spots/${id}/reports`, {
+      note: payload.note,
+    });
     return data;
   },
 };

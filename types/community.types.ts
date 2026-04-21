@@ -3,9 +3,15 @@
 // Mapped from: events, event_registrations, event_predictions
 // ============================================================
 
+import { SortOption } from '@/constants/enums/sortOptions.enum';
+import { BaseQueryParams, PaginationParams, SortParams } from './common.types';
+import { MediaDto } from './media.types';
+import { UserProfile } from './user.type';
+
 export type EventStatus =
   | 'DRAFT'
-  | 'PENDING_APPROVAL'
+  // | 'PENDING_APPROVAL'
+  | 'APPROVAL_WAITING'
   | 'APPROVED'
   | 'REJECTED'
   | 'NEEDS_REVISION'
@@ -23,51 +29,88 @@ export const REGISTRATION_STATUS = {
   NO_SHOW: 'NO_SHOW',
 } as const;
 
-export type RegistrationStatus =
-  (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
+export type RegistrationStatus = (typeof REGISTRATION_STATUS)[keyof typeof REGISTRATION_STATUS];
 
 export type RegistrationRewardStatus = 'PENDING_REWARD' | 'REWARDED' | 'REVERSED';
 
-export type KnownEventType = 'Dọn rác' | 'Trồng cây' | 'Workshop' | 'Thu gom/Tái chế' | 'Khác';
-export type EventType = KnownEventType | (string & {});
+export type EventType = 'CLEANUP' | 'PLANTING' | 'RECYCLING' | 'EDUCATION' | 'OTHER';
 
-export interface Event {
-  id: string;
-  ngo_id: string;
-  title: string;
-  description: string;
-  event_type: EventType;
-  cover_image_url: string;
-  location_address: string;
+export interface EventAddress {
+  id?: string;
+  province: string;
+  ward: string;
+  addressDetail: string;
   latitude: number;
   longitude: number;
-  start_time: string;
-  end_time: string;
-  max_participants: number;
-  reward_points: number;
-  participation_conditions: string;
-  cancel_deadline_days: number;
+}
+export interface EventImage extends MediaDto {
+  id?: string;
+}
+export interface EventOrganizer {
+  id: string;
+  name: string;
+  avatar: MediaDto | null;
+}
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  eventType: EventType;
+  startTime: string; // ISO 8601
+  endTime: string;
+  maxParticipants: number;
+  minParticipants: number;
+  cancelDeadlineHoursBefore: number;
+  signUpDeadlineHoursBefore: number;
+  reminderHoursBefore: number;
+  thankYouHoursAfter: number;
+  rewardPoints: number;
   status: EventStatus;
-  admin_note: string | null;
-  created_at: string;
-  // Joined
-  ngo_name?: string;
-  registered_count?: number;
+  rejectReason?: string | null;
+  rejectedCount: number;
+  address: EventAddress;
+  thumbnail: EventImage;
+  images: EventImage[];
+  participationConditions: string;
+  participantCount: number;
+  organizer: EventOrganizer;
+  createdAt: string;
+  lastModifiedAt: string;
+}
+export interface EventQueryParams extends PaginationParams {
+  title?: string;
+  eventType?: EventType;
+  statuses?: EventStatus[];
+  from?: string;
+  to?: string;
+  organizerId?: string;
+  sort?: string[];
+}
+export interface PublicEventQueryParams extends PaginationParams {
+  title?: string;
+  eventType?: EventType | 'all';
+  from?: string;
+  to?: string;
 }
 
 export interface EventRegistration {
   id: string;
-  event_id: string;
-  user_id: string;
-  qr_token: string;
+  eventId: string;
+  eventTitle?: string;
+  userId: string;
+  username?: string;
   status: RegistrationStatus;
-  checked_in_at: string | null;
-  checked_out_at: string | null;
-  attended_valid: boolean;
-  reward_status: RegistrationRewardStatus;
-  created_at: string;
-  // Joined
-  event?: Event;
+  note?: string;
+  registrationCode?: string;
+  userProfile?: UserProfile;
+  createdAt: string;
+}
+
+export interface EventParticipationSummary {
+  registeredCount: number;
+  waitlistedCount: number;
+  cancelledCount: number;
+  attendedCount: number;
 }
 
 export interface EventPrediction {
@@ -85,17 +128,115 @@ export interface EventPrediction {
   created_at: string;
 }
 
-export type CreateEventRequest = Omit<
-  Event,
-  'id' | 'ngo_id' | 'status' | 'admin_note' | 'created_at' | 'ngo_name' | 'registered_count'
->;
+export interface PredictEventRequest {
+  province: string;
+  startTime: string;
+  endTime: string;
+  minParticipants: number;
+  expectedParticipants: number;
+  eventType: EventType;
+}
 
+export type EventPredictionConclusion =
+  | 'HIGHLY_FEASIBLE'
+  | 'FEASIBLE'
+  | 'NEEDS_ADJUSTMENT'
+  | 'UNFEASIBLE';
+
+export interface PredictEventResponse {
+  averageParticipants: number;
+  minRequirementRatio: number;
+  expectedRequirementRatio: number;
+  conclusion: EventPredictionConclusion;
+  message: string;
+}
+
+export interface CreateEventRequest {
+  title: string;
+  description: string;
+  eventType: EventType;
+  startTime: string; // ISO 8601
+  endTime: string;
+  maxParticipants: number;
+  minParticipants: number;
+  cancelDeadlineHoursBefore: number;
+  signUpDeadlineHoursBefore: number;
+  reminderHoursBefore: number;
+  thankYouHoursAfter: number;
+  rewardPoints: number;
+  status: EventStatus;
+  thumbnail: MediaDto;
+  images: MediaDto[];
+  address: Omit<EventAddress, 'id'>;
+  participationConditions: string;
+}
+
+export type UpdateEventRequest = CreateEventRequest;
+
+export interface ParticipatedEventQueryParams extends PaginationParams {
+  title?: string;
+  status?: RegistrationStatus | 'all';
+  address?: string;
+}
+export interface MyNgoEventQueryParams extends PaginationParams {
+  title?: string;
+  eventType?: EventType | 'all';
+  status?: EventStatus | 'all';
+  from?: string;
+  to?: string;
+}
+
+export interface RegisterEventPayload {
+  eventId: string;
+  note?: string;
+}
 // ============================================================
 // MAP / RECYCLING STATION TYPES
 // Mapped from: recycling_stations
 // ============================================================
 
 export type StationStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'TEMPORARY_CLOSED';
+
+export interface AddressDto {
+  id: string;
+  province: string;
+  district: string;
+  ward: string;
+  addressDetail: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface RecyclingStationWasteTypeDto {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface RecyclingStationOpenTimeDto {
+  id: string;
+  startTime: string;
+  endTime: string;
+  dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+}
+
+export interface RecyclingStationApiModel {
+  id: string;
+  name: string;
+  description: string;
+  phoneNumber: string;
+  email: string;
+  status: StationStatus;
+  address: AddressDto;
+  wasteTypes: RecyclingStationWasteTypeDto[];
+  openTimes: RecyclingStationOpenTimeDto[];
+}
+
+export interface WasteType {
+  id: string;
+  name: string;
+  description: string;
+}
 
 export interface OpeningHours {
   [day: string]: { open: string; close: string } | null; // null = closed
@@ -130,43 +271,112 @@ export type TrashSpotStatus =
   | 'REOPENED'
   | 'FLAGGED';
 
-export type SeverityLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export enum SeverityTier {
+  SEVERITY_LOW = 'SEVERITY_LOW',
+  SEVERITY_MEDIUM = 'SEVERITY_MEDIUM',
+  SEVERITY_HIGH = 'SEVERITY_HIGH',
+}
 
-export type VerificationDecision = 'VERIFY' | 'REPORT_FAKE';
+export interface TrashSpotQueryParams {
+  province?: string;
+  status?: TrashSpotStatus;
+  severityTier?: SeverityTier;
+  wasteTypeId?: string;
+}
 
-export interface TrashSpotReport {
+export interface TrashSpotListItem {
   id: string;
-  reporter_id: string;
+  name: string;
   description: string;
   latitude: number;
   longitude: number;
-  before_media_urls: string[];
-  after_media_urls: string[] | null;
-  severity_level: SeverityLevel;
-  verify_count: number;
-  hot_score: number;
-  assigned_ngo_id: string | null;
+  province: string;
   status: TrashSpotStatus;
-  resolve_note: string | null;
-  resolve_completed_at: string | null;
-  admin_resolve_note: string | null;
-  created_at: string;
-  updated_at: string;
+  severityTier: SeverityTier;
+  hotScore: number;
+  verificationCount: number;
+  primaryImageUrl: string;
+  wasteTypeNames: string[];
+  createdAt: string;
+}
+
+export interface TrashSpotReport {
+  id: string;
+  name: string;
+  reporterId: string;
+  reporterDisplayName: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  province: string;
+  status: TrashSpotStatus;
+  verificationCount: number;
+  hotScore: number;
+  severityTier: SeverityTier;
+  assignedNgoId: string | null;
+  assignedNgoDisplayName: string | null;
+  claimedAt: string | null;
+  resolvedAt: string | null;
+  imageUrls: string[];
+  wasteTypeIds: string[];
+  wasteTypeNames: string[];
+  verifications: TrashSpotVerification[];
+  resolveRequests: TrashSpotResolveRequest[];
+  createdAt: string;
+  lastModifiedAt: string;
 }
 
 export interface TrashSpotVerification {
   id: string;
-  report_id: string;
-  verifier_id: string;
-  decision: VerificationDecision;
-  is_valid: boolean;
-  created_at: string;
+  verifierId: string;
+  verifierDisplayName: string;
+  note: string;
+  createdAt: string;
 }
 
-export type CreateTrashReportRequest = Pick<
-  TrashSpotReport,
-  'description' | 'latitude' | 'longitude' | 'before_media_urls' | 'severity_level'
->;
+export interface TrashSpotReport {
+  id: string;
+  reporterId: string;
+  reporterDisplayName: string;
+  reporterAvatarUrl: string;
+  note: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  trashSpot: TrashSpotListItem;
+}
+
+export interface CreateTrashSpotVerificationRequest {
+  note: string;
+}
+
+export type TrashSpotResolveRequestStatus = 'PENDING_ADMIN_REVIEW' | 'APPROVED' | 'REJECTED';
+
+export interface TrashSpotResolveRequest {
+  id: string;
+  trashSpotId: string;
+  ngoId: string;
+  ngoDisplayName: string;
+  description: string;
+  cleanedAt: string;
+  status: TrashSpotResolveRequestStatus;
+  rejectReason: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  imageUrls: string[];
+  createdAt: string;
+}
+
+export interface CreateTrashSpotReportRequest {
+  images: MediaDto[];
+  name: string;
+  latitude: number;
+  longitude: number;
+  province: string;
+  wasteTypeIds: string[];
+  description: string;
+}
+
+export type CreateTrashReportRequest = CreateTrashSpotReportRequest;
 
 // ============================================================
 // NOTIFICATION TYPES

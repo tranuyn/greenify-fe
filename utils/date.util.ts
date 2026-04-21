@@ -13,3 +13,24 @@ export const getTimeAgo = (dateString?: string) => {
 
   return date.toLocaleDateString('vi-VN');
 };
+
+export const formatDateTime = (dateString?: string) => {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+};
+
+export const formatDate = (d: Date) => {
+  return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}/${d.getFullYear()}`;
+};

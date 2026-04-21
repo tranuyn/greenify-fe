@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { IMAGES } from '@/constants/linkMedia';
 import { LeaderboardEntry } from '@/types/gamification.types';
+import { useTranslation } from 'react-i18next';
 
 interface RankItemProps {
   item: LeaderboardEntry;
 }
 
 const RankItem = ({ item }: RankItemProps) => {
+  const { t } = useTranslation();
   // Đổi màu số thứ tự cho Top 3
   const rankColor =
     item.rank === 1
@@ -27,8 +29,8 @@ const RankItem = ({ item }: RankItemProps) => {
   };
 
   const frameSource = getFrameSource(item.rank);
-  const displayName = item?.display_name || item.user_profiles?.display_name || 'Ẩn danh';
-  const avatarUrl = item?.avatar_url || item.user_profiles?.avatar_url || IMAGES.treeAvatar;
+  const displayName = item?.displayName || t('leaderboard.anonymous');
+  const avatarUrl = item?.avatarUrl || IMAGES.treeAvatar;
 
   return (
     <View className="flex-row items-center justify-between py-3">
@@ -62,7 +64,7 @@ const RankItem = ({ item }: RankItemProps) => {
       </View>
 
       <Text className="text-base font-bold text-foreground">
-        {item.weekly_points} <Text className="text-[#359B63]">GP</Text>
+        {item.weeklyPoints} <Text className="text-[#359B63]">GP</Text>
       </Text>
     </View>
   );

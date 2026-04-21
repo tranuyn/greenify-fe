@@ -34,7 +34,7 @@ export function EventCard({
 }: Props) {
   const { t } = useTranslation();
   const colors = useThemeColor();
-  const full = (item.registered_count ?? 0) >= item.max_participants;
+  const full = (item.participantCount ?? 0) >= item.maxParticipants;
 
   const ctaDisabled = isRegistered || full || isRegistering;
   const ctaLabel = isRegistered
@@ -61,23 +61,23 @@ export function EventCard({
       {/* Cover Image */}
       <View className="relative h-28">
         <Image
-          source={{ uri: item.cover_image_url }}
+          source={{ uri: item.thumbnail.imageUrl }}
           className="h-full w-full bg-primary-100"
           resizeMode="cover"
         />
         {/* NGO Badge */}
-        {item.ngo_name && (
+        {item.organizer?.name && (
           <View className="absolute left-2.5 top-2.5 flex-row items-center rounded-full bg-black/50 px-2.5 py-1">
             <Feather name="shield" size={10} color="white" />
             <Text className="ml-1 font-inter-medium text-[10px] text-white">
-              {item.ngo_name}
+              {item.organizer.name}
             </Text>
           </View>
         )}
         {/* GP Badge */}
         <View className="absolute right-2.5 top-2.5 rounded-full bg-primary px-3 py-1">
           <Text className="font-inter-bold text-xs text-white">
-            +{item.reward_points} GP
+            +{item.rewardPoints} GP
           </Text>
         </View>
       </View>
@@ -92,7 +92,7 @@ export function EventCard({
         <View className="mt-1.5 flex-row items-center">
           <Feather name="map-pin" size={12} color={colors.neutral400} />
           <Text className="ml-1.5 line-clamp-1 font-inter text-xs text-foreground/50">
-            {item.location_address}
+            {item.address.addressDetail}
           </Text>
         </View>
 
@@ -102,15 +102,15 @@ export function EventCard({
             <Feather name="clock" size={12} color={colors.neutral400} />
             <Text className="ml-1.5 font-inter text-xs text-foreground/50">
               {t('home.event_time', {
-                date: formatShortDate(item.start_time),
-                time: formatTime(item.start_time),
+                date: formatShortDate(item.startTime),
+                time: formatTime(item.startTime),
               })}
             </Text>
           </View>
           <View className="flex-row items-center">
             <Feather name="users" size={12} color={colors.neutral400} />
             <Text className="ml-1 font-inter text-xs text-foreground/50">
-              {item.registered_count || 0}/{item.max_participants}
+              {item.participantCount || 0}/{item.maxParticipants}
             </Text>
             {full && !isRegistered && (
               <View className="ml-2 rounded-full bg-rose-50 px-2 py-0.5">

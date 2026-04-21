@@ -3,16 +3,22 @@ import { View, Text, TouchableOpacity, Image, Modal, ScrollView } from 'react-na
 import { Feather } from '@expo/vector-icons';
 import { IMAGES } from '@/constants/linkMedia';
 import { Seed } from 'types/gamification.types';
-import { url } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 // --- BẮT ĐẦU: COMPONENT MODAL LƯU Ý (THÊM MỚI) ---
 const PlantInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+
   // Dữ liệu giả lập cho Chu kỳ phát triển (Bạn có thể thay icon bằng Image thật sau)
   const growthStages = [
-    { id: 1, name: 'Hạt giống', url: IMAGES.saveWater },
-    { id: 2, name: 'Nảy mầm', url: IMAGES.growingPlant },
-    { id: 4, name: 'Phát triển', url: IMAGES.leafPlant },
-    { id: 5, name: 'Trưởng thành', url: IMAGES.palmTree },
+    { id: 1, name: t('calendar.seed_modal.info.stage.seed', 'Hạt giống'), url: IMAGES.saveWater },
+    { id: 2, name: t('calendar.seed_modal.info.stage.sprout', 'Mầm'), url: IMAGES.growingPlant },
+    { id: 4, name: t('calendar.seed_modal.info.stage.growing', 'Đang lớn'), url: IMAGES.leafPlant },
+    {
+      id: 5,
+      name: t('calendar.seed_modal.info.stage.matured', 'Trưởng thành'),
+      url: IMAGES.palmTree,
+    },
   ];
 
   return (
@@ -22,7 +28,9 @@ const PlantInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () =>
           {/* Header */}
           <View className="mb-4 flex-row items-center justify-between">
             <Feather name="info" size={24} color="#171717" />
-            <Text className="font-inter-semibold text-lg text-[var(--foreground)]">Lưu ý</Text>
+            <Text className="font-inter-semibold text-lg text-[var(--foreground)]">
+              {t('calendar.seed_modal.info.title', 'Chọn hạt giống')}
+            </Text>
             <TouchableOpacity onPress={onClose} className="p-1">
               <Feather name="x" size={24} color="#171717" />
             </TouchableOpacity>
@@ -31,7 +39,7 @@ const PlantInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () =>
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Phần 1: Chu kỳ phát triển */}
             <Text className="mb-4 font-inter-bold text-base text-[var(--foreground)]">
-              Chu kỳ phát triển
+              {t('calendar.seed_modal.info.growth_cycle_title', 'Chu kỳ phát triển')}
             </Text>
             <View className="mb-6 flex-row justify-between px-1">
               {growthStages.map((stage) => (
@@ -47,24 +55,26 @@ const PlantInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () =>
             {/* Phần 2: Cây ngắn hạn */}
             <View className="mb-6">
               <Text className="mb-2 font-inter-bold text-base text-[var(--foreground)]">
-                🌱 Cây ngắn hạn
+                {t('calendar.seed_modal.info.short_term_title', 'Ngắn hạn')}
               </Text>
               <Text className="mb-2 text-sm text-[var(--foreground)]">
-                ⚡ Phù hợp cho người muốn thấy kết quả sớm
+                {t('calendar.seed_modal.info.short_term_subtitle', 'Phù hợp trồng nhanh')}
               </Text>
-              <Text className="mb-2 text-sm text-[var(--foreground)]">Lưu ý khi gieo trồng:</Text>
+              <Text className="mb-2 text-sm text-[var(--foreground)]">
+                {t('calendar.seed_modal.info.notes_label', 'Ghi chú')}
+              </Text>
               <View className="pl-2">
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Cần chăm sóc mỗi ngày để cây phát triển đúng tiến độ
+                  {t('calendar.seed_modal.info.short_term_note_1', 'Tưới nước đều đặn')}
                 </Text>
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Bỏ lỡ 1-2 ngày có thể khiến cây chậm lớn
+                  {t('calendar.seed_modal.info.short_term_note_2', 'Đặt nơi có ánh sáng')}
                 </Text>
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Thời gian trưởng thành nhanh (7 ngày)
+                  {t('calendar.seed_modal.info.short_term_note_3', 'Bón phân định kỳ')}
                 </Text>
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Phần thưởng nhỏ nhưng nhận nhanh và đều đặn 🎁
+                  {t('calendar.seed_modal.info.short_term_note_4', 'Theo dõi sâu bệnh')}
                 </Text>
               </View>
             </View>
@@ -72,24 +82,26 @@ const PlantInfoModal = ({ visible, onClose }: { visible: boolean; onClose: () =>
             {/* Phần 3: Cây dài hạn */}
             <View className="mb-4">
               <Text className="font-inter-bold text-base text-[var(--foreground)]">
-                🌳 Cây dài hạn
+                {t('calendar.seed_modal.info.long_term_title', 'Dài hạn')}
               </Text>
               <Text className="mb-1 text-sm text-[var(--foreground)]">
-                🌿 Dành cho người kiên trì & muốn phần thưởng lớn
+                {t('calendar.seed_modal.info.long_term_subtitle', 'Phù hợp trồng lâu dài')}
               </Text>
-              <Text className="mb-1 text-sm text-[var(--foreground)]">Lưu ý khi gieo trồng:</Text>
+              <Text className="mb-1 text-sm text-[var(--foreground)]">
+                {t('calendar.seed_modal.info.notes_label', 'Ghi chú')}
+              </Text>
               <View className="pl-2">
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Không cần chăm sóc liên tục mỗi ngày, nhưng nên quay lại thường xuyên
+                  {t('calendar.seed_modal.info.long_term_note_1', 'Tưới nước ít hơn')}
                 </Text>
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Có thể chịu được việc bỏ lỡ vài ngày, nhưng sẽ giảm tốc độ phát triển
+                  {t('calendar.seed_modal.info.long_term_note_2', 'Đặt nơi râm mát')}
                 </Text>
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Thời gian trưởng thành dài (30 ngày)
+                  {t('calendar.seed_modal.info.long_term_note_3', 'Bón phân hữu cơ')}
                 </Text>
                 <Text className="mb-1 text-sm text-[var(--foreground)]">
-                  • Phần thưởng lớn hơn khi cây trưởng thành 🎉
+                  {t('calendar.seed_modal.info.long_term_note_4', 'Kiểm tra định kỳ')}
                 </Text>
               </View>
             </View>
@@ -106,10 +118,13 @@ type SeedSelectionModalProps = {
   onClose: () => void;
   selectedSeedId: string | null;
   onSelectSeed: (seedId: string) => void;
-  longTermSeeds: Seed[];
-  shortTermSeeds: Seed[];
+  easySeeds: Seed[];
+  mediumSeeds: Seed[];
+  hardSeeds: Seed[];
   isSeedsLoading: boolean;
   hasGrowingSeed: boolean;
+  isPlanting?: boolean;
+  onPlantSeed: () => void;
 };
 
 const SeedSelectionModal = ({
@@ -117,11 +132,15 @@ const SeedSelectionModal = ({
   onClose,
   selectedSeedId,
   onSelectSeed,
-  longTermSeeds,
-  shortTermSeeds,
+  easySeeds,
+  mediumSeeds,
+  hardSeeds,
   isSeedsLoading,
   hasGrowingSeed,
+  isPlanting = false,
+  onPlantSeed,
 }: SeedSelectionModalProps) => {
+  const { t } = useTranslation();
   // STATE MỚI: Dùng để điều khiển Modal Lưu ý
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
@@ -134,12 +153,15 @@ const SeedSelectionModal = ({
         onPress={() => onSelectSeed(seed.id)}
         className={`mb-2 flex-row items-center rounded-lg px-2 py-2 ${isSelected ? 'bg-[var(--primary-light)]/30 border border-[var(--primary)]' : ''}`}>
         <View className="h-10 w-10 items-center justify-center rounded-full border border-[var(--primary)] bg-[var(--primary-light)]">
-          <Image source={{ uri: seed.stage4_image_url }} className="h-7 w-7" />
+          <Image source={{ uri: seed.stage4ImageUrl }} className="h-7 w-7" />
         </View>
         <View className="ml-3">
           <Text className="font-inter-medium text-base text-[var(--foreground)]">{seed.name}</Text>
           <Text className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-            Thời gian: {seed.days_to_mature} ngày
+            {t('calendar.seed_modal.duration_days', {
+              days: seed.daysToMature,
+              defaultValue: 'Số ngày: {days}',
+            })}
           </Text>
         </View>
       </TouchableOpacity>
@@ -162,7 +184,7 @@ const SeedSelectionModal = ({
               </TouchableOpacity>
 
               <Text className="font-inter-semibold text-xl text-[var(--foreground)]">
-                Chọn giống cây trồng
+                {t('calendar.seed_modal.select_seed_title', 'Chọn loại hạt giống')}
               </Text>
               <TouchableOpacity onPress={onClose}>
                 <Feather name="x" size={20} color="#171717" />
@@ -171,18 +193,23 @@ const SeedSelectionModal = ({
 
             <ScrollView showsVerticalScrollIndicator={false} className="px-3">
               <Text className="mb-2 font-inter-semibold text-lg text-[var(--foreground)]">
-                Cây dài hạn
+                {t('calendar.seed_modal.easy_care', 'Dễ chăm sóc')}
               </Text>
-              {longTermSeeds.map((seed) => renderSeedItem(seed))}
+              {easySeeds.map((seed) => renderSeedItem(seed))}
 
               <Text className="mb-2 mt-3 font-inter-semibold text-lg text-[var(--foreground)]">
-                Cây ngắn hạn
+                {t('calendar.seed_modal.medium_care', 'Trung bình')}
               </Text>
-              {shortTermSeeds.map((seed) => renderSeedItem(seed))}
+              {mediumSeeds.map((seed) => renderSeedItem(seed))}
+
+              <Text className="mb-2 mt-3 font-inter-semibold text-lg text-[var(--foreground)]">
+                {t('calendar.seed_modal.hard_care', 'Khó chăm sóc')}
+              </Text>
+              {hardSeeds.map((seed) => renderSeedItem(seed))}
 
               {isSeedsLoading && (
                 <Text className="py-2 text-sm text-[var(--muted-foreground)]">
-                  Đang tải giống cây...
+                  {t('calendar.seed_modal.loading_seeds', 'Đang tải danh sách hạt giống...')}
                 </Text>
               )}
             </ScrollView>
@@ -190,13 +217,19 @@ const SeedSelectionModal = ({
             {hasGrowingSeed && (
               <View className="mt-3 rounded-lg bg-red-100 px-3 py-2">
                 <Text className="text-center text-sm text-[var(--foreground)]">
-                  Có hạt giống đang phát triển
+                  {t('calendar.seed_modal.has_growing_seed', 'Bạn đang có cây đang phát triển')}
                 </Text>
                 <Text className="my-1 text-center text-sm text-[var(--foreground)]">
-                  Nếu tiếp tục tiến trình hạt giống hiện tại sẽ mất
+                  {t(
+                    'calendar.seed_modal.warning_seed_progress_lost',
+                    'Tiến trình cây hiện tại sẽ bị mất nếu trồng mới'
+                  )}
                 </Text>
                 <Text className="text-center font-inter-bold text-sm text-[var(--foreground)]">
-                  Bạn có chắc chắn muốn trồng mới?
+                  {t(
+                    'calendar.seed_modal.confirm_new_planting',
+                    'Bạn có chắc chắn muốn trồng mới?'
+                  )}
                 </Text>
               </View>
             )}
@@ -205,16 +238,20 @@ const SeedSelectionModal = ({
               <TouchableOpacity
                 onPress={onClose}
                 className="flex-1 items-center rounded-lg bg-[var(--primary-light)] py-4">
-                <Text className="font-inter-semibold text-[var(--foreground)]">Thoát</Text>
+                <Text className="font-inter-semibold text-[var(--foreground)]">
+                  {t('calendar.seed_modal.exit', 'Thoát')}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={onClose}
-                disabled={!selectedSeedId}
-                className={`flex-1 flex-row items-center justify-center rounded-lg py-4 ${selectedSeedId ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`}>
+                onPress={onPlantSeed}
+                disabled={!selectedSeedId || isPlanting}
+                className={`flex-1 flex-row items-center justify-center rounded-lg py-4 ${selectedSeedId && !isPlanting ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`}>
                 <Text
-                  className={`mr-1 font-inter-semibold text-[var(--foreground)] ${selectedSeedId ? 'text-[var(--on-primary)]' : 'text-[var(--muted-foreground)]'}`}>
-                  Trồng cây
+                  className={`mr-1 font-inter-semibold text-[var(--foreground)] ${selectedSeedId && !isPlanting ? 'text-[var(--on-primary)]' : 'text-[var(--muted-foreground)]'}`}>
+                  {isPlanting
+                    ? t('calendar.seed_modal.loading_seeds', 'Đang tải danh sách hạt giống...')
+                    : t('calendar.seed_modal.plant_button', 'Trồng cây')}
                 </Text>
                 {/* Đảm bảo IMAGES.growingPlant đã được import hợp lệ */}
                 <Image source={{ uri: IMAGES?.growingPlant || '' }} className="h-6 w-6" />

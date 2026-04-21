@@ -42,6 +42,10 @@
   "common": {
     "processing": "Processing...",
     "gp_unit": "GP",
+    "all": "All",
+    "from_date": "From date",
+    "to_date": "To date",
+    "select_date": "Select date",
     "cancel": "Cancel",
     "done": "Done",
     "ok": "OK",
@@ -50,6 +54,267 @@
     "create_new": "Create New",
     "scan_qr": "Scan QR",
     "my_events_short": "My events"
+  },
+  "photograph": {
+    "permission_required": "The app needs camera permission so you can check in.",
+    "permission_button": "Grant Camera Access",
+    "expanding_input": {
+      "placeholder": "Add a description"
+    },
+    "nature": {
+      "collection_title": "Collection"
+    },
+    "preview": {
+      "location_prefix": "Location:",
+      "download": {
+        "unavailable_title": "Cannot download image",
+        "unavailable_message": "No image found to save.",
+        "permission_title": "Permission required",
+        "permission_message": "Please allow photo library access to save images.",
+        "success_title": "Saved",
+        "success_message": "Image has been saved to your gallery.",
+        "error_title": "Something went wrong",
+        "error_message": "Unable to save image. Please try again."
+      }
+    },
+    "location_sheet": {
+      "title": "Choose location"
+    },
+    "action_sheet": {
+      "sections": {
+        "notes": "Notes",
+        "action_tags": "Action tags"
+      },
+      "tags": {
+        "location": "Add location",
+        "time": "Add time",
+        "seed": "Seed",
+        "green_daily": "Green Daily",
+        "pollution": "Pollution",
+        "community": "Community",
+        "action_4": "Action 4"
+      }
+    }
+  },
+  "calendar": {
+    "header_title": "Green Calendar",
+    "green_action_button": "Green Action",
+    "progress": {
+      "stage": {
+        "seed": "Seed",
+        "sprout": "Sprout",
+        "growing": "Growing",
+        "blooming": "Blooming",
+        "matured": "Matured",
+        "not_started": "Not started"
+      },
+      "stage_label": "Stage: ",
+      "no_seed_selected": "No seed selected",
+      "green_streak_label": "Green streak: ",
+      "today_no_action": "You have not completed any green action today"
+    },
+    "week": {
+      "title": "Week 1",
+      "updating": "Updating green calendar...",
+      "restore_streak": "Restore streak",
+      "restore_count": "Restore attempts: {{current}}/{{total}}",
+      "pick_date": "Pick a date"
+    },
+    "utilities": {
+      "title": "Utilities",
+      "planting": "Planting",
+      "farm": "Farm"
+    },
+    "gift": {
+      "your_gift_title": "Your gifts",
+      "total": "Total gifts: {{count}}",
+      "today_gift_title": "Today's gift",
+      "description": "Description",
+      "required_points": "Required points",
+      "remaining_usage": "Remaining usage",
+      "usage_conditions": "Usage conditions",
+      "expire_date": "Expires: {{date}}",
+      "empty_title": "No gift available for today",
+      "empty_message": "Complete your plant-care activities to receive vouchers."
+    },
+    "history": {
+      "title": "Activity history",
+      "green_post_title": "Green post",
+      "green_post_description": "You posted a green post",
+      "status_pending": "Pending review",
+      "status_approved": "Approved"
+    },
+    "archive": {
+      "title": "Collection",
+      "loading": "Loading farm...",
+      "empty": "You do not have any plants in the archive yet."
+    },
+    "seed_modal": {
+      "duration_days": "Duration: {{days}} days",
+      "select_seed_title": "Choose a seed",
+      "long_term_section": "Long-term plants",
+      "short_term_section": "Short-term plants",
+      "easy_care": "Easy to care plants",
+      "medium_care": "Medium care plants",
+      "hard_care": "Hard to care plants",
+      "loading_seeds": "Loading seeds...",
+      "has_growing_seed": "A seed is currently growing",
+      "warning_seed_progress_lost": "If you continue, current seed progress will be lost",
+      "confirm_new_planting": "Are you sure you want to plant a new one?",
+      "exit": "Exit",
+      "plant_button": "Plant",
+      "info": {
+        "title": "Notes",
+        "growth_cycle_title": "Growth cycle",
+        "notes_label": "Planting notes:",
+        "stage": {
+          "seed": "Seed",
+          "sprout": "Sprout",
+          "growing": "Growing",
+          "matured": "Matured"
+        },
+        "short_term_title": "Short-term plants",
+        "short_term_subtitle": "Suitable for users who want quick results",
+        "short_term_note_1": "- Need daily care to keep growth on track",
+        "short_term_note_2": "- Missing 1-2 days can slow growth",
+        "short_term_note_3": "- Fast maturity time (7 days)",
+        "short_term_note_4": "- Smaller rewards but frequent and quick",
+        "long_term_title": "Long-term plants",
+        "long_term_subtitle": "For consistent users who want bigger rewards",
+        "long_term_note_1": "- No need for strict daily care, but return regularly",
+        "long_term_note_2": "- Can tolerate missing a few days, but growth speed drops",
+        "long_term_note_3": "- Long maturity time (30 days)",
+        "long_term_note_4": "- Bigger rewards when the plant matures"
+      }
+    }
+  },
+  "point_history": {
+    "header_title": "Wallet & Points",
+    "points_label": "Points",
+    "expiring_points_text": "{{points}} GP will expire on {{date}}",
+    "history_title": "Points history",
+    "search_placeholder": "Search",
+    "applied_filters": "Applying {{count}} filters:",
+    "loading": "Loading points history...",
+    "empty_result": "No matching results found",
+    "unknown_activity": "Unknown activity",
+    "subtitle_positive": "You received points from this activity",
+    "subtitle_negative": "Your activity was deducted points",
+    "source_type": {
+      "green_action": "Green post",
+      "event_attend": "Event",
+      "review_reward": "Post review",
+      "leaderboard": "Leaderboard",
+      "leaderboard_reward": "Leaderboard reward",
+      "voucher_redeem": "Voucher redeem"
+    },
+    "filter": {
+      "title": "Filters",
+      "by_time": "By time",
+      "detail": "Detail",
+      "other": "Other",
+      "reset": "Reset",
+      "apply": "Apply",
+      "time": {
+        "week": "Week",
+        "month": "Month",
+        "all": "All"
+      }
+    }
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "error_load": "Unable to load leaderboard.",
+    "retry": "Try again",
+    "empty": "No ranking data yet.",
+    "anonymous": "Anonymous",
+    "select_province": "Please select a province",
+    "province_picker_label": "Province / City",
+    "scope": {
+      "provincial": "Regional",
+      "national": "National"
+    },
+    "countdown": {
+      "days": "{{count}} days",
+      "hours": "{{count}} hours",
+      "minutes": "{{count}} minutes"
+    },
+    "reward": {
+      "not_found": "Reward information not found",
+      "title": "Reward details",
+      "top5_subtitle": "Rewards for Top 5",
+      "provider": "Provider",
+      "validity": "Validity",
+      "validity_note": "Valid for 7 days from the date received",
+      "expire_date": "Expires on: {{date}}",
+      "terms_and_conditions": "Terms and conditions",
+      "claim_now": "Claim now"
+    }
+  },
+  "coexistence": {
+    "severity": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "unknown": "Unknown"
+    },
+    "create_trash_spot": {
+      "default_province": "Ho Chi Minh City",
+      "title": "Create Trash Spot",
+      "image_section_title": "Illustration images",
+      "add_image": "Add image",
+      "image_hint": "Tap to add images from camera or library",
+      "name_label": "Trash spot name",
+      "name_placeholder": "Example: Trash pile under the bridge",
+      "description_label": "Description",
+      "description_placeholder": "Short description of the area condition",
+      "province_label": "Province / City",
+      "locating": "Getting current location...",
+      "locate_current": "Use current location",
+      "waste_type_label": "Waste types",
+      "selected_waste_types": "Selected: {{value}}",
+      "submit": "Create trash spot",
+      "image_source_title": "Choose image source",
+      "image_source_message": "Where do you want to add images from?",
+      "pick_camera": "Camera",
+      "pick_library": "Library",
+      "cancel": "Cancel",
+      "alert_error_title": "Error",
+      "alert_success_title": "Success",
+      "alert_missing_info_title": "Missing information",
+      "alert_missing_image_title": "Missing image",
+      "alert_missing_waste_type_title": "Missing waste type",
+      "camera_permission_required": "Camera permission is required to take photos.",
+      "library_permission_required": "Library permission is required to upload images.",
+      "location_permission_required": "Location permission is required to get current coordinates.",
+      "require_name": "Please enter a trash spot name.",
+      "require_description": "Please enter a description.",
+      "require_province": "Please enter province/city.",
+      "require_valid_coordinates": "Please enter valid coordinates.",
+      "require_image": "Please select at least one image.",
+      "require_waste_type": "Please select at least one waste type.",
+      "create_success": "New trash spot created successfully.",
+      "create_error": "Unable to create trash spot."
+    },
+    "trash_spot_sheet": {
+      "unknown_title": "Unnamed trash spot",
+      "unknown_waste_type": "Other",
+      "severity_label": "Severity:",
+      "verification_label": "Reviews:",
+      "waste_type_label": "Waste type:",
+      "address_label": "Address:",
+      "resolving_address": "Resolving address...",
+      "no_image": "No image available",
+      "description_label": "More details",
+      "report_button": "Report",
+      "verify_button": "Verify",
+      "verify_note_default": "Verified from map",
+      "verify_note_label": "Verification note",
+      "verify_note_placeholder": "Enter verification note",
+      "verify_success": "Trash spot verified successfully.",
+      "verify_error": "Unable to verify the trash spot. Please try again.",
+      "report_error": "Unable to report the trash spot. Please try again."
+    }
   },
   "auth": {
     "login": {
@@ -77,7 +342,10 @@
       "title": "Verify Email",
       "subtitle": "We have sent a verification code to",
       "resend": "Resend code",
-      "submit_btn": "Verify"
+      "submit_btn": "Verify",
+      "incomplete_code": "Please enter the full verification code.",
+      "invalid_code": "Invalid verification code.",
+      "invalid_response": "Unable to read verification token. Please try again."
     },
     "signup_password": {
       "title": "Password",
@@ -204,7 +472,7 @@
         "cancelled": "Cancelled"
       },
       "status": {
-        "pending_approval": "Pending",
+        "approval_waiting": "Pending",
         "needs_revision": "Needs Revision",
         "approved": "Approved",
         "published": "Published",
@@ -386,6 +654,8 @@
   },
   "map": {
     "search_placeholder": "Search collection points...",
+    "open_directions": "Open map",
+    "open_directions_error": "Unable to open map application.",
     "today_hours": "Today ({{day}}): {{open}} - {{close}}",
     "today_closed": "Today ({{day}}): Closed",
     "days": {

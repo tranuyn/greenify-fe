@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   View,
   TouchableWithoutFeedback,
@@ -7,70 +7,153 @@ import {
   Animated,
   Keyboard,
   Text,
-  Platform,
-  // Thêm Platform để check OS nếu cần
+  Alert,
 } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import * as Location from 'expo-location';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-// SỬA: Import đúng các component cần dùng
-import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 import ExpandingInput from './components/ExpandingInput';
 import ActionBottomSheet from './components/ActionBottomSheet';
-import LocationBottomSheet from './components/LocationBottomSheet';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { IMAGES } from '@/constants/linkMedia';
+import { useActionTypes } from '@/hooks/queries/usePosts';
+import { useCreatePost } from '@/hooks/mutations/usePosts';
+import { useUpload } from '@/hooks/mutations/useUpload';
+import { queryClient } from 'lib/queryClient';
+import { QUERY_KEYS } from 'constants/queryKeys';
 
 export default function PreviewScreen() {
+  const { t } = useTranslation();
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
   const [description, setDescription] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedActionTypeId, setSelectedActionTypeId] = useState<string>('');
+  const [isSavingImage, setIsSavingImage] = useState(false);
   // 1. Khai báo Ref cho Modal
   const { data: userProfile } = useCurrentUser();
+  const { data: actionTypes = [] } = useActionTypes();
+  const { mutateAsync: createPost, isPending: isCreatingPost } = useCreatePost();
+  const { mutateAsync: uploadFile, isPending: isUploading } = useUpload();
   const animWidth = useRef(new Animated.Value(150)).current;
 
-  const [location, setLocation] = useState<string | null>(null);
-  const [time, setTime] = useState<string | null>(null);
-
   const actionSheetRef = useRef<any>(null);
-  const locationSheetRef = useRef<any>(null);
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+  const selectedActionType = useMemo(
+    () => actionTypes.find((type) => type.id === selectedActionTypeId) ?? null,
+    [actionTypes, selectedActionTypeId]
+  );
+
+  const handleCreatePost = async () => {
+    if (!imageUri || typeof imageUri !== 'string') {
+      Alert.alert(
+        t('photograph.preview.download.unavailable_title', 'Không thể tải ảnh'),
+        t('photograph.preview.download.unavailable_message', 'Ảnh này không thể tải về.'),
+      );
+      return;
+    }
+
+    let latitude = 0;
+    let longitude = 0;
+
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status === 'granted') {
+        const position = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      }
+
+      const uploadedMediaResult = await uploadFile({
+        uri: imageUri,
+      });
+
+      await createPost({
+        action_type_id: selectedActionTypeId,
+        caption: description.trim(),
+        media_url: uploadedMediaResult.imageUrl,
+        media_bucket: uploadedMediaResult.bucketName ?? '',
+        media_key: uploadedMediaResult.objectKey ?? '',
+        latitude,
+        longitude,
+        action_date: new Date().toISOString().slice(0, 10),
+      });
+
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      router.back();
+    } catch (error: any) {
+      console.error('Create post error:', error.response || error);
+      Alert.alert('Không thể đăng bài', 'Vui lòng thử lại sau.');
+    }
   };
 
-  const handleAddLocation = () => {
-    actionSheetRef.current?.dismiss();
-    setTimeout(() => locationSheetRef.current?.present(), 300);
+  const handleDownloadImage = async () => {
+    if (!imageUri || typeof imageUri !== 'string') {
+      Alert.alert(
+        t('photograph.preview.download.unavailable_title', 'Không thể tải ảnh'),
+        t('photograph.preview.download.unavailable_message', 'Ảnh này không thể tải về.'),
+      );
+      return;
+    }
+
+    try {
+      setIsSavingImage(true);
+      const permission = await MediaLibrary.requestPermissionsAsync();
+
+      if (permission.status !== 'granted') {
+        Alert.alert(
+          t('photograph.preview.download.permission_title', 'Cần quyền lưu trữ'),
+          t('photograph.preview.download.permission_message', 'Ứng dụng cần quyền lưu trữ để tải ảnh.'),
+        );
+        return;
+      }
+
+      await MediaLibrary.saveToLibraryAsync(imageUri);
+      Alert.alert(
+        t('photograph.preview.download.success_title', 'Tải ảnh thành công'),
+        t('photograph.preview.download.success_message', 'Ảnh đã được lưu vào thiết bị.'),
+      );
+    } catch (error: any) {
+      console.error('Lỗi khi lưu ảnh:', error.response || error);
+      Alert.alert(
+        t('photograph.preview.download.error_title', 'Tải ảnh thất bại'),
+        t('photograph.preview.download.error_message', 'Không thể tải ảnh. Vui lòng thử lại.'),
+      );
+    } finally {
+      setIsSavingImage(false);
+    }
   };
 
-  const handleAddTime = () => {
-    const now = new Date();
-    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-    setTime((prev) => (prev ? null : timeStr)); // Toggle thời gian
-  };
   return (
     <GestureHandlerRootView style={{ flex: 1, marginBottom: 100 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeAreaView className="flex-1 justify-between bg-neutral-900 py-10">
           {/* --- CỤM 1: TOP BAR --- */}
           <View className="flex-row items-center justify-between px-6">
-            <TouchableOpacity className="rounded-full bg-white/10 p-3">
+            <TouchableOpacity
+              className="rounded-full bg-white/10 p-3"
+              onPress={() => router.replace('/(tabs)/community')}>
               <Ionicons name="grid" size={24} color="white" />
             </TouchableOpacity>
 
-            <Image
-              source={{
-                uri: userProfile?.profile?.avatar_url || IMAGES.treeAvatar,
-              }}
-              className="flex-1"
-            />
+            <View className="h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/30 bg-white/20">
+              <Image
+                source={{ uri: userProfile?.userProfile?.avatarUrl || IMAGES.treeAvatar }}
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            </View>
 
-            <TouchableOpacity className="rounded-2xl bg-white/10 p-3 shadow-sm">
+            <TouchableOpacity
+              onPress={handleDownloadImage}
+              disabled={isSavingImage}
+              className={`rounded-2xl bg-white/10 p-3 shadow-sm ${isSavingImage ? 'opacity-60' : ''}`}>
               <Feather name="download" size={24} color="white" />
             </TouchableOpacity>
           </View>
@@ -86,30 +169,24 @@ export default function PreviewScreen() {
               />
             </View>
 
-            {location || time || selectedTags.length > 0 ? (
+            {selectedActionType ? (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 className="mt-4 h-10 px-4">
-                {location && (
-                  <View className="mr-2 flex-row items-center rounded-full bg-amber-500 px-3 py-1">
-                    <Ionicons name="location" size={14} color="white" />
-                    <Text className="ml-1 text-xs text-white">Vị trí: {location}</Text>
+                {selectedActionType && (
+                  <View className="mr-2 flex-row items-center rounded-full bg-green-800 px-3 py-1">
+                    <Text className="font-inter text-xs text-white">
+                      {selectedActionType.actionName}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setSelectedActionTypeId('')}
+                      hitSlop={8}
+                      className="ml-2 rounded-full bg-white/20 p-0.5">
+                      <Ionicons name="close" size={12} color="white" />
+                    </TouchableOpacity>
                   </View>
                 )}
-                {time && (
-                  <View className="mr-2 flex-row items-center rounded-full bg-sky-500 px-3 py-1">
-                    <Ionicons name="time" size={14} color="white" />
-                    <Text className="ml-1 text-xs text-white">{time}</Text>
-                  </View>
-                )}
-                {selectedTags.map((tag) => (
-                  <View
-                    key={tag}
-                    className="mr-2 justify-center rounded-full bg-green-50 px-3 py-1">
-                    <Text className="text-xs text-[var(--primary)]">{tag}</Text>
-                  </View>
-                ))}
               </ScrollView>
             ) : null}
           </View>
@@ -120,7 +197,12 @@ export default function PreviewScreen() {
               <Ionicons name="close" size={40} color="white" />
             </TouchableOpacity>
 
-            <TouchableOpacity className="h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-xl">
+            <TouchableOpacity
+              onPress={handleCreatePost}
+              disabled={isCreatingPost || isUploading}
+              className={`h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-xl ${
+                isCreatingPost || isUploading ? 'opacity-60' : ''
+              }`}>
               <Ionicons name="send" size={32} color="white" style={{ marginLeft: 4 }} />
             </TouchableOpacity>
 
@@ -133,12 +215,11 @@ export default function PreviewScreen() {
             {/* BOTTOM SHEETS */}
             <ActionBottomSheet
               ref={actionSheetRef}
-              selectedTags={selectedTags}
-              toggleTag={toggleTag}
-              onAddLocation={handleAddLocation}
-              onAddTime={handleAddTime}
+              actionTypes={actionTypes}
+              selectedActionTypeId={selectedActionTypeId}
+              onSelectActionType={setSelectedActionTypeId}
             />
-            <LocationBottomSheet ref={locationSheetRef} onSelect={(loc) => setLocation(loc)} />
+            {/* <LocationBottomSheet ref={locationSheetRef} onSelect={(loc) => setLocation(loc)} /> */}
           </View>
         </SafeAreaView>
       </TouchableWithoutFeedback>

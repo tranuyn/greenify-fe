@@ -4,14 +4,21 @@
 //              post_reviews, post_appeals
 // ============================================================
 
-export type PostStatus =
-  | 'DRAFT'
-  | 'PENDING_REVIEW'
-  | 'PARTIALLY_APPROVED'
-  | 'VERIFIED'
-  | 'REJECTED'
-  | 'FLAGGED'
-  | 'REVOKED';
+import { SortOption } from '@/constants/enums/sortOptions.enum';
+import { BaseQueryParams, PaginationParams } from './common.types';
+import { MediaDto } from './media.types';
+
+export const POST_STATUS = {
+  DRAFT: 'DRAFT',
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  PARTIALLY_APPROVED: 'PARTIALLY_APPROVED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED',
+  FLAGGED: 'FLAGGED',
+  REVOKED: 'REVOKED',
+} as const;
+
+export type PostStatus = (typeof POST_STATUS)[keyof typeof POST_STATUS];
 
 export type ReviewDecision = 'APPROVE' | 'REJECT' | 'REPORT_SUSPICIOUS';
 
@@ -25,11 +32,11 @@ export type AppealStatus =
 
 export interface GreenActionType {
   id: string;
-  group_name: string;
-  action_name: string;
-  suggested_points: number;
-  location_required: boolean;
-  is_active: boolean;
+  groupName: string;
+  actionName: string;
+  suggestedPoints: number;
+  locationRequired: boolean;
+  isActive: boolean;
 }
 
 export interface GreenActionPost {
@@ -47,7 +54,7 @@ export interface GreenActionPost {
   created_at: string;
   // Joined fields (API may include these)
   action_type?: GreenActionType;
-  user_display_name?: string;
+  user_displayName?: string;
   user_avatar_url?: string | null;
 }
 
@@ -75,17 +82,109 @@ export interface PostAppeal {
 }
 
 // ---- API Request shapes ----
+export interface CreateActionTypeRequest {
+  groupName: string;
+  actionName: string;
+  suggestedPoints: number;
+  locationRequired: boolean;
+  isActive: boolean;
+}
+export type UpdateActionTypeRequest = Partial<CreateActionTypeRequest>;
+// FEED PARAMS
+export interface FeedQueryParams extends BaseQueryParams {
+  search?: string;
+  actionTypeId?: string;
+  sort?: SortOption;
+  status?: PostStatus | 'all';
+  fromDate?: string;
+  toDate?: string;
+}
 
-export type CreatePostRequest = Pick<
-  GreenActionPost,
-  'action_type_id' | 'caption' | 'media_url' | 'action_date'
-> &
-  Partial<Pick<GreenActionPost, 'latitude' | 'longitude'>>;
+export interface FeedApiRequestParams {
+  page?: number;
+  size?: number;
+  sort?: string[];
+  authorDisplayName?: string;
+  actionTypeId?: string;
+  status?: string;
+  fromDate?: string;
+  toDate?: string;
+}
+//ui
+export interface MyPostsQueryParams extends BaseQueryParams {
+  status?: PostStatus | 'all';
+  // sort?: SortOption;
+}
+//api
+export interface MyPostsApiRequestParams extends Omit<MyPostsQueryParams, 'status' | 'sort'> {
+  status?: string; // Convert 'all' thành undefined trước khi gửi
+  sort?: string[]; // Convert SortOption object thành ["createdAt,desc"]
+}
+
+// -------------------------------------
+// 3. CREATE POST PARAMS
+// -------------------------------------
+
+// [UI State] - Gọn nhẹ, chỉ cần những thứ UI có
+export interface CreatePostRequest {
+  action_type_id: string;
+  caption: string;
+  media_url: string; // Lúc upload ảnh xong thì có link này
+  media_bucket?: string; // (Tùy chọn) Nếu API upload trả về
+  media_key?: string; // (Tùy chọn) Nếu API upload trả về
+  latitude?: number;
+  longitude?: number;
+  action_date: string; // YYYY-MM-DD
+}
+
+export interface CreatePostApiRequest {
+  actionTypeId: string;
+  caption: string;
+  media: MediaDto;
+  latitude?: number;
+  longitude?: number;
+  actionDate: string;
+}
 
 export interface ReviewPostRequest {
   decision: ReviewDecision;
-  reject_reason_code?: string;
-  reject_reason_note?: string;
+  rejectReason?: string;
+}
+export interface ReviewPostResponse {
+  reviewId: string;
+  postId: string;
+  decision: ReviewDecision;
+  postStatus: PostStatus;
+  message: string;
+}
+export interface PostReviewDto {
+  reviewId: string;
+  reviewerId: string;
+  reviewerDisplayName: string;
+  decision: ReviewDecision;
+  createdAt: string;
+  rejectReason?: string | null;
+}
+
+export interface GreenActionPostDetailDto {
+  id: string;
+  authorDisplayName: string;
+  authorAvatarUrl: string | null;
+  // actionTypeId: string;
+  actionTypeName: string;
+  groupName: string;
+  caption: string;
+  mediaUrl: string;
+  approveCount: number;
+  rejectCount: number;
+  // latitude: number;
+  // longitude: number;
+  location: string | null;
+  reviews: PostReviewDto[];
+  actionDate: string;
+  status: PostStatus;
+  createdAt: string;
+  // alreadyReviewed?: boolean;
 }
 
 export interface AppealPostRequest {
@@ -112,27 +211,23 @@ export type LedgerStatus = 'REWARDED' | 'REVERSED' | 'FROZEN';
 export type WalletStatus = 'ACTIVE' | 'FROZEN';
 
 export interface PointWallet {
-  id: string;
-  user_id: string;
-  total_points: number;
-  available_points: number;
-  weekly_points: number;
-  status: WalletStatus;
-  updated_at: string;
+  userId: string;
+  accumulatedPoints: number;
+  availablePoints: number;
+  transactionCount: number;
 }
 
-export interface PointLedgerEntry {
+export interface PointHistoryEntry {
   id: string;
-  user_id: string;
-  amount: number; // positive = earn, negative = spend
-  source_type: PointSourceType;
-  source_id: string;
-  status: LedgerStatus;
-  created_at: string;
-
-  /// extraction
-  source_name?: string;
-  source_display_url?: string | null;
+  points: number;
+  actionDescription: string;
+  sourcePostId: string;
+  sourceReviewId: string;
+  sourceName: string;
+  sourceDisplayUrl: string;
+  createdAt: string;
+  expiresAt: string;
+  expiredTransactionId: string;
 }
 
 export interface PointRule {

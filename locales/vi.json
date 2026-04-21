@@ -40,6 +40,10 @@
   "common": {
     "processing": "Đang xử lý...",
     "gp_unit": "GP",
+    "all": "Tất cả",
+    "from_date": "Từ ngày",
+    "to_date": "Đến ngày",
+    "select_date": "Chọn ngày",
     "cancel": "Hủy",
     "done": "Xong",
     "ok": "OK",
@@ -48,6 +52,267 @@
     "create_new": "Tạo mới",
     "scan_qr": "Quét mã",
     "my_events_short": "Của tôi"
+  },
+  "photograph": {
+    "permission_required": "Ứng dụng cần quyền truy cập camera để bạn có thể check-in.",
+    "permission_button": "Cấp quyền Camera",
+    "expanding_input": {
+      "placeholder": "Thêm mô tả"
+    },
+    "nature": {
+      "collection_title": "Bộ sưu tập"
+    },
+    "preview": {
+      "location_prefix": "Vị trí:",
+      "download": {
+        "unavailable_title": "Không thể tải ảnh",
+        "unavailable_message": "Không tìm thấy ảnh để lưu.",
+        "permission_title": "Chưa có quyền thư viện ảnh",
+        "permission_message": "Vui lòng cấp quyền thư viện ảnh để lưu ảnh.",
+        "success_title": "Thành công",
+        "success_message": "Ảnh đã được lưu vào thư viện.",
+        "error_title": "Có lỗi xảy ra",
+        "error_message": "Không thể lưu ảnh. Vui lòng thử lại."
+      }
+    },
+    "location_sheet": {
+      "title": "Chọn vị trí"
+    },
+    "action_sheet": {
+      "sections": {
+        "notes": "Chú thích",
+        "action_tags": "Tag hành động"
+      },
+      "tags": {
+        "location": "Thêm vị trí",
+        "time": "Thêm thời gian",
+        "seed": "Gieo hạt",
+        "green_daily": "Green Daily",
+        "pollution": "Ô nhiễm",
+        "community": "Cộng đồng",
+        "action_4": "Hành động 4"
+      }
+    }
+  },
+  "calendar": {
+    "header_title": "Lịch Xanh",
+    "green_action_button": "Hành động xanh",
+    "progress": {
+      "stage": {
+        "seed": "Hạt giống",
+        "sprout": "Nảy mầm",
+        "growing": "Phát triển",
+        "blooming": "Ra hoa",
+        "matured": "Trưởng thành",
+        "not_started": "Chưa bắt đầu"
+      },
+      "stage_label": "Giai đoạn: ",
+      "no_seed_selected": "Chưa có hạt giống",
+      "green_streak_label": "Chuỗi xanh: ",
+      "today_no_action": "Hôm nay bạn vẫn chưa thực hiện hành động xanh"
+    },
+    "week": {
+      "title": "Tuần 1",
+      "updating": "Đang cập nhật lịch xanh...",
+      "restore_streak": "Khôi phục chuỗi",
+      "restore_count": "Số lần khôi phục {{current}}/{{total}}",
+      "pick_date": "Chọn ngày"
+    },
+    "utilities": {
+      "title": "Tiện ích",
+      "planting": "Gieo trồng",
+      "farm": "Nông trại"
+    },
+    "gift": {
+      "your_gift_title": "Quà tặng của bạn",
+      "total": "Số lượng quà: {{count}}",
+      "today_gift_title": "Quà tặng hôm nay",
+      "description": "Mô tả",
+      "required_points": "Điểm cần",
+      "remaining_usage": "Lượt dùng còn lại",
+      "usage_conditions": "Điều kiện sử dụng",
+      "expire_date": "Hết hạn: {{date}}",
+      "empty_title": "Chưa có quà tặng cho hôm nay",
+      "empty_message": "Hãy hoàn thành hoạt động chăm cây để nhận voucher."
+    },
+    "history": {
+      "title": "Lịch sử hoạt động",
+      "green_post_title": "Bài xanh",
+      "green_post_description": "Bạn đã đăng một bài Xanh",
+      "status_pending": "Đang chờ duyệt",
+      "status_approved": "Đã duyệt"
+    },
+    "archive": {
+      "title": "Bộ sưu tập",
+      "loading": "Đang tải nông trại...",
+      "empty": "Bạn chưa có cây nào trong kho lưu trữ."
+    },
+    "seed_modal": {
+      "duration_days": "Thời gian: {{days}} ngày",
+      "select_seed_title": "Chọn giống cây trồng",
+      "long_term_section": "Cây dài hạn",
+      "short_term_section": "Cây ngắn hạn",
+      "easy_care": "Cây dễ trồng",
+      "medium_care": "Cây trung bình",
+      "hard_care": "Cây khó / hiếm",
+      "loading_seeds": "Đang tải giống cây...",
+      "has_growing_seed": "Có hạt giống đang phát triển",
+      "warning_seed_progress_lost": "Nếu tiếp tục tiến trình hạt giống hiện tại sẽ mất",
+      "confirm_new_planting": "Bạn có chắc chắn muốn trồng mới?",
+      "exit": "Thoát",
+      "plant_button": "Trồng cây",
+      "info": {
+        "title": "Lưu ý",
+        "growth_cycle_title": "Chu kỳ phát triển",
+        "notes_label": "Lưu ý khi gieo trồng:",
+        "stage": {
+          "seed": "Hạt giống",
+          "sprout": "Nảy mầm",
+          "growing": "Phát triển",
+          "matured": "Trưởng thành"
+        },
+        "short_term_title": "Cây ngắn hạn",
+        "short_term_subtitle": "Phù hợp cho người muốn thấy kết quả sớm",
+        "short_term_note_1": "- Cần chăm sóc mỗi ngày để cây phát triển đúng tiến độ",
+        "short_term_note_2": "- Bỏ lỡ 1-2 ngày có thể khiến cây chậm lớn",
+        "short_term_note_3": "- Thời gian trưởng thành nhanh (7 ngày)",
+        "short_term_note_4": "- Phần thưởng nhỏ nhưng nhận nhanh và đều đặn",
+        "long_term_title": "Cây dài hạn",
+        "long_term_subtitle": "Dành cho người kiên trì và muốn phần thưởng lớn",
+        "long_term_note_1": "- Không cần chăm sóc liên tục mỗi ngày, nhưng nên quay lại thường xuyên",
+        "long_term_note_2": "- Có thể chịu được việc bỏ lỡ vài ngày, nhưng sẽ giảm tốc độ phát triển",
+        "long_term_note_3": "- Thời gian trưởng thành dài (30 ngày)",
+        "long_term_note_4": "- Phần thưởng lớn hơn khi cây trưởng thành"
+      }
+    }
+  },
+  "point_history": {
+    "header_title": "Ví & Điểm",
+    "points_label": "Điểm",
+    "expiring_points_text": "{{points}} GP sẽ hết hạn vào ngày {{date}}",
+    "history_title": "Lịch sử điểm",
+    "search_placeholder": "Tìm kiếm",
+    "applied_filters": "Đang áp dụng {{count}} bộ lọc:",
+    "loading": "Đang tải lịch sử điểm...",
+    "empty_result": "Không tìm thấy kết quả phù hợp",
+    "unknown_activity": "Hoạt động không xác định",
+    "subtitle_positive": "Bạn nhận được điểm từ hoạt động",
+    "subtitle_negative": "Hoạt động của bạn bị trừ điểm",
+    "source_type": {
+      "green_action": "Bài xanh",
+      "event_attend": "Sự kiện",
+      "review_reward": "Duyệt bài",
+      "leaderboard": "Bảng xếp hạng",
+      "leaderboard_reward": "Thưởng BXH",
+      "voucher_redeem": "Đổi voucher"
+    },
+    "filter": {
+      "title": "Bộ lọc",
+      "by_time": "Theo thời gian",
+      "detail": "Chi tiết",
+      "other": "Khác",
+      "reset": "Thiết lập lại",
+      "apply": "Áp dụng",
+      "time": {
+        "week": "Tuần",
+        "month": "Tháng",
+        "all": "Tất cả"
+      }
+    }
+  },
+  "leaderboard": {
+    "title": "Bảng xếp hạng",
+    "error_load": "Không tải được bảng xếp hạng.",
+    "retry": "Thử lại",
+    "empty": "Chưa có dữ liệu xếp hạng.",
+    "anonymous": "Ẩn danh",
+    "select_province": "Vui lòng chọn tỉnh/thành phố",
+    "province_picker_label": "Tỉnh / Thành phố",
+    "scope": {
+      "provincial": "Khu vực",
+      "national": "Toàn quốc"
+    },
+    "countdown": {
+      "days": "{{count}} ngày",
+      "hours": "{{count}} giờ",
+      "minutes": "{{count}} phút"
+    },
+    "reward": {
+      "not_found": "Không tìm thấy thông tin giải thưởng",
+      "title": "Thông tin giải thưởng",
+      "top5_subtitle": "Giải thưởng dành cho Top 5",
+      "provider": "Nhà cung cấp",
+      "validity": "Hạn sử dụng",
+      "validity_note": "Có hiệu lực trong 7 ngày kể từ ngày nhận",
+      "expire_date": "Hết hạn sau: {{date}}",
+      "terms_and_conditions": "Điều khoản và điều kiện",
+      "claim_now": "Nhận thưởng ngay"
+    }
+  },
+  "coexistence": {
+    "severity": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao",
+      "unknown": "Chưa rõ"
+    },
+    "create_trash_spot": {
+      "default_province": "TP. Hồ Chí Minh",
+      "title": "Tạo điểm rác",
+      "image_section_title": "Ảnh minh họa",
+      "add_image": "Thêm ảnh",
+      "image_hint": "Chạm để thêm ảnh từ camera hoặc thư viện",
+      "name_label": "Tên điểm rác",
+      "name_placeholder": "Ví dụ: Đống rác dưới chân cầu",
+      "description_label": "Mô tả",
+      "description_placeholder": "Mô tả ngắn về tình trạng khu vực",
+      "province_label": "Tỉnh / TP",
+      "locating": "Đang lấy vị trí hiện tại...",
+      "locate_current": "Lấy vị trí hiện tại",
+      "waste_type_label": "Loại rác",
+      "selected_waste_types": "Đã chọn: {{value}}",
+      "submit": "Tạo điểm rác",
+      "image_source_title": "Chọn nguồn ảnh",
+      "image_source_message": "Bạn muốn thêm ảnh từ đâu?",
+      "pick_camera": "Chụp ảnh",
+      "pick_library": "Thư viện",
+      "cancel": "Hủy",
+      "alert_error_title": "Lỗi",
+      "alert_success_title": "Thành công",
+      "alert_missing_info_title": "Thiếu thông tin",
+      "alert_missing_image_title": "Thiếu ảnh",
+      "alert_missing_waste_type_title": "Thiếu loại rác",
+      "camera_permission_required": "Cần quyền camera để chụp ảnh.",
+      "library_permission_required": "Cần quyền thư viện ảnh để tải ảnh lên.",
+      "location_permission_required": "Cần quyền vị trí để lấy tọa độ hiện tại.",
+      "require_name": "Vui lòng nhập tên điểm rác.",
+      "require_description": "Vui lòng nhập mô tả.",
+      "require_province": "Vui lòng nhập tỉnh/thành phố.",
+      "require_valid_coordinates": "Vui lòng nhập tọa độ hợp lệ.",
+      "require_image": "Vui lòng chọn ít nhất một ảnh.",
+      "require_waste_type": "Vui lòng chọn ít nhất một loại rác.",
+      "create_success": "Đã tạo điểm rác mới.",
+      "create_error": "Không thể tạo điểm rác."
+    },
+    "trash_spot_sheet": {
+      "unknown_title": "Điểm rác chưa rõ tên",
+      "unknown_waste_type": "Khác",
+      "severity_label": "Cấp độ:",
+      "verification_label": "Lượt đánh giá:",
+      "waste_type_label": "Loại rác:",
+      "address_label": "Địa chỉ:",
+      "resolving_address": "Đang lấy địa chỉ...",
+      "no_image": "Chưa có ảnh",
+      "description_label": "Mô tả thêm",
+      "report_button": "Báo cáo",
+      "verify_button": "Xác thực",
+      "verify_note_default": "Xác thực từ bản đồ",
+      "verify_note_label": "Ghi chú xác thực",
+      "verify_note_placeholder": "Nhập ghi chú xác thực",
+      "verify_success": "Xác thực điểm rác thành công.",
+      "verify_error": "Không thể xác thực điểm rác. Vui lòng thử lại.",
+      "report_error": "Không thể báo cáo điểm rác. Vui lòng thử lại."
+    }
   },
   "auth": {
     "login": {
@@ -75,7 +340,10 @@
       "title": "Xác nhận Email",
       "subtitle": "Chúng tôi đã gửi mã xác thực đến",
       "resend": "Gửi lại mã",
-      "submit_btn": "Xác nhận"
+      "submit_btn": "Xác nhận",
+      "incomplete_code": "Vui lòng nhập đủ mã xác nhận.",
+      "invalid_code": "Mã xác nhận không đúng.",
+      "invalid_response": "Không đọc được mã xác thực. Vui lòng thử lại."
     },
     "signup_password": {
       "title": "Mật khẩu",
@@ -202,7 +470,7 @@
         "cancelled": "Đã hủy"
       },
       "status": {
-        "pending_approval": "Chờ duyệt",
+        "approval_waiting": "Chờ duyệt",
         "needs_revision": "Cần sửa",
         "approved": "Đã duyệt",
         "published": "Đã đăng",
@@ -384,6 +652,8 @@
   },
   "map": {
     "search_placeholder": "Tìm điểm thu gom...",
+    "open_directions": "Mở bản đồ",
+    "open_directions_error": "Không thể mở ứng dụng bản đồ.",
     "today_hours": "Hôm nay ({{day}}): {{open}} - {{close}}",
     "today_closed": "Hôm nay ({{day}}): Đóng cửa",
     "days": {

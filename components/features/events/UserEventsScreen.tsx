@@ -27,8 +27,9 @@ import {
 } from '@/components/features/events/eventFilters';
 import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useRegisterEvent } from '@/hooks/mutations/useEvents';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { REGISTRATION_STATUS, type Event } from '@/types/community.types';
+import { type Event } from '@/types/community.types';
 
 export function UserEventsScreen() {
   const { t } = useTranslation();
@@ -42,21 +43,17 @@ export function UserEventsScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
 
-  const { data: eventsData, isLoading } = usePublishedEvents({ page: 1, page_size: 20 });
-  const { data: registrations = [] } = useMyRegistrations();
+  const { data: user } = useCurrentUser();
+  const { data: eventsData, isLoading } = usePublishedEvents({ page: 1, size: 20 });
+  const { data: registrationsResponse } = useMyRegistrations(user?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
 
   const registeredIds = useMemo(
-    () =>
-      new Set(
-        registrations
-          .filter((registration) => registration.status !== REGISTRATION_STATUS.CANCELLED)
-          .map((registration) => registration.event_id)
-      ),
-    [registrations]
+    () => new Set(registrationsResponse?.content?.map((event) => event.id) ?? []),
+    [registrationsResponse]
   );
 
-  const allEvents = useMemo(() => eventsData?.items ?? [], [eventsData?.items]);
+  const allEvents = useMemo(() => eventsData?.content ?? [], [eventsData?.content]);
 
   const eventTypeOptions = useMemo(() => getEventTypeOptions(allEvents), [allEvents]);
 
@@ -88,10 +85,13 @@ export function UserEventsScreen() {
   const handleRegister = useCallback(
     (eventId: string) => {
       setRegisteringId(eventId);
-      registerEvent(eventId, {
-        onSuccess: () => setRegisteringId(null),
-        onError: () => setRegisteringId(null),
-      });
+      registerEvent(
+        { eventId },
+        {
+          onSuccess: () => setRegisteringId(null),
+          onError: () => setRegisteringId(null),
+        }
+      );
     },
     [registerEvent]
   );

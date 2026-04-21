@@ -11,7 +11,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { IMAGES } from '@/constants/linkMedia';
 import { useLeaderboard } from '@/hooks/queries/useGamification';
-import { useClaimLeaderboardReward } from '@/hooks/mutations/useGamification';
+import { useWeeklyLeaderboardPrizes } from '@/hooks/mutations/useGamification';
 import { LeaderboardEntry, LeaderboardScope } from '@/types/gamification.types';
 
 // Import các component vừa tạo (nhớ trỏ đúng đường dẫn của bạn)
@@ -23,23 +23,54 @@ import RankItem from './components/RankItem';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import RewardDetail from './components/LeaderboardReward';
+import ProvincePicker from '@/components/ui/ProvincePicker';
+import { useTranslation } from 'react-i18next';
+
+const getWeekStartDate = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  const year = monday.getFullYear();
+  const month = String(monday.getMonth() + 1).padStart(2, '0');
+  const date = String(monday.getDate()).padStart(2, '0');
+  return `${year}-${month}-${date}`;
+};
 
 const LeaderboardScreen = () => {
+  const { t } = useTranslation();
   const [scope, setScope] = React.useState<LeaderboardScope>(LeaderboardScope.NATIONAL);
+  const [selectedProvince, setSelectedProvince] = React.useState('');
   const [showLeaderboardReward, setShowLeaderboardReward] = React.useState(false);
+  const weekStartDate = React.useMemo(() => getWeekStartDate(), []);
+
+  React.useEffect(() => {
+    setSelectedProvince('');
+  }, [scope]);
+
+  const provinceQuery = scope === LeaderboardScope.PROVINCIAL ? selectedProvince : undefined;
+  const shouldPickProvince = scope === LeaderboardScope.PROVINCIAL && !selectedProvince;
 
   const {
-    data: leaderboardData = [],
+    data: leaderboardData,
     isLoading,
     isFetching,
     isError,
     refetch,
-  } = useLeaderboard(scope);
-  const claimLeaderboardReward = useClaimLeaderboardReward();
+  } = useLeaderboard(scope, weekStartDate, provinceQuery, !shouldPickProvince);
+  const {
+    data: weeklyPrizes,
+    isLoading: isLoadingWeeklyPrizes,
+    isFetching: isFetchingWeeklyPrizes,
+    refetch: refetchWeeklyPrizes,
+  } = useWeeklyLeaderboardPrizes(weekStartDate, showLeaderboardReward);
+
+  const entries = leaderboardData?.entries ?? [];
 
   const sortedLeaderboard = React.useMemo(
-    () => [...leaderboardData].sort((a, b) => a.rank - b.rank),
-    [leaderboardData]
+    () => [...entries].sort((a, b) => a.rank - b.rank),
+    [entries]
   );
 
   const topThree = React.useMemo(
@@ -52,13 +83,10 @@ const LeaderboardScreen = () => {
     [sortedLeaderboard]
   );
 
-  const rewardPeriodId = sortedLeaderboard[0]?.period_id ?? '';
-
-  React.useEffect(() => {
-    if (!showLeaderboardReward || !rewardPeriodId) return;
-    if (claimLeaderboardReward.isPending || claimLeaderboardReward.data) return;
-    claimLeaderboardReward.mutate(rewardPeriodId);
-  }, [showLeaderboardReward, rewardPeriodId]);
+  const rewardVoucher =
+    scope === LeaderboardScope.PROVINCIAL
+      ? weeklyPrizes?.provincialVoucher
+      : weeklyPrizes?.nationalVoucher;
 
   return (
     <SafeAreaView className="flex-1" edges={['top']}>
@@ -81,7 +109,7 @@ const LeaderboardScreen = () => {
                   resizeMode="contain"
                 />
               </TouchableOpacity>
-              <Text className="text-lg font-medium text-foreground">Bảng xếp hạng</Text>
+              <Text className="text-lg font-medium text-white">{t('leaderboard.title')}</Text>
             </View>
 
             <View className="flex-row gap-3">
@@ -111,42 +139,53 @@ const LeaderboardScreen = () => {
           <TimeFilter />
 
           {/* Cụm Top 3 */}
-          <Podium topThree={topThree} />
+          {!shouldPickProvince ? <Podium topThree={topThree} /> : null}
         </View>
       </ImageBackground>
 
       {/* Nửa dưới: Danh sách User */}
-      <View className="-mt-24 flex-1 rounded-t-[32px] bg-background px-5 pt-6 shadow-lg">
+      <View className="-mt-24 flex-1 rounded-t-[32px] bg-background px-5 pt-3 shadow-lg">
+        {scope === LeaderboardScope.PROVINCIAL ? (
+          <ProvincePicker
+            label={t('leaderboard.province_picker_label')}
+            value={selectedProvince}
+            onChange={setSelectedProvince}
+          />
+        ) : null}
         {showLeaderboardReward ? (
           <RewardDetail
-            data={claimLeaderboardReward.data?.data}
-            isClaiming={claimLeaderboardReward.isPending}
+            data={rewardVoucher}
+            isClaiming={isLoadingWeeklyPrizes || isFetchingWeeklyPrizes}
             onClaim={() => {
-              if (!rewardPeriodId) {
+              if (!weekStartDate) {
                 return;
               }
-              claimLeaderboardReward.mutate(rewardPeriodId);
+              refetchWeeklyPrizes();
             }}
           />
         ) : (
           <>
-            {isLoading ? (
+            {shouldPickProvince ? (
+              <View className="flex-1 items-center justify-center gap-2">
+                <Text className="text-sm text-gray-500">{t('leaderboard.select_province')}</Text>
+              </View>
+            ) : isLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="small" color="#359B63" />
               </View>
             ) : isError ? (
               <View className="flex-1 items-center justify-center gap-3">
-                <Text className="text-sm text-gray-500">Không tải được bảng xếp hạng.</Text>
+                <Text className="text-sm text-gray-500">{t('leaderboard.error_load')}</Text>
                 <TouchableOpacity
                   onPress={() => refetch()}
                   className="rounded-full bg-[#359B63] px-4 py-2">
-                  <Text className="font-semibold text-white">Thử lại</Text>
+                  <Text className="font-semibold text-white">{t('leaderboard.retry')}</Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <FlatList
                 data={rankList}
-                keyExtractor={(item: LeaderboardEntry) => item.id}
+                keyExtractor={(item: LeaderboardEntry) => `${item.userId}-${item.rank}`}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => <RankItem item={item} />}
                 ListHeaderComponent={
@@ -158,7 +197,7 @@ const LeaderboardScreen = () => {
                 }
                 ListEmptyComponent={
                   <View className="items-center justify-center py-10">
-                    <Text className="text-sm text-gray-500">Chưa có dữ liệu xếp hạng.</Text>
+                    <Text className="text-sm text-gray-500">{t('leaderboard.empty')}</Text>
                   </View>
                 }
                 contentContainerStyle={{ paddingBottom: 20 }}

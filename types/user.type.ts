@@ -1,3 +1,6 @@
+import { AddressDto } from './community.types';
+import { MediaDto } from './media.types';
+
 export type UserRole = 'USER' | 'CTV' | 'NGO' | 'ADMIN';
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DELETED' | 'FLAGGED';
 export type CtvStatus =
@@ -24,12 +27,16 @@ export interface User {
 
 export interface UserProfile {
   id: string;
-  user_id: string;
-  display_name: string;
-  avatar_url: string | null;
+  firstName: string;
+  lastName: string;
+  displayName: string;
   province: string;
-  ward: string | null;
-  free_time_slots: FreeTimeSlot[] | null;
+  district: string;
+  ward: string;
+  addressDetail: string;
+  status: UserStatus;
+  avatarUrl: string;
+  //free_time_slots: FreeTimeSlot[] | null;
 }
 
 export interface FreeTimeSlot {
@@ -40,19 +47,19 @@ export interface FreeTimeSlot {
 
 export interface NgoProfile {
   id: string;
-  user_id: string;
-  org_name: string;
-  representative_name: string;
-  avatar_url: string | null;
+  orgName: string;
+  representativeName: string;
   hotline: string;
-  contact_email: string;
-  // address: string;
-  province: string;
-  ward: string | null;
+  contactEmail: string;
   description: string;
-  verification_docs: string[]; // array of URLs
-  verify_status: NgoVerifyStatus;
-  reject_reason: string | null;
+  status: NgoVerifyStatus;
+  rejectedReason: string | null;
+  rejectedCount: number;
+  address: NgoProfileAddress;
+  avatar: MediaDto;
+  verificationDocs: MediaDto[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OtpRequest {
@@ -65,38 +72,80 @@ export interface OtpRequest {
 
 // ---- API Request/Response shapes ----
 
-export type RegisterEmailRequest = Pick<User, 'email'>;
-
-export interface VerifyOtpRequest extends RegisterEmailRequest {
-  otp_code: string;
+export interface RegisterEmailRequest {
+  identifier: string;
 }
 
-export interface LoginRequest extends RegisterEmailRequest {
+export interface VerifyOtpRequest {
+  identifier: string;
+  otp: string;
+}
+
+export interface VerifyOtpResponse {
+  verificationToken: string;
+}
+
+export interface SetPasswordRequest {
+  verificationToken: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface LoginRequest {
+  identifier: string; // email hoặc phone
   password: string;
 }
-
-// Kế thừa CẢ 2 hàm => Sẽ tự động gộp thành { email, otp_code, password }
-export interface SetPasswordRequest extends VerifyOtpRequest, LoginRequest {}
 
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
-  user: User;
-  profile: UserProfile | NgoProfile | null;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;
 }
 
 export interface CompleteProfileRequest {
-  display_name: string;
-  avatar_url?: string;
+  firstName?: string;
+  lastName?: string;
+  displayName: string;
   province: string;
   district?: string;
   ward?: string;
+  addressDetail?: string;
+  avatar?: {
+    bucketName?: string;
+    objectKey?: string;
+    imageUrl: string;
+  };
 }
 
-// User với profile gộp lại — dùng ở phần lớn màn hình
+export type NgoProfileAddress = Omit<AddressDto, 'id'>;
+
+export interface CreateNgoProfileRequest {
+  orgName: string;
+  representativeName: string;
+  hotline: string;
+  contactEmail: string;
+  description: string;
+  address: NgoProfileAddress;
+  avatar: MediaDto;
+  verificationDocs: Array<MediaDto>;
+}
+
+// User với profile gộp lại
 export interface AuthenticatedUser {
-  user: User;
-  profile: UserProfile | NgoProfile | null;
+  id: string;
+  email: string;
+  roles: UserRole[];
+  phoneNumber: string;
+  username: string;
+  userProfile?: UserProfile;
+  ngoProfile?: NgoProfile;
 }
 
 export interface CreateUserInput {

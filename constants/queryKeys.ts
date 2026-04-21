@@ -35,6 +35,7 @@ export const QUERY_KEYS = {
     detail: (postId: string) => ['posts', postId] as const,
     reviews: (postId: string) => ['posts', postId, 'reviews'] as const,
     pendingReview: (params?: object) => ['posts', 'pending-review', params] as const,
+    history: (params?: object) => ['posts', 'history', params] as const,
   },
 
   // Action types (master data — stale lâu hơn)
@@ -65,14 +66,17 @@ export const QUERY_KEYS = {
   vouchers: {
     all: ['vouchers'] as const,
     available: () => ['vouchers', 'available'] as const,
-    mine: () => ['vouchers', 'me'] as const,
+    mine: (params?: object) => ['vouchers', 'me', params] as const,
+    bySeed: (seedId: string) => ['vouchers', 'by-seed', seedId] as const,
   },
 
   // Leaderboard
   leaderboard: {
     all: ['leaderboard'] as const,
-    scope: (scope: LeaderboardScope, province?: string) =>
-      ['leaderboard', scope, province] as const,
+    scope: (scope: LeaderboardScope, weekStartDate: string, province?: string) =>
+      ['leaderboard', scope, weekStartDate, province] as const,
+    weeklyPrizes: (weekStartDate: string) =>
+      ['leaderboard', 'weekly-prizes', weekStartDate] as const,
     claim: (periodId: string) => ['leaderboard', 'claim', periodId] as const,
   },
 
@@ -80,25 +84,39 @@ export const QUERY_KEYS = {
   events: {
     all: ['events'] as const,
     list: (params?: object) => ['events', 'list', params] as const,
-    ngoList: (params?: object) => ['events', 'ngo-list', params] as const,
+    publicList: (params?: object) => ['events', 'public-list', params] as const,
+    ngoList: (ngoId: string, params?: object) => ['events', 'ngo-list', ngoId, params] as const,
+    myNgoList: (params?: object) => ['events', 'my-ngo-list', params] as const,
     detail: (eventId: string) => ['events', eventId] as const,
-    myRegistrations: () => ['events', 'registrations', 'me'] as const,
+    myRegistrations: (userId: string, params?: object) =>
+      ['events', 'registrations', userId, params] as const,
+    participationSummary: () => ['events', 'participation-summary'] as const,
   },
 
   // Map
   stations: {
     all: ['stations'] as const,
+    list: (wasteTypeID?: string) => ['stations', 'list', { wasteTypeID }] as const,
+    wasteTypes: () => ['stations', 'waste-types'] as const,
   },
 
   // Community
-  trashReports: {
-    all: ['trash-reports'] as const,
-    list: (params?: object) => ['trash-reports', 'list', params] as const,
+  trashSpots: {
+    all: ['trash-spots'] as const,
+    list: (params?: object) => ['trash-spots', 'list', params] as const,
+    detail: (trashSpotId: string) => ['trash-spots', 'detail', trashSpotId] as const,
   },
 
   // Location
   location: {
     provinces: () => ['location', 'provinces'] as const,
     wards: (provinceCode: string) => ['location', 'wards', provinceCode] as const,
+  },
+
+  // Notifications
+  notifications: {
+    all: ['notifications'] as const,
+    me: (params?: object) => ['notifications', 'me', params] as const,
+    unreadCount: () => ['notifications', 'unread-count'] as const,
   },
 } as const;

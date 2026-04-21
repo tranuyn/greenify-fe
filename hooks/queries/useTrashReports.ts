@@ -1,11 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { trashService } from 'services/community.service';
-import { PaginationParams } from 'types/common.types';
+import { TrashSpotQueryParams } from 'types/community.types';
 
-export const useTrashReports = (params?: PaginationParams) => {
+export const useTrashSpots = (params?: TrashSpotQueryParams) => {
   return useQuery({
-    queryKey: QUERY_KEYS.trashReports.list(params),
-    queryFn: () => trashService.getReports(params).then((r) => r.data),
+    queryKey: QUERY_KEYS.trashSpots.list(params),
+    queryFn: () => trashService.getTrashSpots(params),
+  });
+};
+
+export const useTrashSpotDetail = (id?: string) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.trashSpots.detail(id ?? ''),
+    queryFn: () => trashService.getTrashSpotById(id as string),
+    enabled: Boolean(id),
   });
 };

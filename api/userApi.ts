@@ -1,10 +1,10 @@
 import { API_ROUTES } from 'constants/apiRoutes';
 import { axiosClient } from './axiosClient';
 import { User } from 'types/user.type';
-import { ApiResponse, PaginatedResponse } from '@/types/common.types';
+import { ApiResponse, PageResponse } from '@/types/common.types';
 
 export const userApi = {
-  getUsers: async (): Promise<ApiResponse<PaginatedResponse<User>>> => {
+  getUsers: async (): Promise<ApiResponse<PageResponse<User>>> => {
     const response = await axiosClient.get(API_ROUTES.USERS.LIST);
     return response.data;
   },

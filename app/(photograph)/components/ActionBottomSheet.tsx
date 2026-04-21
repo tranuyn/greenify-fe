@@ -1,22 +1,22 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity } from 'react-native';
+import {
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetBackdrop,
+} from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
+import type { GreenActionType } from '@/types/action.types';
 
 interface Props {
-  selectedTags: string[];
-  toggleTag: (tag: string) => void;
-  onAddLocation: () => void;
-  onAddTime: () => void;
+  actionTypes: GreenActionType[];
+  selectedActionTypeId: string | null;
+  onSelectActionType: (actionTypeId: string) => void;
 }
-
-const SECTIONS = [
-  { title: 'Chú thích', tags: ['Thêm vị trí', 'Thêm Thời gian', 'Gieo hạt'] },
-  { title: 'Tag hành động', tags: ['Green Daily', 'Ô nhiễm', 'Cộng đồng', 'Hành động 4'] },
-];
 
 const ActionBottomSheet = forwardRef((props: Props, ref) => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { t } = useTranslation();
 
   useImperativeHandle(ref, () => ({
     present: () => bottomSheetModalRef.current?.present(),
@@ -33,61 +33,40 @@ const ActionBottomSheet = forwardRef((props: Props, ref) => {
       snapPoints={['50%']}
       backdropComponent={renderBackdrop}
       backgroundStyle={{
-        backgroundColor: '#1c1917', // Màu tương đương với bg-neutral-700
+        backgroundColor: '#1c1917',
         borderRadius: 40,
       }}
       containerStyle={{ zIndex: 1000 }}>
-      <BottomSheetView className=" px-6 pb-5">
-        {SECTIONS.map((section, idx) => (
-          <View key={idx} className="mt-6">
-            <Text className="mb-4  text-lg font-bold text-white">{section.title}</Text>
-            <View className="flex-row flex-wrap">
-              {section.tags.map((tag) => {
-                const isSelected = props.selectedTags.includes(tag);
-
-                const handlePress = () => {
-                  if (tag === 'Thêm vị trí') props.onAddLocation();
-                  else if (tag === 'Thêm Thời gian') props.onAddTime();
-                  else props.toggleTag(tag);
-                  bottomSheetModalRef.current?.dismiss();
-                };
-
-                return (
-                  <TouchableOpacity
-                    key={tag}
-                    onPress={() => handlePress()}
-                    // Thêm flex-row và items-center để icon và chữ nằm ngang
-                    className={`mb-3 mr-2 flex-row items-center rounded-full px-4 py-2 ${
-                      isSelected ? 'bg-green-500' : 'bg-neutral-600'
-                    }`}>
-                    {/* 1. Thêm Icon cho 'Thêm vị trí' */}
-                    {tag === 'Thêm vị trí' && (
-                      <Ionicons
-                        name="location-sharp"
-                        size={16}
-                        color={'white'}
-                        style={{ marginRight: 6 }}
-                      />
-                    )}
-
-                    {/* 2. Thêm Icon cho 'Thêm Thời gian' */}
-                    {tag === 'Thêm Thời gian' && (
-                      <Ionicons
-                        name="time-sharp"
-                        size={16}
-                        color={'white'}
-                        style={{ marginRight: 6 }}
-                      />
-                    )}
-
-                    <Text className="py-2 text-white">{tag}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+      <BottomSheetScrollView className="px-6 pb-5" showsVerticalScrollIndicator={false}>
+        <View className="mt-6">
+          <Text className="mb-4 font-inter-bold text-lg text-white">
+            {t('photograph.action_sheet.sections.action_tags')}
+          </Text>
+          <View className="mt-2">
+            {props.actionTypes.map((type) => {
+              const isSelected = props.selectedActionTypeId === type.id;
+              return (
+                <TouchableOpacity
+                  key={type.id}
+                  onPress={() => {
+                    props.onSelectActionType(type.id);
+                    bottomSheetModalRef.current?.dismiss();
+                  }}
+                  className={`mb-3 w-full flex-row items-center justify-between rounded-2xl px-4 py-3 ${
+                    isSelected ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}>
+                  <View className="flex-1 pr-2">
+                    <Text className="mb-1 font-inter-medium text-base leading-5 text-white">
+                      {type.actionName}
+                    </Text>
+                    <Text className="font-inter text-xs text-white/70">#{type.groupName}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-        ))}
-      </BottomSheetView>
+        </View>
+      </BottomSheetScrollView>
     </BottomSheetModal>
   );
 });

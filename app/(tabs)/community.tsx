@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -9,250 +9,293 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
-import { PostCard } from '@/components/features/community/PostCard'; // Import từ file mới
+import { PostCard } from '@/components/features/community/PostCard';
 import { SearchBar } from '@/components/shared/SearchBar';
+import {
+  FeedFilterState,
+  MyPostsFilterState,
+} from '@/components/features/community/CommunityFilterSheet';
+import { FeedFilterSheet } from '../../components/features/community/FeedFilterSheet';
+import { MyPostsFilterSheet } from '../../components/features/community/MyPostsFilterSheet';
+
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
+import { useFeedPostsInfinite, useActionTypes, useMyPostsInfinite } from '@/hooks/queries/usePosts';
+import { SortOption } from '@/constants/enums/sortOptions.enum';
 
-// Hooks & Types
-import { useFeedPosts, useActionTypes } from '@/hooks/queries/usePosts';
+type TabKey = 'community' | 'mine';
 
-const FilterChip = ({
-  label,
-  isSelected,
-  onPress,
-}: {
-  label: string;
-  isSelected: boolean;
-  onPress: () => void;
-}) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className={`mb-3 mr-3 rounded-full border px-4 py-2 ${
-      isSelected ? 'border-primary-700 bg-primary-700' : 'border-primary-200 bg-transparent'
-    }`}>
-    <Text className={`font-inter-medium ${isSelected ? 'text-white' : 'text-foreground/70'}`}>
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
+const TAB_CONFIG: Record<TabKey, { label: string }> = {
+  community: { label: 'Cộng đồng' },
+  mine: { label: 'Của tôi' },
+};
 
 export default function CommunityScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
 
-  // --- 1. STATE BỘ LỌC ---
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState({
+  const defaultFeedFilters: FeedFilterState = {
     actionTypeId: 'all',
-    timeRange: 'all',
-    sortBy: 'newest',
-  });
-  const [tempFilters, setTempFilters] = useState(filters);
+    sortBy: SortOption.NEWEST,
+    status: 'all',
+    fromDate: undefined,
+    toDate: undefined,
+  };
 
-  // --- 2. API CALLS ---
-  const { data, isLoading, isError, refetch, isRefetching } = useFeedPosts({
-    page: 1,
-    page_size: 10,
-    search: searchQuery,
-    action_type_id: filters.actionTypeId !== 'all' ? filters.actionTypeId : undefined,
-    sort: filters.sortBy,
-    time: filters.timeRange,
-  });
-  const posts = data?.items || [];
+  const defaultMyFilters: MyPostsFilterState = {
+    status: 'all',
+    sortBy: SortOption.NEWEST,
+    fromDate: undefined,
+    toDate: undefined,
+  };
 
-  const { data: actionTypesData } = useActionTypes();
-  const actionTypes = actionTypesData || []; // Đã FIX lỗi mảng items
-
-  // --- 3. BOTTOM SHEET LOGIC ---
+  // --- STATE ---
+  const [activeTab, setActiveTab] = useState<TabKey>('community');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [feedFilters, setFeedFilters] = useState<FeedFilterState>(defaultFeedFilters);
+  const [myFilters, setMyFilters] = useState<MyPostsFilterState>(defaultMyFilters);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => ['65%'], []);
 
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.4} />
-    ),
-    []
+  // --- API ---
+  const {
+    data: feedData,
+    isLoading: isFeedLoading,
+    isError: isFeedError,
+    refetch: refetchFeed,
+    isRefetching: isFeedRefetching,
+    fetchNextPage: fetchNextFeedPage,
+    hasNextPage: hasNextFeedPage,
+    isFetchingNextPage: isFetchingNextFeedPage,
+  } = useFeedPostsInfinite(
+    {
+      size: 10,
+      search: searchQuery,
+      actionTypeId: feedFilters.actionTypeId !== 'all' ? feedFilters.actionTypeId : undefined,
+      status: feedFilters.status !== 'all' ? feedFilters.status : undefined,
+      sort: feedFilters.sortBy,
+      fromDate: feedFilters.fromDate,
+      toDate: feedFilters.toDate,
+    },
+    activeTab === 'community'
   );
 
-  const openFilter = () => {
-    Keyboard.dismiss();
-    setTempFilters(filters);
-    bottomSheetModalRef.current?.present();
-  };
+  const {
+    data: myData,
+    isLoading: isMyLoading,
+    isError: isMyError,
+    refetch: refetchMy,
+    isRefetching: isMyRefetching,
+    fetchNextPage: fetchNextMyPage,
+    hasNextPage: hasNextMyPage,
+    isFetchingNextPage: isFetchingNextMyPage,
+  } = useMyPostsInfinite(
+    {
+      size: 10,
+      status: myFilters.status !== 'all' ? myFilters.status : undefined,
+      fromDate: myFilters.fromDate,
+      toDate: myFilters.toDate,
+    },
+    activeTab === 'mine'
+  );
 
-  const applyFilter = () => {
-    setFilters(tempFilters);
+  const isCommunityTab = activeTab === 'community';
+  const activeData = isCommunityTab ? feedData : myData;
+  const isLoading = isCommunityTab ? isFeedLoading : isMyLoading;
+  const isError = isCommunityTab ? isFeedError : isMyError;
+  const refetch = isCommunityTab ? refetchFeed : refetchMy;
+  const isRefetching = isCommunityTab ? isFeedRefetching : isMyRefetching;
+  const hasNextPage = isCommunityTab ? hasNextFeedPage : hasNextMyPage;
+  const fetchNextPage = isCommunityTab ? fetchNextFeedPage : fetchNextMyPage;
+  const isFetchingNextPage = isCommunityTab ? isFetchingNextFeedPage : isFetchingNextMyPage;
+
+  const posts = activeData?.pages?.flatMap((page) => page.content) || [];
+
+  const { data: actionTypesData } = useActionTypes();
+  const actionTypes = actionTypesData || [];
+
+  const hasActiveFeedFilters =
+    feedFilters.actionTypeId !== 'all' ||
+    feedFilters.sortBy !== SortOption.NEWEST ||
+    feedFilters.fromDate ||
+    feedFilters.toDate;
+
+  const hasActiveMyFilters =
+    myFilters.status !== 'all' ||
+    myFilters.sortBy !== SortOption.NEWEST ||
+    myFilters.fromDate ||
+    myFilters.toDate;
+
+  const hasActiveFilters = isCommunityTab ? hasActiveFeedFilters : hasActiveMyFilters;
+
+  // --- HANDLERS ---
+  const handleApplyFilter = (newFilters: FeedFilterState | MyPostsFilterState) => {
+    if (activeTab === 'community') {
+      setFeedFilters(newFilters as FeedFilterState);
+    } else {
+      setMyFilters(newFilters as MyPostsFilterState);
+    }
     bottomSheetModalRef.current?.dismiss();
   };
 
-  const clearFilter = () => {
-    const defaultFilters = { actionTypeId: 'all', timeRange: 'all', sortBy: 'newest' };
-    setTempFilters(defaultFilters);
-    setFilters(defaultFilters);
+  const handleClearAll = () => {
+    if (activeTab === 'community') {
+      setSearchQuery('');
+      setFeedFilters(defaultFeedFilters);
+    } else {
+      setMyFilters(defaultMyFilters);
+    }
     bottomSheetModalRef.current?.dismiss();
   };
 
-  // --- 4. RENDER UI ---
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  const handleLoadMore = () => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    fetchNextPage();
+  };
+
+  const renderEmpty = () => (
+    <View className="items-center justify-center py-20">
+      <FontAwesome6 name="seedling" size={48} color={colors.primary} />
+      <Text className="text-foreground/60 mt-4 text-center font-inter">{t('community.empty')}</Text>
+    </View>
+  );
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      );
+    }
+
+    if (isError) {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <Feather name="alert-circle" size={40} color={colors.error} />
+          <Text className="text-foreground/80 mt-4 text-center font-inter">
+            {t('community.error')}
+          </Text>
+          <Button title={t('community.retry')} onPress={handleRefresh} className="mt-4 px-8" />
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <PostCard post={item} />}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching && !isFetchingNextPage}
+            onRefresh={handleRefresh}
+            tintColor={colors.primary}
+          />
+        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View className="py-4">
+              <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={renderEmpty}
+      />
+    );
+  };
+
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top + 16 }}>
       <Text className="mb-2 px-6 font-inter-bold text-2xl text-foreground">
-        {t('community.title', 'Cộng đồng')}
+        {t('community.title')}
       </Text>
 
       <View className="flex-1 px-4 pt-4">
-        <View className="mb-2 flex-row items-center">
-          <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder={t('community.search', 'Tìm kiếm bài viết...')}
-            onSubmitEditing={() => refetch()}
-            onClear={() => setTimeout(refetch, 100)}
-            containerClassName="flex-1 mr-3 rounded-full bg-primary-50 px-5 dark:bg-card"
-            inputClassName="mr-2 h-12 font-inter text-base text-primary-800 dark:text-foreground"
-            iconColor={colors.neutral400}
-          />
-
+        <View className="mb-5 flex-row rounded-full border border-primary-200 p-1">
           <TouchableOpacity
-            onPress={openFilter}
-            className="relative h-[48px] w-[48px] items-center justify-center rounded-full bg-primary-50">
+            onPress={() => setActiveTab('community')}
+            className={`flex-1 rounded-full py-3 ${isCommunityTab ? 'bg-primary-700' : ''}`}>
+            <Text
+              className={`text-center font-inter-semibold ${isCommunityTab ? 'text-white' : 'text-foreground/70'}`}>
+              {TAB_CONFIG.community.label}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('mine')}
+            className={`flex-1 rounded-full py-3 ${!isCommunityTab ? 'bg-primary-700' : ''}`}>
+            <Text
+              className={`text-center font-inter-semibold ${!isCommunityTab ? 'text-white' : 'text-foreground/70'}`}>
+              {TAB_CONFIG.mine.label}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View className="mb-3 flex-row items-center">
+          {isCommunityTab ? (
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder={t('community.search')}
+              onSubmitEditing={handleRefresh}
+              onClear={() => {
+                setSearchQuery('');
+                setTimeout(handleRefresh, 100);
+              }}
+              containerClassName="flex-1 mr-3 rounded-full bg-primary-50 px-5 dark:bg-card"
+              inputClassName="mr-2 h-12 font-inter text-base text-primary-800 dark:text-foreground"
+              iconColor={colors.neutral400}
+            />
+          ) : (
+            <View className="mr-3 flex-1 rounded-full bg-primary-50 px-5 py-3 dark:bg-card">
+              <Text className="text-foreground/60 font-inter text-base">Bài viết của tôi</Text>
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={() => {
+              Keyboard.dismiss();
+              bottomSheetModalRef.current?.present();
+            }}
+            className="relative h-[48px] w-[48px] items-center justify-center rounded-full bg-primary-50 dark:bg-card">
             <Feather name="filter" size={22} color={colors.primary800} />
-            {(filters.actionTypeId !== 'all' ||
-              filters.timeRange !== 'all' ||
-              filters.sortBy !== 'newest') && (
-              <View className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full border border-white bg-rose-500" />
+            {hasActiveFilters && (
+              <View className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full border border-white bg-rose-500 dark:border-background" />
             )}
           </TouchableOpacity>
         </View>
 
-        {isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        ) : isError ? (
-          <View className="flex-1 items-center justify-center">
-            <Feather name="alert-circle" size={40} color={colors.error} />
-            <Text className="text-foreground/80 mt-4 text-center font-inter">
-              {t('community.error', 'Đã có lỗi xảy ra.')}
-            </Text>
-            <Button
-              title={t('community.retry', 'Thử lại')}
-              onPress={() => refetch()}
-              className="mt-4 px-8"
-            />
-          </View>
-        ) : (
-          <FlatList
-            data={posts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <PostCard post={item} />}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={refetch}
-                tintColor={colors.primary}
-              />
-            }
-            ListEmptyComponent={
-              <View className="items-center justify-center py-20">
-                <FontAwesome6 name="seedling" size={48} color={colors.primary} />
-                <Text className="text-foreground/60 mt-4 text-center font-inter">
-                  {t('community.empty', 'Không tìm thấy bài viết nào.')}
-                </Text>
-              </View>
-            }
-          />
-        )}
+        {renderContent()}
       </View>
 
-      {/* BOTTOM SHEET FILTER */}
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        backdropComponent={renderBackdrop}
-        backgroundStyle={{ backgroundColor: colors.background, borderRadius: 24 }}
-        handleIndicatorStyle={{ backgroundColor: colors.primary300, width: 40 }}>
-        <BottomSheetView className="flex-1 px-6 pb-8 pt-2">
-          <View className="mb-6 flex-row items-center justify-between">
-            <Text className="font-inter-bold text-xl text-foreground">
-              {t('community.filters.title', 'Bộ lọc tìm kiếm')}
-            </Text>
-            <TouchableOpacity onPress={clearFilter}>
-              <Text className="font-inter-medium text-sm text-rose-500">
-                {t('community.filters.clear', 'Xóa bộ lọc')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text className="mb-3 font-inter-semibold text-base text-foreground">
-            {t('community.filters.sortBy', 'Sắp xếp theo')}
-          </Text>
-          <View className="mb-6 flex-row flex-wrap">
-            <FilterChip
-              label={t('community.filters.sort.newest', 'Mới nhất')}
-              isSelected={tempFilters.sortBy === 'newest'}
-              onPress={() => setTempFilters({ ...tempFilters, sortBy: 'newest' })}
-            />
-            <FilterChip
-              label={t('community.filters.sort.popular', 'Nổi bật (Nhiều lượt thích)')}
-              isSelected={tempFilters.sortBy === 'popular'}
-              onPress={() => setTempFilters({ ...tempFilters, sortBy: 'popular' })}
-            />
-          </View>
-
-          <Text className="mb-3 font-inter-semibold text-base text-foreground">
-            {t('community.filters.timeTitle', 'Thời gian')}
-          </Text>
-          <View className="mb-6 flex-row flex-wrap">
-            <FilterChip
-              label={t('community.filters.time.all', 'Tất cả')}
-              isSelected={tempFilters.timeRange === 'all'}
-              onPress={() => setTempFilters({ ...tempFilters, timeRange: 'all' })}
-            />
-            <FilterChip
-              label={t('community.filters.time.week', 'Tuần này')}
-              isSelected={tempFilters.timeRange === 'week'}
-              onPress={() => setTempFilters({ ...tempFilters, timeRange: 'week' })}
-            />
-            <FilterChip
-              label={t('community.filters.time.month', 'Tháng này')}
-              isSelected={tempFilters.timeRange === 'month'}
-              onPress={() => setTempFilters({ ...tempFilters, timeRange: 'month' })}
-            />
-          </View>
-
-          <Text className="mb-3 font-inter-semibold text-base text-foreground">
-            {t('community.filters.actionTitle', 'Hoạt động xanh')}
-          </Text>
-          <View className="mb-6 flex-row flex-wrap">
-            <FilterChip
-              label={t('community.filters.time.all', 'Tất cả')}
-              isSelected={tempFilters.actionTypeId === 'all'}
-              onPress={() => setTempFilters({ ...tempFilters, actionTypeId: 'all' })}
-            />
-            {actionTypes.slice(0, 5).map((type) => (
-              <FilterChip
-                key={type.id}
-                label={type.action_name}
-                isSelected={tempFilters.actionTypeId === type.id}
-                onPress={() => setTempFilters({ ...tempFilters, actionTypeId: type.id })}
-              />
-            ))}
-          </View>
-
-          <View className="flex-1" />
-          <Button title={t('community.filters.apply', 'Áp dụng')} onPress={applyFilter} />
-        </BottomSheetView>
-      </BottomSheetModal>
+      {isCommunityTab ? (
+        <FeedFilterSheet
+          ref={bottomSheetModalRef}
+          initialFilters={feedFilters}
+          actionTypes={actionTypes}
+          onApply={handleApplyFilter}
+          onClear={handleClearAll}
+        />
+      ) : (
+        <MyPostsFilterSheet
+          ref={bottomSheetModalRef}
+          initialFilters={myFilters}
+          onApply={handleApplyFilter}
+          onClear={handleClearAll}
+        />
+      )}
     </View>
   );
 }

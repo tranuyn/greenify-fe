@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -12,14 +12,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 import QRCode from 'react-native-qrcode-svg';
+import { eventService } from '@/services/community.service';
 import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { useEventDetail, useMyRegistrations } from '@/hooks/queries/useEvents';
-import { useRegisterEvent } from '@/hooks/mutations/useEvents';
+import { useRegisterEvent, useCancelRegistration } from '@/hooks/mutations/useEvents';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { REGISTRATION_STATUS } from '@/types/community.types';
+import { Event } from '@/types/community.types';
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -38,61 +40,114 @@ export default function EventDetailScreen() {
 
   const [showQR, setShowQR] = useState(false);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
 
-  const { data: event, isLoading } = useEventDetail(id);
-  const { data: registrations = [] } = useMyRegistrations();
+  const { data: user } = useCurrentUser();
+  const { data: event, isLoading, isError, error } = useEventDetail(id);
+  const { data: registrationsResponse } = useMyRegistrations(user?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
 
-  const myRegistration = registrations.find(
-    (registration) =>
-      registration.event_id === id &&
-      registration.status !== REGISTRATION_STATUS.CANCELLED
-  );
+  const myRegistrationEvent = registrationsResponse?.content?.find((e: Event) => e.id === id);
 
-  const isRegistered = !!myRegistration;
-  const canShowQR =
-    myRegistration?.status === REGISTRATION_STATUS.REGISTERED ||
-    myRegistration?.status === REGISTRATION_STATUS.CHECKED_IN;
+  // Always fetch registration code when modal is opened
+  useEffect(() => {
+    const fetchQr = async () => {
+      if (showQR && user?.id && id) {
+        setQrLoading(true);
+        try {
+          const code = await eventService.getRegistrationCode(id, user.id);
+          setQrCode(code);
+        } catch (e) {
+          setQrCode(null);
+        }
+        setQrLoading(false);
+      } else if (!showQR) {
+        setQrCode(null);
+      }
+    };
+    fetchQr();
+  }, [showQR, user?.id, id]);
 
-  const isFull = (event?.registered_count ?? 0) >= (event?.max_participants ?? 0);
+  const isRegistered = !!myRegistrationEvent;
+  const canShowQR = isRegistered;
+
+  const isFull = (event?.participantCount ?? 0) >= (event?.maxParticipants ?? 0);
 
   const handleRegister = useCallback(() => {
     if (!event) return;
     setRegisteringId(event.id);
-    registerEvent(event.id, {
-      onSuccess: () => setRegisteringId(null),
-      onError: (err: any) => {
-        setRegisteringId(null);
-        Alert.alert(
-          t('events.detail.alert.register_failed_title'),
-          err?.response?.data?.message ?? t('events.detail.alert.register_failed_message')
-        );
-      },
-    });
+    registerEvent(
+      { eventId: event.id },
+      {
+        onSuccess: () => setRegisteringId(null),
+        onError: (err: any) => {
+          setRegisteringId(null);
+          Alert.alert(
+            t('events.detail.alert.register_failed_title', 'Đăng ký thất bại'),
+            err?.response?.data?.message ??
+              t('events.detail.alert.register_failed_message', 'Không thể đăng ký sự kiện')
+          );
+        },
+      }
+    );
   }, [event, registerEvent, t]);
 
   const handleCancelConfirm = useCallback(() => {
     Alert.alert(
-      t('events.detail.alert.cancel_title'),
-      t('events.detail.alert.cancel_message'),
+      t('events.detail.alert.cancel_title', 'Hủy đăng ký'),
+      t('events.detail.alert.cancel_message', 'Bạn có chắc muốn hủy đăng ký sự kiện này?'),
       [
-        { text: t('events.detail.alert.keep_registration'), style: 'cancel' },
+        { text: t('events.detail.alert.keep_registration', 'Giữ đăng ký'), style: 'cancel' },
         {
-          text: t('events.detail.alert.confirm_cancel_registration'),
+          text: t('events.detail.alert.confirm_cancel_registration', 'Xác nhận hủy đăng ký'),
           style: 'destructive',
           onPress: () => {
             // TODO: gọi cancelRegistration mutation khi BE có endpoint
-            Alert.alert(t('events.detail.alert.cancel_success'));
+            Alert.alert(t('events.detail.alert.cancel_success', 'Hủy đăng ký thành công'));
           },
         },
       ]
     );
   }, [t]);
 
-  if (isLoading || !event) {
+  const handlegetQrCode = useCallback(() => {
+    if (!event) return;
+    const res = setShowQR(true);
+  }, [event]);
+
+  if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (isError || !event) {
+    const detailErrorMessage =
+      (error as any)?.response?.data?.message ??
+      (error as any)?.message ??
+      t('events.detail.load_failed', {
+        defaultValue: 'Không thể tải chi tiết sự kiện. Vui lòng thử lại.',
+      });
+
+    return (
+      <View className="flex-1 items-center justify-center bg-background px-6">
+        <Feather name="alert-circle" size={28} color={colors.error} />
+        <Text className="mt-3 text-center font-inter-semibold text-base text-foreground">
+          {t('common.error', { defaultValue: 'Đã có lỗi xảy ra' })}
+        </Text>
+        <Text className="text-foreground/60 mt-1 text-center font-inter text-sm">
+          {detailErrorMessage}
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mt-5 rounded-xl bg-primary px-4 py-2.5">
+          <Text className="font-inter-semibold text-sm text-white">
+            {t('common.back', { defaultValue: 'Quay lại' })}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -105,7 +160,7 @@ export default function EventDetailScreen() {
         {/* Cover image */}
         <View className="relative h-56">
           <Image
-            source={{ uri: event.cover_image_url }}
+            source={{ uri: event.thumbnail.imageUrl }}
             className="h-full w-full bg-primary-100"
             resizeMode="cover"
           />
@@ -120,15 +175,28 @@ export default function EventDetailScreen() {
         </View>
 
         <View className="px-5 pt-5">
-          {/* NGO */}
-          {event.ngo_name && (
+          {/* Organizer info */}
+          {event.organizer && (
             <View className="mb-2 flex-row items-center">
               <View className="mr-2 h-6 w-6 items-center justify-center rounded-full bg-primary-100">
                 <Feather name="shield" size={12} color={colors.primary700} />
               </View>
               <Text className="font-inter-semibold text-xs uppercase tracking-wider text-primary-700">
-                {event.ngo_name}
+                {event.organizer.name}
               </Text>
+              {/* Nếu có avatar hoặc logo tổ chức */}
+              {event.organizer?.avatar && (
+                <Image
+                  source={{
+                    uri:
+                      typeof event.organizer.avatar === 'string'
+                        ? event.organizer.avatar
+                        : event.organizer.avatar.imageUrl,
+                  }}
+                  className="ml-2 h-6 w-6 rounded-full"
+                  resizeMode="cover"
+                />
+              )}
             </View>
           )}
 
@@ -141,14 +209,30 @@ export default function EventDetailScreen() {
             </Text>
             <View className="items-end">
               <Text className="text-foreground/50 font-inter text-xs">
-                {t('events.detail.reward_label')}
+                {t('events.detail.reward_label', 'Phần thưởng')}
               </Text>
               <Text className="font-inter-bold text-2xl text-primary">
-                {event.reward_points}
+                {event.rewardPoints}
                 <Text className="font-inter-semibold text-sm text-primary-700"> GP</Text>
               </Text>
             </View>
           </View>
+
+          {/* Gallery images */}
+          {event.images && event.images.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="my-4">
+              <View className="flex-row gap-x-3">
+                {event.images.map((img, idx) => (
+                  <Image
+                    key={img.imageUrl || idx}
+                    source={{ uri: img.imageUrl }}
+                    className="h-24 w-36 rounded-xl"
+                    resizeMode="cover"
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          )}
 
           {/* Meta info */}
           <View className="mt-4 gap-2.5">
@@ -157,7 +241,7 @@ export default function EventDetailScreen() {
                 <Feather name="map-pin" size={15} color={colors.primary700} />
               </View>
               <Text className="text-foreground/70 flex-1 font-inter text-sm">
-                {event.location_address}
+                {event.address?.addressDetail}
               </Text>
             </View>
 
@@ -167,8 +251,9 @@ export default function EventDetailScreen() {
               </View>
               <Text className="text-foreground/70 font-inter text-sm">
                 {t('events.detail.participants', {
-                  registered: event.registered_count ?? 0,
-                  total: event.max_participants,
+                  defaultValue: 'Tham gia: {registered}/{total}',
+                  registered: event.participantCount ?? 0,
+                  total: event.maxParticipants,
                 })}
               </Text>
             </View>
@@ -178,10 +263,20 @@ export default function EventDetailScreen() {
                 <Feather name="clock" size={15} color={colors.primary700} />
               </View>
               <Text className="text-foreground/70 font-inter text-sm">
-                {formatTime(event.start_time)} – {formatTime(event.end_time)} ·{' '}
-                {formatDate(event.start_time)}
+                {formatTime(event.startTime)} – {formatTime(event.endTime)} ·{' '}
+                {formatDate(event.startTime)}
               </Text>
             </View>
+
+            {/* Event type */}
+            {event.eventType && (
+              <View className="flex-row items-center">
+                <View className="mr-3 h-8 w-8 items-center justify-center rounded-xl bg-primary-50">
+                  <Feather name="tag" size={15} color={colors.primary700} />
+                </View>
+                <Text className="text-foreground/70 font-inter text-sm">{event.eventType}</Text>
+              </View>
+            )}
           </View>
 
           {/* Divider */}
@@ -189,64 +284,62 @@ export default function EventDetailScreen() {
 
           {/* Description */}
           <Text className="mb-3 font-inter-bold text-base text-foreground">
-            {t('events.detail.description_title')}
+            {t('events.detail.description_title', 'Mô tả')}
           </Text>
           <Text className="text-foreground/70 font-inter text-sm leading-6">
             {event.description}
           </Text>
 
           {/* Participation conditions */}
-          {event.participation_conditions && (
-            <>
-              <View className="my-5 h-px bg-primary-50 dark:bg-white/5" />
-              <Text className="mb-3 font-inter-bold text-base text-foreground">
-                {t('events.detail.conditions_title')}
-              </Text>
-              <Text className="text-foreground/70 font-inter text-sm leading-6">
-                {event.participation_conditions}
-              </Text>
-            </>
-          )}
+          <View className="my-5 h-px bg-primary-50 dark:bg-white/5" />
+          <Text className="mb-3 font-inter-bold text-base text-foreground">
+            {t('events.detail.conditions_title', 'Điều kiện tham gia')}
+          </Text>
+          <Text className="text-foreground/70 font-inter text-sm leading-6">
+            {event.participationConditions || 'Cần tuân thủ quy định của ban tổ chức.'}
+          </Text>
         </View>
       </ScrollView>
 
       {/* ── Bottom CTA ── */}
-      <View
-        className="absolute bottom-0 left-0 right-0 border-t border-primary-50 bg-background px-5 pt-3 dark:border-white/5"
-        style={{ paddingBottom: insets.bottom + 12 }}>
-        {isRegistered ? (
-          <View className="gap-3">
-            {/* Quét mã QR */}
-            {canShowQR && (
-              <Button
-                title={t('events.detail.actions.scan_qr')}
-                onPress={() => setShowQR(true)}
-                className="bg-primary"
-              />
-            )}
-            {/* Hủy đăng ký */}
-            <TouchableOpacity onPress={handleCancelConfirm} className="items-center py-2">
-              <Text className="font-inter-medium text-sm text-rose-500">
-                {t('events.detail.actions.cancel_registration')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <Button
-            title={
-              isFull
-                ? t('events.detail.actions.full')
-                : registeringId === event.id
-                  ? t('events.detail.actions.processing')
-                  : t('events.detail.actions.register')
-            }
-            disabled={isFull || registeringId === event.id}
-            isLoading={registeringId === event.id}
-            onPress={handleRegister}
-            className="bg-primary"
-          />
-        )}
-      </View>
+      {user?.ngoProfile?.id !== event.organizer?.id && (
+        <View
+          className="absolute bottom-0 left-0 right-0 border-t border-primary-50 bg-background px-5 pt-3 dark:border-white/5"
+          style={{ paddingBottom: insets.bottom + 12 }}>
+          {isRegistered ? (
+            <View className="gap-3">
+              {/* Quét mã QR */}
+              {canShowQR && (
+                <Button
+                  title={t('events.detail.actions.scan_qr', 'Quét mã QR')}
+                  onPress={() => setShowQR(true)}
+                  className="bg-primary"
+                />
+              )}
+              {/* Hủy đăng ký */}
+              <TouchableOpacity onPress={handleCancelConfirm} className="items-center py-2">
+                <Text className="font-inter-medium text-sm text-rose-500">
+                  {t('events.detail.actions.cancel_registration', 'Hủy đăng ký')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Button
+              title={
+                isFull
+                  ? t('events.detail.actions.full', 'Đã đủ người')
+                  : registeringId === event.id
+                    ? t('events.detail.actions.processing', 'Đang xử lý...')
+                    : t('events.detail.actions.register', 'Đăng ký')
+              }
+              disabled={isFull || registeringId === event.id}
+              isLoading={registeringId === event.id}
+              onPress={handleRegister}
+              className="bg-primary"
+            />
+          )}
+        </View>
+      )}
 
       {/* ── QR Modal ── */}
       <Modal
@@ -259,35 +352,34 @@ export default function EventDetailScreen() {
             <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-200" />
 
             <Text className="mb-6 text-center font-inter-bold text-lg text-foreground">
-              {t('events.detail.qr.title')}
+              {t('events.detail.qr.title', 'Mã QR sự kiện')}
             </Text>
 
             {/* QR Code */}
             <View className="mb-6 items-center justify-center rounded-3xl bg-white p-6 shadow-md shadow-black/50">
-              {myRegistration?.qr_token ? (
-                <QRCode
-                  value={myRegistration.qr_token}
-                  size={200}
-                  color={colors.primary500}
-                  backgroundColor="white"
-                />
-              ) : (
-                <View className="h-[200px] w-[200px] items-center justify-center">
-                  <Text className="text-foreground/50 text-sm">{t('events.detail.qr.empty')}</Text>
-                </View>
-              )}
+              <View className="h-[200px] w-[200px] items-center justify-center">
+                {qrLoading ? (
+                  <ActivityIndicator size="large" color={colors.primary} />
+                ) : qrCode ? (
+                  <QRCode value={qrCode} size={200} />
+                ) : (
+                  <Text className="text-foreground/50 text-sm">Không lấy được mã QR</Text>
+                )}
+              </View>
             </View>
 
             {/* Registration code */}
             <Text className="mb-6 text-center font-inter-bold text-lg text-foreground">
-              {myRegistration?.id ? `Cái mã gì đó#${myRegistration.id.slice(0, 6).toUpperCase()}` : ''}
+              {myRegistrationEvent?.id
+                ? `Mã: ${myRegistrationEvent.id.slice(0, 6).toUpperCase()}`
+                : ''}
             </Text>
 
             <TouchableOpacity
               onPress={() => setShowQR(false)}
               className="items-center rounded-2xl bg-primary-50 py-3.5 dark:bg-card">
               <Text className="font-inter-semibold text-base text-primary-700">
-                {t('events.detail.qr.back')}
+                {t('events.detail.qr.back', 'Quay lại')}
               </Text>
             </TouchableOpacity>
           </View>

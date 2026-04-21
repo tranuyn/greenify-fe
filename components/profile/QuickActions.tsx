@@ -40,8 +40,8 @@ export const QuickActions = ({ navigation }: any) => {
         router.push({
           pathname: '/(auth)/edit-profile',
           params: {
-            role: mapUserRoleToAccountRole(meData?.user?.role),
-            email: meData?.user?.email,
+            role: mapUserRoleToAccountRole(meData?.roles?.[0]),
+            email: meData?.email,
           },
         });
         break;
@@ -50,7 +50,7 @@ export const QuickActions = ({ navigation }: any) => {
         securityModalRef.current?.present();
         break;
       case 'help':
-        navigation?.navigate('QAndA');
+        router.push('/faq');
         break;
       case 'settings':
         // Dùng .present() để mở Modal
@@ -77,7 +77,7 @@ export const QuickActions = ({ navigation }: any) => {
     router.replace('/(onboarding)');
   };
   return (
-    <View className="mt-6 flex-row justify-around  py-6">
+    <View className="flex-row justify-around  py-6">
       {actions.map((item) => (
         <TouchableOpacity
           key={item.id}
@@ -141,7 +141,7 @@ export const QuickActions = ({ navigation }: any) => {
             showChevron
             onPress={() => {
               settingsModalRef.current?.dismiss();
-              navigation?.navigate('QAndA');
+              router.push('/faq');
             }}
           />
 
