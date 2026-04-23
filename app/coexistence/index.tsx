@@ -16,6 +16,7 @@ import { SeverityTier } from '@/types/community.types';
 import { useTranslation } from 'react-i18next';
 import MapViewTrashSpot from './components/MapViewTrashSpot';
 import TrashSpotBottomSheet from './components/TrashSpotBottomSheet';
+import { MapView } from '@/components/features/map/MapView';
 export default function MapScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -50,16 +51,15 @@ export default function MapScreen() {
   return (
     <View className="flex-1 bg-background">
       {/* Map chiếm toàn màn hình */}
-      {isLoading ? (
+      <MapView
+        items={trashSpotsData || []}
+        selectedItem={selectedTrashSpot}
+        onSelectItem={setSelectedTrashSpot}
+      />
+      {isLoading && (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
-      ) : (
-        <MapViewTrashSpot
-          trashSpots={trashSpotsData || []}
-          selectedStation={selectedTrashSpot}
-          onSelectStation={setSelectedTrashSpot}
-        />
       )}
 
       {/* Search bar nổi phía trên map */}

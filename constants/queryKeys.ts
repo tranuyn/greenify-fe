@@ -84,6 +84,7 @@ export const QUERY_KEYS = {
   events: {
     all: ['events'] as const,
     list: (params?: object) => ['events', 'list', params] as const,
+    myList: (params?: object) => ['events', 'my-list', params] as const,
     publicList: (params?: object) => ['events', 'public-list', params] as const,
     ngoList: (ngoId: string, params?: object) => ['events', 'ngo-list', ngoId, params] as const,
     myNgoList: (params?: object) => ['events', 'my-ngo-list', params] as const,
@@ -91,6 +92,7 @@ export const QUERY_KEYS = {
     myRegistrations: (userId: string, params?: object) =>
       ['events', 'registrations', userId, params] as const,
     participationSummary: () => ['events', 'participation-summary'] as const,
+    eventRegistrations: (eventId: string) => ['events', 'event-registrations', eventId] as const,
   },
 
   // Map

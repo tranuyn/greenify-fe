@@ -163,6 +163,7 @@ export const QuickActions = ({ navigation }: any) => {
             onPress={() => {
               // Xử lý đổi mật khẩu ở đây
               securityModalRef.current?.dismiss();
+              router.push('/(forgot)/send-otp');
             }}>
             <Feather name="lock" size={20} color="black" />
             <Text className="ml-3 font-medium">Đổi mật khẩu</Text>

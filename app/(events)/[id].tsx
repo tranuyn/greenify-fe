@@ -17,11 +17,22 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
-import { useEventDetail, useMyRegistrations } from '@/hooks/queries/useEvents';
-import { useRegisterEvent, useCancelRegistration } from '@/hooks/mutations/useEvents';
+import {
+  useEventDetail,
+  useMyRegistrations,
+  useEventRegistrations,
+} from '@/hooks/queries/useEvents';
+
+import {
+  useRegisterEvent,
+  useRegisterWaitlistEvent,
+  useCancelRegistration,
+} from '@/hooks/mutations/useEvents';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { Event } from '@/types/community.types';
+import { Event, REGISTRATION_STATUS } from '@/types/community.types';
+import { AttendeeCard } from '@/components/features/events/AttendeeCard';
+import { getRegistrationButtonLabel } from '@/utils/eventUtils';
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -47,7 +58,12 @@ export default function EventDetailScreen() {
   const { data: event, isLoading, isError, error } = useEventDetail(id);
   const { data: registrationsResponse } = useMyRegistrations(user?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
-
+  const { mutate: registerWaitlistEvent } = useRegisterWaitlistEvent();
+  // Lấy danh sách người đăng ký sự kiện (chỉ fetch nếu không phải tổ chức)
+  const shouldFetchEventRegistrations = user?.ngoProfile?.id !== event?.organizer?.id;
+  const { data: eventRegistrations, isLoading: isLoadingRegistrations } = useEventRegistrations(
+    shouldFetchEventRegistrations ? id : ''
+  );
   const myRegistrationEvent = registrationsResponse?.content?.find((e: Event) => e.id === id);
 
   // Always fetch registration code when modal is opened
@@ -69,29 +85,44 @@ export default function EventDetailScreen() {
     fetchQr();
   }, [showQR, user?.id, id]);
 
-  const isRegistered = !!myRegistrationEvent;
+  const isRegistered = event?.registrationStatus === REGISTRATION_STATUS.REGISTERED;
   const canShowQR = isRegistered;
 
   const isFull = (event?.participantCount ?? 0) >= (event?.maxParticipants ?? 0);
+  const isProcessing = registeringId === event?.id;
+
+  const buttonLabel = getRegistrationButtonLabel({
+    t,
+    registrationStatus: event?.registrationStatus,
+    isFull,
+    isProcessing,
+  });
 
   const handleRegister = useCallback(() => {
     if (!event) return;
     setRegisteringId(event.id);
-    registerEvent(
+    const mutationFn = isFull ? registerWaitlistEvent : registerEvent;
+    mutationFn(
       { eventId: event.id },
       {
         onSuccess: () => setRegisteringId(null),
         onError: (err: any) => {
           setRegisteringId(null);
           Alert.alert(
-            t('events.detail.alert.register_failed_title', 'Đăng ký thất bại'),
+            t(
+              'events.detail.alert.register_failed_title',
+              isFull ? 'Vào danh sách chờ thất bại' : 'Đăng ký thất bại'
+            ),
             err?.response?.data?.message ??
-              t('events.detail.alert.register_failed_message', 'Không thể đăng ký sự kiện')
+              t(
+                'events.detail.alert.register_failed_message',
+                isFull ? 'Không thể vào danh sách chờ' : 'Không thể đăng ký sự kiện'
+              )
           );
         },
       }
     );
-  }, [event, registerEvent, t]);
+  }, [event, registerEvent, registerWaitlistEvent, t, isFull]);
 
   const handleCancelConfirm = useCallback(() => {
     Alert.alert(
@@ -152,11 +183,13 @@ export default function EventDetailScreen() {
     );
   }
 
+  const isOrganizer = user?.ngoProfile?.id === event?.organizer?.id;
+
   return (
     <View className="flex-1 bg-background">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}>
+        contentContainerStyle={{ paddingBottom: insets.bottom + 150 }}>
         {/* Cover image */}
         <View className="relative h-56">
           <Image
@@ -299,6 +332,36 @@ export default function EventDetailScreen() {
             {event.participationConditions || 'Cần tuân thủ quy định của ban tổ chức.'}
           </Text>
         </View>
+
+        {/* Danh sách người đăng ký sự kiện (chỉ cho tổ chức) */}
+        {isOrganizer && (
+          <View className="mb-6 mt-10 px-4">
+            {/* Nút chỉnh sửa sự kiện */}
+            {/* <Button
+              title={t('events.detail.edit_event', 'Chỉnh sửa sự kiện')}
+              className="mb-4 bg-primary"
+              onPress={() =>
+                router.push({ pathname: '/(ngo)/create-event', params: { id: event.id } })
+              }
+            /> */}
+            <Text className="mb-2 font-inter-bold text-base text-foreground">
+              {t('events.detail.registrations_title', 'Danh sách người đăng ký')}
+            </Text>
+
+            {isLoadingRegistrations ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : eventRegistrations && eventRegistrations.length > 0 ? (
+              eventRegistrations.map((reg) => <AttendeeCard key={reg.id} item={reg} />)
+            ) : (
+              <View className="items-center rounded-2xl border border-dashed border-gray-200 p-6 dark:border-white/10">
+                <Feather name="users" size={24} color={colors.neutral400} className="mb-2" />
+                <Text className="text-foreground/60 text-center font-inter text-sm">
+                  {t('events.detail.no_registrations', 'Chưa có ai đăng ký')}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       {/* ── Bottom CTA ── */}
@@ -306,38 +369,37 @@ export default function EventDetailScreen() {
         <View
           className="absolute bottom-0 left-0 right-0 border-t border-primary-50 bg-background px-5 pt-3 dark:border-white/5"
           style={{ paddingBottom: insets.bottom + 12 }}>
-          {isRegistered ? (
-            <View className="gap-3">
+          {isRegistered && (
+            <View className="flex-row items-center gap-3">
               {/* Quét mã QR */}
               {canShowQR && (
-                <Button
-                  title={t('events.detail.actions.scan_qr', 'Quét mã QR')}
-                  onPress={() => setShowQR(true)}
-                  className="bg-primary"
-                />
+                <View className="flex-1">
+                  <Button
+                    title={t('events.detail.actions.scan_qr', 'Quét mã QR')}
+                    onPress={() => setShowQR(true)}
+                    className="w-full bg-primary"
+                  />
+                </View>
               )}
+
               {/* Hủy đăng ký */}
-              <TouchableOpacity onPress={handleCancelConfirm} className="items-center py-2">
-                <Text className="font-inter-medium text-sm text-rose-500">
-                  {t('events.detail.actions.cancel_registration', 'Hủy đăng ký')}
-                </Text>
-              </TouchableOpacity>
+              <View className="flex-1">
+                <Button
+                  title={t('events.detail.actions.cancel_registration', 'Hủy đăng ký')}
+                  onPress={handleCancelConfirm}
+                  variant="danger"
+                  className="w-full py-2"
+                />
+              </View>
             </View>
-          ) : (
-            <Button
-              title={
-                isFull
-                  ? t('events.detail.actions.full', 'Đã đủ người')
-                  : registeringId === event.id
-                    ? t('events.detail.actions.processing', 'Đang xử lý...')
-                    : t('events.detail.actions.register', 'Đăng ký')
-              }
-              disabled={isFull || registeringId === event.id}
-              isLoading={registeringId === event.id}
-              onPress={handleRegister}
-              className="bg-primary"
-            />
           )}
+          <Button
+            title={buttonLabel}
+            disabled={registeringId === event.id || !!event?.registrationStatus}
+            isLoading={registeringId === event.id}
+            onPress={handleRegister}
+            className="mt-3 bg-primary"
+          />
         </View>
       )}
 

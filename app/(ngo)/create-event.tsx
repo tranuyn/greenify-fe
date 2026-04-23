@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -26,7 +26,9 @@ import { DropdownPicker } from '@/components/ui/DropdownPicker';
 import ProvincePicker from '@/components/ui/ProvincePicker';
 import { Button } from '@/components/ui/Button';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { useCreateEvent } from '@/hooks/mutations/useEvents';
+import { useCreateEvent, useUpdateEvent } from '@/hooks/mutations/useEvents';
+import { useEventDetail } from '@/hooks/queries/useEvents';
+import { useLocalSearchParams } from 'expo-router';
 import { uploadService } from '@/services/upload.service';
 import {
   createEventSchema,
@@ -47,7 +49,9 @@ type SelectedImage = {
 };
 
 // ── Main Screen ───────────────────────────────────────────────
-export default function CreateEventScreen() {
+export default function CreateOrUpdateEventScreen() {
+  // Nếu có eventId thì là update, không có thì là create
+  const { id: eventId } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
   const { t } = useTranslation();
@@ -60,7 +64,12 @@ export default function CreateEventScreen() {
   const [showEventTypeDropdown, setShowEventTypeDropdown] = useState(false);
   const [isPredictModalVisible, setIsPredictModalVisible] = useState(false);
 
-  const { mutateAsync: createEvent, isPending } = useCreateEvent();
+  const { mutateAsync: createEvent, isPending: isCreating } = useCreateEvent();
+  const { mutateAsync: updateEvent, isPending: isUpdating } = useUpdateEvent(eventId || '');
+  const isEditMode = !!eventId;
+  const { data: eventDetail, isLoading: isLoadingEventDetail } = useEventDetail(
+    isEditMode ? eventId : ''
+  );
   const eventFormSchema = useMemo(() => createEventSchema(t), [t]);
   const eventTypeOptions = useMemo(
     () =>
@@ -155,6 +164,7 @@ export default function CreateEventScreen() {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<CreateEventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -179,6 +189,34 @@ export default function CreateEventScreen() {
       accepted_terms: false,
     },
   });
+
+  // Khi ở chế độ sửa, fill dữ liệu vào form
+  useEffect(() => {
+    if (isEditMode && eventDetail) {
+      reset({
+        title: eventDetail.title,
+        description: eventDetail.description,
+        event_type: eventDetail.eventType,
+        city: eventDetail.address?.province || '',
+        location_address: eventDetail.address?.addressDetail || '',
+        start_date: eventDetail.startTime ? new Date(eventDetail.startTime) : new Date(),
+        start_time: eventDetail.startTime ? eventDetail.startTime.slice(11, 16) : '09:00',
+        end_date: eventDetail.endTime ? new Date(eventDetail.endTime) : new Date(),
+        end_time: eventDetail.endTime ? eventDetail.endTime.slice(11, 16) : '11:00',
+        max_participants: String(eventDetail.maxParticipants),
+        min_participants: String(eventDetail.minParticipants),
+        cancel_deadline_hours_before: String(eventDetail.cancelDeadlineHoursBefore),
+        sign_up_deadline_hours_before: String(eventDetail.signUpDeadlineHoursBefore),
+        reminder_hours_before: String(eventDetail.reminderHoursBefore),
+        thank_you_hours_after: String(eventDetail.thankYouHoursAfter),
+        reward_points: String(eventDetail.rewardPoints),
+        participation_conditions: eventDetail.participationConditions,
+        accepted_terms: true,
+      });
+      setCoverImage(eventDetail.thumbnail?.imageUrl || null);
+      setEventImages(eventDetail.images?.map((img) => ({ uri: img.imageUrl })) || []);
+    }
+  }, [isEditMode, eventDetail, reset]);
 
   const watchedEventType = watch('event_type');
   const watchedTerms = watch('accepted_terms');
@@ -216,42 +254,57 @@ export default function CreateEventScreen() {
 
   const onSubmit = useCallback(
     async (data: CreateEventFormData) => {
-      if (!coverImageFile) {
+      if (!coverImageFile && !isEditMode) {
         Alert.alert(t('common.error', 'Lỗi'), 'Vui lòng tải ảnh bìa sự kiện trước khi tạo.');
         return;
       }
-
       try {
         setIsUploadingMedia(true);
-
-        const uploadedThumbnailRaw = await uploadService.uploadFile({
-          uri: coverImageFile.uri,
-          name: coverImageFile.fileName,
-          type: coverImageFile.mimeType,
-        });
-
-        const uploadedImagesRaw = await Promise.all(
-          eventImages.map((image) =>
-            uploadService.uploadFile({
-              uri: image.uri,
-              name: image.fileName,
-              type: image.mimeType,
-            })
-          )
-        );
-
-        const thumbnail = toRequiredMediaDto(
-          uploadedThumbnailRaw,
-          'Upload ảnh bìa chưa trả về đủ bucketName/objectKey.'
-        );
-        const images = uploadedImagesRaw.map((image) =>
-          toRequiredMediaDto(image, 'Upload ảnh sự kiện chưa trả về đủ bucketName/objectKey.')
-        );
-
-        await createEvent({
+        let thumbnail = eventDetail?.thumbnail;
+        let images = eventDetail?.images || [];
+        // Nếu có file mới thì upload
+        if (coverImageFile) {
+          const uploadedThumbnailRaw = await uploadService.uploadFile({
+            uri: coverImageFile.uri,
+            name: coverImageFile.fileName,
+            type: coverImageFile.mimeType,
+          });
+          thumbnail = toRequiredMediaDto(
+            uploadedThumbnailRaw,
+            'Upload ảnh bìa chưa trả về đủ bucketName/objectKey.'
+          );
+        }
+        if (eventImages.length > 0) {
+          // eventImages: SelectedImage[] (mới upload), images: EventImage[] (cũ từ BE)
+          const newImages = eventImages.filter((img) => (img as SelectedImage).fileName);
+          let uploadedImagesRaw: MediaDto[] = [];
+          if (newImages.length > 0) {
+            uploadedImagesRaw = await Promise.all(
+              newImages.map((image) =>
+                uploadService.uploadFile({
+                  uri: image.uri,
+                  name: image.fileName,
+                  type: image.mimeType,
+                })
+              )
+            );
+          }
+          // Giữ lại ảnh cũ từ BE (EventImage), loại bỏ ảnh mới (SelectedImage)
+          const oldImages = images.filter((img: any) => !('fileName' in img));
+          images = [
+            ...oldImages,
+            ...uploadedImagesRaw.map((image) =>
+              toRequiredMediaDto(image, 'Upload ảnh sự kiện chưa trả về đủ bucketName/objectKey.')
+            ),
+          ];
+        }
+        if (!thumbnail) {
+          throw new Error('Vui lòng tải ảnh bìa sự kiện.');
+        }
+        const payload = {
           title: data.title,
           description: data.description,
-          eventType: data.event_type as any, // Cast because we will update EVENT_TYPE_OPTIONS
+          eventType: data.event_type as any,
           startTime: buildISO(data.start_date, data.start_time),
           endTime: buildISO(data.end_date, data.end_time),
           maxParticipants: Number(data.max_participants),
@@ -261,8 +314,8 @@ export default function CreateEventScreen() {
           reminderHoursBefore: Number(data.reminder_hours_before),
           thankYouHoursAfter: Number(data.thank_you_hours_after),
           rewardPoints: Number(data.reward_points),
-          status: 'APPROVAL_WAITING',
-          thumbnail,
+          status: 'APPROVAL_WAITING' as const,
+          thumbnail: thumbnail as MediaDto,
           images,
           participationConditions: data.participation_conditions,
           address: {
@@ -272,13 +325,22 @@ export default function CreateEventScreen() {
             latitude: 10.7769,
             longitude: 106.7009,
           },
-        });
-
-        Alert.alert(
-          t('events.create_event.alerts.success_title'),
-          t('events.create_event.alerts.success_message'),
-          [{ text: c('ok'), onPress: () => router.back() }]
-        );
+        };
+        if (isEditMode) {
+          await updateEvent(payload);
+          Alert.alert(
+            t('events.create_event.alerts.success_title', 'Cập nhật thành công'),
+            t('events.create_event.alerts.success_message', 'Sự kiện đã được cập nhật.'),
+            [{ text: c('ok'), onPress: () => router.back() }]
+          );
+        } else {
+          await createEvent(payload);
+          Alert.alert(
+            t('events.create_event.alerts.success_title'),
+            t('events.create_event.alerts.success_message'),
+            [{ text: c('ok'), onPress: () => router.back() }]
+          );
+        }
       } catch (err: any) {
         Alert.alert(
           t('events.create_event.alerts.error_title'),
@@ -286,12 +348,23 @@ export default function CreateEventScreen() {
             err?.message ??
             t('events.create_event.alerts.error_fallback')
         );
-        console.error('Create event error:', err.response?.data.message || err);
+        console.error('Create/update event error:', err.response?.data.message || err);
       } finally {
         setIsUploadingMedia(false);
       }
     },
-    [buildISO, c, coverImageFile, createEvent, eventImages, t, toRequiredMediaDto]
+    [
+      buildISO,
+      c,
+      coverImageFile,
+      createEvent,
+      eventImages,
+      t,
+      toRequiredMediaDto,
+      isEditMode,
+      updateEvent,
+      eventDetail,
+    ]
   );
 
   return (
@@ -307,7 +380,9 @@ export default function CreateEventScreen() {
           <Feather name="chevron-left" size={20} color={colors.foreground} />
         </TouchableOpacity>
         <Text className="font-inter-bold text-xl text-foreground">
-          {t('events.create_event.title')}
+          {isEditMode
+            ? t('events.create_event.edit_title', 'Cập nhật sự kiện')
+            : t('events.create_event.title')}
         </Text>
       </View>
 
@@ -731,8 +806,12 @@ export default function CreateEventScreen() {
         </TouchableOpacity>
 
         <Button
-          title={t('events.create_event.buttons.submit')}
-          isLoading={isPending || isUploadingMedia}
+          title={
+            isEditMode
+              ? t('events.create_event.buttons.update', 'Cập nhật')
+              : t('events.create_event.buttons.submit')
+          }
+          isLoading={isCreating || isUpdating || isUploadingMedia || isLoadingEventDetail}
           onPress={handleSubmit(onSubmit)}
           className="flex-1 bg-primary"
         />

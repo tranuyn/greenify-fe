@@ -64,11 +64,13 @@ function formatDate(iso: string) {
 function NgoEventCard({
   item,
   onPress,
-  onScanQr,
+  onCheckIn,
+  onCheckOut,
 }: {
   item: Event;
   onPress: () => void;
-  onScanQr?: () => void;
+  onCheckIn?: () => void;
+  onCheckOut?: () => void;
 }) {
   const { t } = useTranslation();
   const c = (key: string, fallback = '') => t(`common.${key}`, { defaultValue: fallback });
@@ -126,25 +128,47 @@ function NgoEventCard({
           </View>
 
           {/* Scan QR button — luôn hiển thị, mờ và disable nếu chưa diễn ra */}
-          {onScanQr && (
-            <TouchableOpacity
-              // disabled={!isOngoing}
-              onPress={(e) => {
-                e.stopPropagation();
-                // if (!isOngoing) return;
-                onScanQr();
-              }}
-              className={`mt-2.5 flex-row items-center self-start rounded-xl px-3 py-1.5 ${
-                isOngoing ? 'bg-primary' : 'bg-primary'
-              }`}>
-              <Feather name="camera" size={12} color={isOngoing ? 'white' : '#f3f4f6'} />
-              <Text
-                className={`ml-1.5 font-inter-semibold text-xs ${
-                  isOngoing ? 'text-white' : 'text-white'
-                }`}>
-                {c('scan_qr')}
-              </Text>
-            </TouchableOpacity>
+
+          {(onCheckIn || onCheckOut) && (
+            <View className="mt-2.5 flex-row items-center gap-2">
+              {onCheckIn && (
+                <TouchableOpacity
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    onCheckIn();
+                  }}
+                  className={`flex-row items-center rounded-xl border px-3 py-1.5 ${
+                    isOngoing ? 'border-rose-500 bg-rose-50' : 'border-gray-300 bg-gray-50'
+                  }`}>
+                  <Feather name="log-in" size={12} color={isOngoing ? '#f43f5e' : '#9ca3af'} />
+                  <Text
+                    className={`ml-1.5 font-inter-semibold text-xs ${
+                      isOngoing ? 'text-rose-500' : 'text-gray-400'
+                    }`}>
+                    {t('events.ngo_events.check_in', 'Check-in')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {onCheckOut && (
+                <TouchableOpacity
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    onCheckOut();
+                  }}
+                  className={`flex-row items-center rounded-xl border px-3 py-1.5 ${
+                    isOngoing ? 'border-rose-500 bg-rose-50' : 'border-gray-300 bg-gray-50'
+                  }`}>
+                  <Feather name="log-out" size={12} color={isOngoing ? '#f43f5e' : '#9ca3af'} />
+                  <Text
+                    className={`ml-1.5 font-inter-semibold text-xs ${
+                      isOngoing ? 'text-rose-500' : 'text-gray-400'
+                    }`}>
+                    {t('events.ngo_events.check_out', 'Check-out')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
       </View>
@@ -311,8 +335,17 @@ export function NgoEventsScreen() {
             <NgoEventCard
               item={item}
               onPress={() => router.push({ pathname: '/(events)/[id]', params: { id: item.id } })}
-              onScanQr={() =>
-                router.push({ pathname: '/(ngo)/scan-qr', params: { eventId: item.id } })
+              onCheckIn={() =>
+                router.push({
+                  pathname: '/(ngo)/scan-qr',
+                  params: { eventId: item.id, type: 'checkin' }, // Gửi type checkin
+                })
+              }
+              onCheckOut={() =>
+                router.push({
+                  pathname: '/(ngo)/scan-qr',
+                  params: { eventId: item.id, type: 'checkout' }, // Gửi type checkout
+                })
               }
             />
           )}

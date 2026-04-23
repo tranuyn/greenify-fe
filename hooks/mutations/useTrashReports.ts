@@ -39,3 +39,13 @@ export const useReportTrashSpot = (trashSpotId: string) => {
     },
   });
 };
+
+export const useClaimTrashSpot = (trashSpotId: string) => {
+  return useMutation({
+    mutationFn: () => trashService.claimTrashSpot(trashSpotId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trashSpots.detail(trashSpotId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.trashSpots.list() });
+    },
+  });
+};

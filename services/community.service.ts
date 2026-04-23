@@ -24,15 +24,6 @@ import type {
   EventParticipationSummary,
 } from '@/types/community.types';
 import { ApiResponse, PageResponse, PaginationParams } from '@/types/common.types';
-import { IS_MOCK_MODE, mockDelay, mockSuccess } from './mock/config';
-import {
-  MOCK_EVENTS,
-  MOCK_MY_REGISTRATIONS,
-  MOCK_STATIONS,
-  MOCK_TRASH_SPOT_DETAILS,
-  MOCK_TRASH_SPOTS,
-} from './mock/community.mock';
-import { SortOption } from '@/constants/enums/sortOptions.enum';
 
 const DAY_OF_WEEK_MAP: Record<string, string> = {
   MONDAY: 'MON',
@@ -94,18 +85,22 @@ export const eventService = {
       page: params?.page ? params.page - 1 : 0,
       size: params?.size ?? 10,
     };
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      return {
-        content: MOCK_EVENTS,
-        totalElements: MOCK_EVENTS.length,
-        page: params?.page ?? 1,
-        size: params?.size ?? 20,
-        totalPages: 5,
-      };
-    }
 
     const { data } = await apiClient.get<PageResponse<Event>>('/events', {
+      params: apiParams,
+    });
+
+    return data;
+  },
+
+  async getMyEvents(params?: EventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      ...params,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 20,
+    };
+
+    const { data } = await apiClient.get<PageResponse<Event>>('/events/me', {
       params: apiParams,
     });
 
@@ -201,6 +196,7 @@ export const eventService = {
 
   async getEventRegistrations(eventId: string): Promise<EventRegistration[]> {
     const { data } = await apiClient.get<EventRegistration[]>(`/events/${eventId}/registrations`);
+    console.log('Fetched event registrations:', data);
     return data;
   },
 
@@ -468,6 +464,11 @@ export const trashService = {
     const { data } = await apiClient.post<TrashSpotReport>(`/trash-spots/${id}/reports`, {
       note: payload.note,
     });
+    return data;
+  },
+
+  async claimTrashSpot(id: string): Promise<TrashSpotReport> {
+    const { data } = await apiClient.patch<TrashSpotReport>(`/ngo/trash-spots/${id}/claim`);
     return data;
   },
 };

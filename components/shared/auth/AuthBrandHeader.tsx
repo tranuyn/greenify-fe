@@ -14,9 +14,9 @@ export function AuthBrandHeader({ title, subtitle }: AuthBrandHeaderProps) {
         <Ionicons name="leaf" size={28} color="#dcfce7" />
       </View>
 
-      <Text className="text-center text-3xl font-inter-black text-primary-950">{title}</Text>
+      <Text className="text-center font-inter-black text-3xl text-primary">{title}</Text>
       {subtitle ? (
-        <Text className="mt-2 text-center text-sm leading-5 text-foreground/70">{subtitle}</Text>
+        <Text className="text-foreground/70 mt-2 text-center text-sm leading-5">{subtitle}</Text>
       ) : null}
     </View>
   );

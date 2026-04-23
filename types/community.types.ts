@@ -66,6 +66,7 @@ export interface Event {
   thankYouHoursAfter: number;
   rewardPoints: number;
   status: EventStatus;
+  registrationStatus: RegistrationStatus;
   rejectReason?: string | null;
   rejectedCount: number;
   address: EventAddress;
