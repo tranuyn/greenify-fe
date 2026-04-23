@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { View, ScrollView, FlatList, ActivityIndicator, Alert } from 'react-native';
+import {
+  View,
+  ScrollView,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
-// ---- Feature components ----
+// ---- Components ----
 import { HomeHeader } from '@/components/features/home/HomeHeader';
-import { HomeActionMenu } from '@/components/features/home/HomeActionMenu';
+import { Utilities } from '@/components/profile/Utilities';
 import { SectionHeader } from '@/components/features/home/SectionHeader';
 import { EventCard } from '@/components/features/home/EventCard';
 import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
 import { StreakPlantCard } from '@/components/features/home/StreakPlantCard';
 import { CommunityFeedPreview } from '@/components/features/home/CommunityFeedPreview';
+import ModalVoucherDetail from '@/components/shared/ModalVoucherDetail'; // Import Modal
 
-import { router } from 'expo-router';
+// ---- Hooks & Utils ----
 import { useAuthRole, useCurrentUser } from '@/hooks/queries/useAuth';
 import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useRegisterEvent, useRegisterWaitlistEvent } from '@/hooks/mutations/useEvents';
@@ -26,34 +35,33 @@ import {
   type UserVoucher,
   type VoucherTemplate,
 } from '@/types/gamification.types';
-import { Utilities } from '@/components/profile/Utilities';
-
-// ============================================================
-// HOME SCREEN
-// Orchestrator: Chỉ import + xếp chồng các sections.
-// Mỗi section tự quản lý data fetching & loading state.
-// ============================================================
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
 
+  // ---- States ----
+  const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
+  const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const [selectedVoucher, setSelectedVoucher] = useState<VoucherTemplate | null>(null); // State cho Modal
+
   // ---- Data fetching ----
-  const { data: authData, isLoading: isLoadingMe } = useCurrentUser();
+  const { data: authData } = useCurrentUser();
   const { data: wallet } = useMyWallet();
-  const { data: eventsData, isLoading: isLoadingEvents } = usePublishedEvents({
-    page: 1,
-    size: 5,
-  });
+  const { data: eventsData, isLoading: isLoadingEvents } = usePublishedEvents({ page: 1, size: 5 });
   const roleData = useAuthRole();
   const { data: myRegistrations } = useMyRegistrations(authData?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
   const { mutate: registerWaitlistEvent } = useRegisterWaitlistEvent();
-  const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
+
+  const { data: availableVouchersData, isLoading: isLoadingVouchers } = useAvailableVouchers();
+  const { data: myVouchers } = useMyVouchers();
+  const { mutate: exchangeVoucher } = useExchangeVoucher();
 
   const registeredEventIds = new Set((myRegistrations?.content ?? []).map((r) => r.id));
 
+  // ---- Handlers ----
   const handleRegisterEvent = React.useCallback(
     (event: { id: string; isFull?: boolean } | undefined, isFull: boolean = false) => {
       if (!event) return;
@@ -82,17 +90,14 @@ export default function HomeScreen() {
     },
     [registerEvent, registerWaitlistEvent, t]
   );
-  const { data: availableVouchersData, isLoading: isLoadingVouchers } = useAvailableVouchers();
-  const { data: myVouchers } = useMyVouchers();
-  const { mutate: exchangeVoucher } = useExchangeVoucher();
 
-  const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const handleCollect = (item: VoucherTemplate) => {
+    setRedeemingId(item.id);
+    exchangeVoucher(item.id, {
+      onSettled: () => setRedeemingId(null),
+    });
+  };
 
-  let userName = t('home.welcome_guest', 'Công dân xanh');
-
-  if (roleData?.isNgo) {
-    userName = authData?.ngoProfile?.orgName || authData?.userProfile?.displayName || userName;
-  }
   const events = eventsData?.content ?? [];
   const allVouchers: VoucherTemplate[] = availableVouchersData?.content ?? [];
   const myVoucherList: UserVoucher[] = myVouchers?.content ?? [];
@@ -105,19 +110,11 @@ export default function HomeScreen() {
       .map((v) => v.voucherTemplateId)
   );
 
-  const handleCollect = (item: VoucherTemplate) => {
-    setRedeemingId(item.id);
-    exchangeVoucher(item.id, {
-      onSettled: () => setRedeemingId(null),
-    });
-  };
-
   return (
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 100 }}
       showsVerticalScrollIndicator={false}>
-      {/* 1. HEADER — Avatar + Tên + Điểm GP            */}
       <HomeHeader
         userName={
           authData?.userProfile?.displayName || authData?.ngoProfile?.orgName || 'Người dùng'
@@ -126,10 +123,8 @@ export default function HomeScreen() {
         points={wallet?.availablePoints ?? 0}
       />
 
-      {/* 2. QUICK MENU — Bản đồ, Voucher, Leaderboard  */}
       <Utilities isForHome={true} />
 
-      {/* 3. SỰ KIỆN XANH — Carousel ngang              */}
       <SectionHeader title={t('home.section_events')} />
 
       {isLoadingEvents ? (
@@ -168,10 +163,8 @@ export default function HomeScreen() {
         />
       )}
 
-      {/* 4. ĐỔI VOUCHER — Row list + Carousel          */}
       <SectionHeader title={t('home.section_vouchers')} />
 
-      {/* Row voucher list */}
       {isLoadingVouchers ? (
         <View className="h-[80px] items-center justify-center">
           <ActivityIndicator size="small" color={colors.primary} />
@@ -179,24 +172,34 @@ export default function HomeScreen() {
       ) : (
         <View className="px-5">
           {allVouchers.map((item) => (
-            <VoucherRowCard
+            // Bọc bằng TouchableOpacity để mở Modal khi click vào vùng card
+            <TouchableOpacity
               key={item.id}
-              item={item}
-              isCollected={collectedVoucherIds.has(item.id)}
-              isCollecting={redeemingId === item.id}
-              onCollect={() => handleCollect(item)}
-            />
+              activeOpacity={0.9}
+              onPress={() => setSelectedVoucher(item)}>
+              <VoucherRowCard
+                item={item}
+                isCollected={collectedVoucherIds.has(item.id)}
+                isCollecting={redeemingId === item.id}
+                onCollect={() => handleCollect(item)}
+              />
+            </TouchableOpacity>
           ))}
         </View>
       )}
 
-      {/* 5. STREAK + CÂY ĐANG TRỒNG                    */}
       <SectionHeader title={t('home.section_streak_plant')} />
       <StreakPlantCard />
 
-      {/* 6. FEED CỘNG ĐỒNG XANH — 3 bài post mới nhất */}
       <SectionHeader title={t('home.section_community')} />
       <CommunityFeedPreview />
+
+      {/* Render Modal */}
+      <ModalVoucherDetail
+        visible={!!selectedVoucher}
+        onClose={() => setSelectedVoucher(null)}
+        voucher={selectedVoucher}
+      />
     </ScrollView>
   );
 }

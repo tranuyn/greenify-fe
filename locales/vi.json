@@ -126,7 +126,7 @@
     "gift": {
       "your_gift_title": "Quà tặng của bạn",
       "total": "Số lượng quà: {{count}}",
-      "today_gift_title": "Quà tặng hôm nay",
+      "today_gift_title": "Mô tả quà tặng",
       "description": "Mô tả",
       "required_points": "Điểm cần",
       "remaining_usage": "Lượt dùng còn lại",
