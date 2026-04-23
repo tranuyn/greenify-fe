@@ -21,7 +21,7 @@ const STATIC_HTML = `
 <body>
     <div id='map'></div>
     <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoidGhpZW5uZ3V5ZW4yNTA0IiwiYSI6ImNtYWRqbDIyYzA4N2YybG9maXNnZ2c1ZHIifQ.u21ONEVrSLiCn4GDA3BNdA';
+        mapboxgl.accessToken = '${process.env.EXPO_PUBLIC_MAPBOX_TOKEN}';
         const map = new mapboxgl.Map({ container: 'map', style: 'mapbox://styles/mapbox/streets-v12', center: [106.7009, 10.7769], zoom: 13 });
         let markers = [];
 
