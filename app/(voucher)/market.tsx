@@ -62,6 +62,12 @@ export default function VoucherMarketScreen() {
     });
   }, [vouchers, searchQuery, activePartner]);
 
+  const selectedUserVoucher = useMemo(() => {
+    if (!selectedVoucher) return null;
+    // Tìm trong danh sách voucher đã sở hữu xem có cái nào trùng templateId không
+    return myVoucherList.find((v) => v.voucherTemplateId === selectedVoucher.id);
+  }, [selectedVoucher, myVoucherList]);
+
   const allPartners = useMemo(() => {
     const set = new Set<string>();
     vouchers.forEach((v) => set.add(v.partnerName));
@@ -148,6 +154,7 @@ export default function VoucherMarketScreen() {
         visible={!!selectedVoucher}
         onClose={() => setSelectedVoucher(null)}
         voucher={selectedVoucher}
+        voucherCode={selectedUserVoucher?.voucherCode}
       />
     </View>
   );
