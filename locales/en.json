@@ -338,6 +338,14 @@
       "submit_btn": "Send verification code",
       "has_account": "Already have an account?"
     },
+    "forgot_password": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to receive a verification code.",
+      "email_label": "Email",
+      "email_placeholder": "example@email.com",
+      "submit_btn": "Send Verification Code",
+      "has_account": "Already have an account?"
+    },
     "verify_email": {
       "title": "Verify Email",
       "subtitle": "We have sent a verification code to",
@@ -417,12 +425,13 @@
     },
     "post_status": {
       "pending_review": "Pending",
-      "partially_approved": "Reviewing",
+      "partially_approved": "Partially Approved",
       "verified": "Verified",
       "rejected": "Rejected",
       "flagged": "Flagged",
       "revoked": "Revoked",
-      "draft": "Draft"
+      "draft": "Draft",
+      "unknown": "Unknown Status"
     },
     "review_decision": {
       "approve": "Approved",
@@ -463,6 +472,8 @@
       "subtitle": "Manage organization's events",
       "create_new": "Create New",
       "scan_qr": "Scan QR",
+      "check_in": "Check-in",
+      "check_out": "Check-out",
       "registered_count": "{{registered}}/{{max}} participants",
       "tabs": {
         "pending": "Pending",
@@ -488,7 +499,7 @@
     "search": "Search events...",
     "card": {
       "registered": "Registered",
-      "full": "Full",
+      "full": "Full (via waitlist)",
       "processing": "Processing...",
       "register": "Register",
       "people": "people"
@@ -512,7 +523,7 @@
       "actions": {
         "scan_qr": "Scan QR Code",
         "cancel_registration": "Cancel Registration",
-        "full": "Full",
+        "full": "Full (via waitlist)",
         "processing": "Processing...",
         "register": "Register"
       },

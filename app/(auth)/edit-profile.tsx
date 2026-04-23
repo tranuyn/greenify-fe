@@ -6,7 +6,7 @@ import {
   useUpdateProfile,
   useUpdateNgoProfile,
 } from '@/hooks/mutations/useAuth';
-import { useCurrentUser } from '@/hooks/queries/useAuth';
+import { useAuthRole, useCurrentUser } from '@/hooks/queries/useAuth';
 import type { CompleteProfileRequest, CreateNgoProfileRequest } from '@/types/user.type';
 import { ProfileForm } from '@/components/shared/auth/ProfileForm';
 import { NGOProfileForm } from '@/components/shared/auth/NGOProfileForm';
@@ -16,8 +16,7 @@ export default function EditProfileScreen() {
   const { mutate: updateProfile, isPending } = useUpdateProfile();
   const { mutate: updateNgoProfile, isPending: isUpdatingNgoProfile } = useUpdateNgoProfile();
   const { mutate: completeProfile, isPending: isCompleteProfilePending } = useCompleteProfile();
-  const isNgoProfile = meData?.roles?.includes('NGO') ?? false;
-  const isCitizenProfile = meData?.userProfile && 'displayName' in meData.userProfile;
+  const roleData = useAuthRole();
   const handleUpdateProfile = (data: CompleteProfileRequest) => {
     if (!meData) return;
     if (meData?.userProfile?.id)
@@ -61,7 +60,7 @@ export default function EditProfileScreen() {
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#16a34a" />
         </View>
-      ) : isNgoProfile ? (
+      ) : roleData?.isNgo ? (
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}>
@@ -86,21 +85,23 @@ export default function EditProfileScreen() {
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}>
-          <NGOProfileForm
+          <ProfileForm
             email={meData?.email ?? ''}
             initialValues={{
-              orgName: meData?.ngoProfile?.orgName,
-              representativeName: meData?.ngoProfile?.representativeName,
-              hotline: meData?.ngoProfile?.hotline,
-              contactEmail: meData?.ngoProfile?.contactEmail ?? meData?.email,
-              description: meData?.ngoProfile?.description,
-              address: meData?.ngoProfile?.address,
-              avatar: meData?.ngoProfile?.avatar,
-              verificationDocs: meData?.ngoProfile?.verificationDocs,
+              firstName: meData?.userProfile?.firstName,
+              lastName: meData?.userProfile?.lastName,
+              displayName: meData?.userProfile?.displayName,
+              province: meData?.userProfile?.province,
+              district: meData?.userProfile?.district,
+              ward: meData?.userProfile?.ward,
+              addressDetail: meData?.userProfile?.addressDetail,
+              avatar: meData?.userProfile?.avatarUrl
+                ? { imageUrl: meData.userProfile.avatarUrl }
+                : undefined,
             }}
             isEditMode
-            isLoading={isUpdatingNgoProfile || isLoadingUser}
-            onSubmitForm={handleUpdateNgoProfile}
+            isLoading={isPending || isLoadingUser}
+            onSubmitForm={handleUpdateProfile}
           />
         </ScrollView>
       )}

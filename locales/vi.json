@@ -14,7 +14,7 @@
     "voucher_entertainment": "Giải trí thả ga",
     "btn_register": "Đăng ký",
     "btn_registered": "Đã đăng ký",
-    "btn_full": "Hết chỗ",
+    "btn_full": "Đã đủ người",
     "btn_processing": "Đang xử lý...",
     "btn_collect": "Thu thập",
     "btn_view_more": "Xem thêm",
@@ -336,6 +336,14 @@
       "submit_btn": "Gửi mã xác thực",
       "has_account": "Đã có tài khoản?"
     },
+    "forgot_password": {
+      "title": "Quên mật khẩu",
+      "subtitle": "Nhập email để nhận mã xác thực.",
+      "email_label": "Email",
+      "email_placeholder": "example@email.com",
+      "submit_btn": "Gửi mã xác thực",
+      "has_account": "Đã có tài khoản?"
+    },
     "verify_email": {
       "title": "Xác nhận Email",
       "subtitle": "Chúng tôi đã gửi mã xác thực đến",
@@ -420,7 +428,8 @@
       "rejected": "Bị từ chối",
       "flagged": "Đang bị gắn cờ",
       "revoked": "Đã thu hồi điểm",
-      "draft": "Nháp"
+      "draft": "Nháp",
+      "unknown": "Trạng thái không xác định"
     },
     "review_decision": {
       "approve": "Đã duyệt",
@@ -461,6 +470,8 @@
       "subtitle": "Quản lý sự kiện của tổ chức",
       "create_new": "Tạo mới",
       "scan_qr": "Quét mã",
+      "check_in": "Check-in",
+      "check_out": "Check-out",
       "registered_count": "{{registered}}/{{max}} người đăng ký",
       "tabs": {
         "pending": "Chờ duyệt",
@@ -486,7 +497,7 @@
     "search": "Tìm kiếm sự kiện...",
     "card": {
       "registered": "Đã đăng ký",
-      "full": "Hết chỗ",
+      "full": "Hết chỗ (vào danh sách chờ)",
       "processing": "Đang xử lý...",
       "register": "Đăng ký",
       "people": "người"
@@ -510,7 +521,7 @@
       "actions": {
         "scan_qr": "Quét mã QR",
         "cancel_registration": "Hủy đăng ký",
-        "full": "Hết chỗ",
+        "full": "Hết chỗ (vào danh sách chờ)",
         "processing": "Đang xử lý...",
         "register": "Đăng ký tham gia"
       },

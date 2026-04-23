@@ -82,12 +82,12 @@ export const MOCK_AUTH_RESPONSE: LoginResponse = {
   refresh_token: 'mock.refresh.token.eyJhbGciOiJIUzI1NiJ9',
 };
 
-export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
-  id: MOCK_NGO_USER.id,
-  email: MOCK_NGO_USER.email,
-  role: [MOCK_NGO_USER.role],
-  phoneNumber: MOCK_NGO_USER.phone,
-  username: MOCK_NGO_USER.email,
-  userProfile: MOCK_USER_PROFILE,
-  ngoProfile: MOCK_NGO_PROFILE,
-};
+// export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
+//   id: MOCK_NGO_USER.id,
+//   email: MOCK_NGO_USER.email,
+//   role: [MOCK_NGO_USER.role],
+//   phoneNumber: MOCK_NGO_USER.phone,
+//   username: MOCK_NGO_USER.email,
+//   userProfile: MOCK_USER_PROFILE,
+//   ngoProfile: MOCK_NGO_PROFILE,
+// };

@@ -8,7 +8,7 @@ import { AuthScaffold } from '@/components/shared/auth/AuthScaffold';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 
-import { useVerifyOtp } from '@/hooks/mutations/useAuth';
+import { useVerifyOtp, useVerifyOtpWhenForgot } from '@/hooks/mutations/useAuth';
 
 const OTP_LENGTH = 6;
 
@@ -19,14 +19,14 @@ function maskEmail(email: string) {
   return `${local.slice(0, 2)}***@${domain}`;
 }
 
-export default function VerifyEmailScreen() {
+export default function VerifyOtpScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ role?: string; identifier?: string }>();
+  const params = useLocalSearchParams<{ identifier?: string }>();
   const [otp, setOtp] = useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ''));
   const [errorMsg, setErrorMsg] = useState('');
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  const { mutate: verifyOtp, isPending } = useVerifyOtp();
+  const { mutate: verifyOtp, isPending } = useVerifyOtpWhenForgot();
 
   const destination = useMemo(() => {
     return params.identifier ? maskEmail(params.identifier) : 'địa chỉ của bạn';
@@ -69,12 +69,8 @@ export default function VerifyEmailScreen() {
           }
 
           router.push({
-            pathname: '/(auth)/signup-password',
-            params: {
-              role: params.role ?? 'citizen',
-              identifier: params.identifier ?? '',
-              verificationToken,
-            },
+            pathname: '/(forgot)/set-password',
+            params: { identifier: params.identifier, verificationToken: verificationToken },
           });
         },
         onError: (err: any) => {

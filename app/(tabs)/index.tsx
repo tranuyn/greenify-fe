@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, FlatList, ActivityIndicator } from 'react-native';
+import { View, ScrollView, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,7 +15,7 @@ import { CommunityFeedPreview } from '@/components/features/home/CommunityFeedPr
 import { router } from 'expo-router';
 import { useAuthRole, useCurrentUser } from '@/hooks/queries/useAuth';
 import { usePublishedEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
-import { useRegisterEvent } from '@/hooks/mutations/useEvents';
+import { useRegisterEvent, useRegisterWaitlistEvent } from '@/hooks/mutations/useEvents';
 import { useAvailableVouchers, useMyVouchers } from '@/hooks/queries/useGamification';
 import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 import { useMyWallet } from '@/hooks/queries/useWallet';
@@ -49,19 +49,39 @@ export default function HomeScreen() {
   const roleData = useAuthRole();
   const { data: myRegistrations } = useMyRegistrations(authData?.id ?? '');
   const { mutate: registerEvent } = useRegisterEvent();
+  const { mutate: registerWaitlistEvent } = useRegisterWaitlistEvent();
   const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
 
   const registeredEventIds = new Set((myRegistrations?.content ?? []).map((r) => r.id));
 
-  const handleRegisterEvent = (eventId: string) => {
-    setRegisteringEventId(eventId);
-    registerEvent(
-      { eventId },
-      {
-        onSettled: () => setRegisteringEventId(null),
-      }
-    );
-  };
+  const handleRegisterEvent = React.useCallback(
+    (event: { id: string; isFull?: boolean } | undefined, isFull: boolean = false) => {
+      if (!event) return;
+      setRegisteringEventId(event.id);
+      const mutationFn = isFull ? registerWaitlistEvent : registerEvent;
+      mutationFn(
+        { eventId: event.id },
+        {
+          onSuccess: () => setRegisteringEventId(null),
+          onError: (err: any) => {
+            setRegisteringEventId(null);
+            Alert.alert(
+              t(
+                'events.detail.alert.register_failed_title',
+                isFull ? 'Vào danh sách chờ thất bại' : 'Đăng ký thất bại'
+              ),
+              err?.response?.data?.message ??
+                t(
+                  'events.detail.alert.register_failed_message',
+                  isFull ? 'Không thể vào danh sách chờ' : 'Không thể đăng ký sự kiện'
+                )
+            );
+          },
+        }
+      );
+    },
+    [registerEvent, registerWaitlistEvent, t]
+  );
   const { data: availableVouchersData, isLoading: isLoadingVouchers } = useAvailableVouchers();
   const { data: myVouchers } = useMyVouchers();
   const { mutate: exchangeVoucher } = useExchangeVoucher();
@@ -121,15 +141,18 @@ export default function HomeScreen() {
           className="pb-1 pt-1"
           data={events}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <EventCard
-              item={item}
-              isRegistered={registeredEventIds.has(item.id)}
-              isRegistering={registeringEventId === item.id}
-              onPressCard={() => router.push(`/(events)/${item.id}`)}
-              onRegister={() => handleRegisterEvent(item.id)}
-            />
-          )}
+          renderItem={({ item }) => {
+            const isFull = (item.participantCount ?? 0) >= item.maxParticipants;
+            return (
+              <EventCard
+                item={item}
+                isRegistered={registeredEventIds.has(item.id)}
+                isRegistering={registeringEventId === item.id}
+                onPressCard={() => router.push(`/(events)/${item.id}`)}
+                onRegister={() => handleRegisterEvent(item, isFull)}
+              />
+            );
+          }}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 20 }}

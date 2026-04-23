@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { MyEventCard } from '@/components/features/events/MyEventCard';
-import { useMyRegistrations } from '@/hooks/queries/useEvents';
+import { useMyEvents, useMyRegistrations } from '@/hooks/queries/useEvents';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 
@@ -16,7 +16,7 @@ export default function MyEventsScreen() {
   const colors = useThemeColor();
 
   const { data: user } = useCurrentUser();
-  const { data: response, isLoading } = useMyRegistrations(user?.id ?? '');
+  const { data: response, isLoading } = useMyEvents();
   const events = response?.content ?? [];
 
   return (

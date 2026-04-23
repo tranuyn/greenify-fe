@@ -13,10 +13,12 @@ import type {
   AuthenticatedUser,
   UserRole,
   NgoProfile,
+  SetPasswordWhenForgotRequest,
 } from 'types/user.type';
 import { mockDelay, mockSuccess } from './mock/config';
-import { MOCK_AUTH_RESPONSE, MOCK_AUTHENTICATED_USER, MOCK_USER_PROFILE } from './mock/user.mock';
+import { MOCK_AUTH_RESPONSE, MOCK_USER_PROFILE } from './mock/user.mock';
 import { ApiResponse } from 'types/common.types';
+import { useRequestOtpWhenForgot } from '@/hooks/mutations/useAuth';
 
 export const authService = {
   /**
@@ -38,12 +40,22 @@ export const authService = {
     }
   },
 
+  async requestOtpForgot(payload: RegisterEmailRequest): Promise<ApiResponse<{ message: string }>> {
+    try {
+      const { data } = await publicApiClient.post('/auth/forgot-password/send-otp', payload);
+      return data;
+    } catch (error: any) {
+      console.error('Lỗi khi request OTP:', error, error.response?.data);
+      throw error;
+    }
+  },
+
   /**
    * Bước 2: Xác minh OTP
    * POST /auth/register/verify-otp
    * Response: { verificationToken }
    */
-  async verifyOtp(payload: VerifyOtpRequest): Promise<ApiResponse<VerifyOtpResponse>> {
+  async verifyOtp(payload: VerifyOtpRequest): Promise<VerifyOtpResponse> {
     // if (IS_MOCK_MODE) {
     //   await mockDelay(600);
     //   if (payload.otp.length !== 6) {
@@ -54,8 +66,21 @@ export const authService = {
     //   return mockSuccess({ verificationToken: 'mock_verification_token_' + payload.identifier });
     // }
     try {
-      const { data } = await publicApiClient.post<ApiResponse<VerifyOtpResponse>>(
+      const { data } = await publicApiClient.post<VerifyOtpResponse>(
         '/auth/register/verify-otp',
+        payload
+      );
+      return data;
+    } catch (error: any) {
+      console.error('Lỗi khi verify OTP:', error, error.response?.data);
+      throw error;
+    }
+  },
+
+  async verifyOtpForgot(payload: VerifyOtpRequest): Promise<VerifyOtpResponse> {
+    try {
+      const { data } = await publicApiClient.post<VerifyOtpResponse>(
+        '/auth/forgot-password/verify-otp',
         payload
       );
       return data;
@@ -86,6 +111,14 @@ export const authService = {
 
     await tokenStorage.setAccess(data.access_token);
     await tokenStorage.setRefresh(data.refresh_token);
+    return data;
+  },
+
+  async setPasswordOtp(payload: SetPasswordWhenForgotRequest): Promise<LoginResponse> {
+    const { data } = await publicApiClient.post<LoginResponse>(
+      '/auth/forgot-password/set-password',
+      payload
+    );
     return data;
   },
 

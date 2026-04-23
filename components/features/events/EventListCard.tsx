@@ -5,6 +5,7 @@ import { Text } from '@/components/ui/Text';
 import { useTranslation } from 'react-i18next';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { Event } from '@/types/community.types';
+import { getRegistrationButtonLabel } from '@/utils/eventUtils';
 
 type Props = {
   item: Event;
@@ -42,22 +43,19 @@ export function EventListCard({
   const full = isFull(item);
 
   // Trạng thái button CTA
-  const ctaDisabled = isRegistered || full || isRegistering;
-  const ctaLabel = isRegistered
-    ? t('events.card.registered', 'Đã đăng ký')
-    : full
-      ? t('events.card.full', 'Hết chỗ')
-      : isRegistering
-        ? t('events.card.processing', 'Đang xử lý...')
-        : t('events.card.register', 'Đăng ký');
+  const ctaDisabled = !!item?.registrationStatus || full || isRegistering;
 
-  const ctaBg = isRegistered
-    ? 'bg-primary-100'
-    : full
-      ? 'bg-gray-100 dark:bg-gray-800'
-      : 'bg-primary';
+  // 2. Lấy Label qua util
+  const ctaLabel = getRegistrationButtonLabel({
+    t,
+    registrationStatus: item?.registrationStatus,
+    isFull: full,
+    isProcessing: isRegistering,
+  });
 
-  const ctaText = isRegistered ? 'text-primary-700' : full ? 'text-foreground/40' : 'text-white';
+  const ctaBg = !isRegistered ? 'bg-primary' : 'bg-gray-100 dark:bg-gray-800';
+
+  const ctaText = !isRegistered ? 'text-white' : 'text-foreground/40';
 
   return (
     <TouchableOpacity
@@ -79,7 +77,9 @@ export function EventListCard({
         {item.organizer?.name && (
           <View className="absolute left-3 top-3 flex-row items-center rounded-full bg-black/50 px-2.5 py-1">
             <Feather name="shield" size={10} color="white" />
-            <Text className="ml-1 font-inter-medium text-[10px] text-white">{item.organizer.name}</Text>
+            <Text className="ml-1 font-inter-medium text-[10px] text-white">
+              {item.organizer.name}
+            </Text>
           </View>
         )}
 
@@ -134,22 +134,24 @@ export function EventListCard({
           {/* Participants */}
           <View className="mr-2 flex-1 flex-row items-center">
             <Feather name="users" size={13} color={colors.neutral400} />
-            <Text className="text-foreground/50 ml-1.5 flex-shrink font-inter text-xs" numberOfLines={1}>
+            <Text
+              className="text-foreground/50 ml-1.5 flex-shrink font-inter text-xs"
+              numberOfLines={1}>
               {item.participantCount ?? 0}/{item.maxParticipants} {t('events.card.people', 'người')}
             </Text>
             {/* Full warning */}
-            {full && !isRegistered && (
+            {/* {full && !isRegistered && (
               <View className="ml-2 shrink-0 rounded-full bg-rose-50 px-2 py-0.5">
                 <Text className="font-inter-medium text-[10px] text-rose-500">
-                  {t('events.card.full', 'Hết chỗ')}
+                  {t('events.card.full', 'Hết chỗ (vào danh sách chờ)')}
                 </Text>
               </View>
-            )}
+            )} */}
           </View>
 
           {/* CTA */}
           <TouchableOpacity
-            className={`shrink-0 items-center justify-center rounded-xl px-4 py-2 active:opacity-80 min-w-[90px] ${ctaBg}`}
+            className={`min-w-[90px] shrink-0 items-center justify-center rounded-xl px-4 py-2 active:opacity-80 ${ctaBg}`}
             disabled={ctaDisabled}
             onPress={(e) => {
               // Ngăn TouchableOpacity cha (navigate) bị trigger

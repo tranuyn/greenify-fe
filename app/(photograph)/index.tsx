@@ -136,11 +136,7 @@ export default function LocketScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 justify-between bg-neutral-900 py-10">
-        <TopBar
-          streakCount={20}
-          hasCheckedInToday={true}
-          onGridPress={() => console.log('Mở grid')}
-        />
+        <TopBar hasCheckedInToday={true} />
 
         {/* --- CỤM 2: CAMERA BOX (VUÔNG VỨC 1:1) --- */}
         <GestureDetector gesture={pinchGesture}>

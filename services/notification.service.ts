@@ -8,7 +8,7 @@ export const notificationService = {
   async getMyNotifications(params?: MyNotificationsQueryParams): Promise<MyNotificationsResponse> {
     const apiParams = {
       page: params?.page ? params.page - 1 : 0,
-      size: params?.size ?? 20,
+      size: params?.size ?? 100,
     };
 
     const { data } = await apiClient.get<MyNotificationsResponse>('/notifications/me', {

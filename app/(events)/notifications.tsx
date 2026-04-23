@@ -57,14 +57,14 @@ export default function EventNotificationsScreen() {
     [unread, read]
   );
 
-  const handleReadNotification = (item: UserNotification) => {
-    if (item.read) return;
-    readNotification(item.id);
+  const handleReadNotification = async (item: UserNotification) => {
+    console.log('Read notification', item);
+    await readNotification(item.id);
   };
 
-  const handleReadAll = () => {
+  const handleReadAll = async () => {
     if (unreadCount === 0 || isReadingAll) return;
-    readAllNotifications();
+    await readAllNotifications();
   };
 
   if (isLoading) {
