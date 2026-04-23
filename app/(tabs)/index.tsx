@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -110,6 +110,12 @@ export default function HomeScreen() {
       .map((v) => v.voucherTemplateId)
   );
 
+  const selectedUserVoucher = useMemo(() => {
+    if (!selectedVoucher) return null;
+    // Tìm trong danh sách voucher đã sở hữu xem có cái nào trùng templateId không
+    return myVoucherList.find((v) => v.voucherTemplateId === selectedVoucher.id);
+  }, [selectedVoucher, myVoucherList]);
+
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -199,6 +205,7 @@ export default function HomeScreen() {
         visible={!!selectedVoucher}
         onClose={() => setSelectedVoucher(null)}
         voucher={selectedVoucher}
+        voucherCode={selectedUserVoucher?.voucherCode}
       />
     </ScrollView>
   );

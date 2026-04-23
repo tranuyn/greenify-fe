@@ -4,13 +4,20 @@ import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { VoucherTemplate } from '@/types/gamification.types';
+import QRCode from 'react-native-qrcode-svg';
 interface ModalVoucherDetailProps {
   visible: boolean;
   onClose: () => void;
   voucher?: VoucherTemplate | null;
+  voucherCode?: string;
 }
 
-const ModalVoucherDetail = ({ visible, onClose, voucher }: ModalVoucherDetailProps) => {
+const ModalVoucherDetail = ({
+  visible,
+  onClose,
+  voucher,
+  voucherCode,
+}: ModalVoucherDetailProps) => {
   const { t, i18n } = useTranslation();
   const colors = useThemeColor();
 
@@ -66,13 +73,21 @@ const ModalVoucherDetail = ({ visible, onClose, voucher }: ModalVoucherDetailPro
                   </Text>
                 </View>
 
-                <View className="bg-[var(--secondary)]/40 mb-3 rounded-2xl p-4">
-                  <Text className="mb-1 font-inter-bold text-sm text-[var(--foreground)]">
-                    {t('calendar.gift.description')}
-                  </Text>
-                  <Text className="text-sm leading-5 text-[var(--foreground)]">
-                    {voucher.description}
-                  </Text>
+                <View className="mb-4 flex-row items-center gap-4 ">
+                  <View className="bg-[var(--secondary)]/40 flex-1 rounded-2xl p-4">
+                    <Text className="mb-1 font-inter-bold text-sm text-[var(--foreground)]">
+                      {t('calendar.gift.description')}
+                    </Text>
+                    <Text className="text-sm leading-5 text-[var(--foreground)]">
+                      {voucher.description}
+                    </Text>
+                  </View>
+
+                  {voucherCode && (
+                    <View className="flex-shrink-0">
+                      <QRCode value={voucherCode} size={100} />
+                    </View>
+                  )}
                 </View>
 
                 <View className="mb-4 flex-row flex-wrap gap-3">
