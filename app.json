@@ -13,12 +13,14 @@
     "plugins": [
       "expo-router",
       "expo-localization",
+      "expo-dev-client",
       [
         "expo-camera",
         {
           "cameraPermission": "Cho phép ứng dụng truy cập camera để chụp ảnh check-in."
         }
-      ]
+      ],
+      "@maplibre/maplibre-react-native"
     ],
     "orientation": "portrait",
     "icon": "./assets/logo.png",

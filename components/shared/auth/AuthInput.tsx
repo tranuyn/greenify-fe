@@ -39,14 +39,14 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(
 
     return (
       <View className={containerClassName}>
-        <Text className="text-foreground/80 mb-1 font-inter-medium text-sm">{label}</Text>
+        <Text className="mb-1 font-inter-medium text-sm text-foreground">{label}</Text>
 
         <View
           className={`flex-row items-center rounded-xl border bg-background px-3 transition-colors ${borderColor}`}>
           <TextInput
             ref={ref}
             placeholderTextColor="#9ca3af"
-            className={`flex-1 py-3 font-inter text-base text-black ${className}`}
+            className={`flex-1 py-3 font-inter text-base text-foreground ${className}`}
             // Bắt sự kiện focus/blur để đổi màu, đồng thời vẫn gọi hàm từ bên ngoài truyền vào
             onFocus={(e) => {
               setIsFocused(true);

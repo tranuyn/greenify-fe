@@ -48,33 +48,34 @@ export default function MapScreen() {
   return (
     <View className="flex-1 bg-background">
       {/* Map chiếm toàn màn hình */}
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : (
+      <View className="flex-1">
         <MapView
-          stations={filteredStations}
-          selectedStation={selectedStation}
-          onSelectStation={handleSelectStation}
+          items={filteredStations}
+          selectedItem={selectedStation}
+          onSelectItem={handleSelectStation}
         />
-      )}
 
+        {/* 2. Chỉ hiện loading như một lớp phủ (overlay) bên trên bản đồ */}
+        {isLoading && (
+          <View className="absolute inset-0 z-10 items-center justify-center bg-white/50">
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
+      </View>
       {/* Search bar nổi phía trên map */}
       <View className="absolute left-0 right-0 px-4" style={{ top: insets.top + 12 }}>
         <View className="flex-row items-center">
-          <TouchableOpacity 
-             className="mr-3 h-[48px] w-[48px] items-center justify-center rounded-2xl bg-white shadow-sm shadow-black/10 dark:bg-card"
-             onPress={() => router.back()}
-          >
-             <Feather name="arrow-left" size={24} color={colors.neutral400} />
+          <TouchableOpacity
+            className="mr-3 h-[48px] w-[48px] items-center justify-center rounded-2xl bg-white shadow-sm shadow-black/10 dark:bg-card"
+            onPress={() => router.back()}>
+            <Feather name="arrow-left" size={24} color={colors.neutral400} />
           </TouchableOpacity>
-          <SearchBar 
-             value={searchQuery} 
-             onChangeText={setSearchQuery} 
-             placeholder={t('map.search_placeholder', 'Tìm điểm thu gom...')}
-             containerClassName="flex-1 bg-white shadow-sm shadow-black/10 dark:bg-card"
-             inputClassName="h-12"
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('map.search_placeholder', 'Tìm điểm thu gom...')}
+            containerClassName="flex-1 bg-white shadow-sm shadow-black/10 dark:bg-card"
+            inputClassName="h-12"
           />
         </View>
 
@@ -83,9 +84,7 @@ export default function MapScreen() {
           <WasteTypeFilter
             types={wasteTypes}
             activeType={activeWasteTypeID}
-            onSelect={(typeID) =>
-              setActiveWasteTypeID((prev) => (prev === typeID ? null : typeID))
-            }
+            onSelect={(typeID) => setActiveWasteTypeID((prev) => (prev === typeID ? null : typeID))}
           />
         </View>
       </View>

@@ -8,14 +8,17 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
-import { useCheckInAttendee } from '@/hooks/mutations/useEvents';
+import { useCheckInAttendee, useCheckOutAttendee } from '@/hooks/mutations/useEvents';
 
 // expo-camera đã có trong project rồi
 
 type ScanState = 'idle' | 'processing' | 'success' | 'error';
 
 export default function ScanQrScreen() {
-  const { eventId } = useLocalSearchParams<{ eventId: string }>();
+  const { eventId, type } = useLocalSearchParams<{
+    eventId: string;
+    type: 'checkin' | 'checkout';
+  }>();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
   const { t } = useTranslation();
@@ -26,26 +29,23 @@ export default function ScanQrScreen() {
   const [lastScannedToken, setLastScannedToken] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState('');
 
-  const { mutate: checkIn } = useCheckInAttendee(eventId);
+  const { mutate: doCheckIn } = useCheckInAttendee(eventId);
+  const { mutate: doCheckOut } = useCheckOutAttendee(eventId);
 
   const handleBarCodeScanned = useCallback(
     ({ data }: { data: string }) => {
-      // Tránh scan nhiều lần liên tiếp cùng 1 token
       if (scanState === 'processing' || data === lastScannedToken) return;
 
       setLastScannedToken(data);
       setScanState('processing');
 
-      checkIn(data, {
-        onSuccess: (res) => {
+      // Tạo cấu hình xử lý chung cho cả 2 hành động
+      const mutationOptions = {
+        onSuccess: (res: any) => {
           setScanState('success');
-          setResultMessage(
-            t('events.scan_qr.result_success', {
-              defaultValue: 'Điểm danh thành công cho {name}',
-              name: res.username || 'User',
-            })
-          );
-          // Reset sau 2.5s để scan tiếp
+          const actionText = type === 'checkout' ? 'Check-out' : 'Check-in';
+          setResultMessage(`${actionText} thành công cho ${res.username || 'User'}`);
+
           setTimeout(() => {
             setScanState('idle');
             setLastScannedToken(null);
@@ -56,19 +56,27 @@ export default function ScanQrScreen() {
           setScanState('error');
           const msg =
             err?.response?.data?.message ?? t('events.scan_qr.invalid_qr', 'Mã QR không hợp lệ');
-          setResultMessage(
-            t('events.scan_qr.result_error', { message: msg, defaultValue: 'Lỗi: {message}' })
-          );
+          setResultMessage(`Lỗi: ${msg}`);
+
           setTimeout(() => {
             setScanState('idle');
             setLastScannedToken(null);
             setResultMessage('');
           }, 2500);
         },
-      });
+      };
+
+      // Tùy theo type mà gọi API nào
+      if (type === 'checkout') {
+        doCheckOut(data, mutationOptions);
+      } else {
+        doCheckIn(data, mutationOptions);
+      }
     },
-    [checkIn, scanState, lastScannedToken, t]
+    [doCheckIn, doCheckOut, scanState, lastScannedToken, t, type]
   );
+
+  const titleText = type === 'checkout' ? 'Quét QR Check-out' : 'Quét QR Check-in';
 
   // Permission chưa xác định
   if (!permission) {
@@ -120,9 +128,7 @@ export default function ScanQrScreen() {
             hitSlop={8}>
             <Feather name="x" size={20} color="white" />
           </TouchableOpacity>
-          <Text className="font-inter-bold text-lg text-white">
-            {t('events.scan_qr.title', 'Quét mã QR')}
-          </Text>
+          <Text className="font-inter-bold text-lg text-white">{titleText}</Text>
         </View>
 
         {/* Scan frame */}

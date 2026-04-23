@@ -7,10 +7,9 @@ import { useMyStreak } from '@/hooks/queries/useGamification';
 interface TopBarProps {
   streakCount?: number | string;
   hasCheckedInToday?: boolean;
-  onGridPress?: () => void;
 }
 
-const TopBar = ({ streakCount = 0, hasCheckedInToday = false, onGridPress }: TopBarProps) => {
+const TopBar = ({ hasCheckedInToday = false }: TopBarProps) => {
   const router = useRouter();
   const { data: myStreak } = useMyStreak();
 

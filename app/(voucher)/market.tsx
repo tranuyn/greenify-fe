@@ -13,6 +13,8 @@ import { useExchangeVoucher } from '@/hooks/mutations/useGamification';
 import { VoucherSearchBar } from '@/components/features/voucher/VoucherSearchBar';
 import { PartnerFilter } from '@/components/features/voucher/PartnerFilter';
 import { VoucherRowCard } from '@/components/features/home/VoucherRowCard';
+import ModalVoucherDetail from '@/components/shared/ModalVoucherDetail'; // Import mới
+
 import {
   USER_VOUCHER_STATUS,
   type UserVoucher,
@@ -28,6 +30,7 @@ export default function VoucherMarketScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activePartner, setActivePartner] = useState<string | null>(null);
   const [redeemingId, setRedeemingId] = useState<string | null>(null);
+  const [selectedVoucher, setSelectedVoucher] = useState<VoucherTemplate | null>(null); // State mới
 
   const { data: availableVouchersData, isLoading } = useAvailableVouchers();
   const { data: myVouchers } = useMyVouchers();
@@ -59,6 +62,12 @@ export default function VoucherMarketScreen() {
     });
   }, [vouchers, searchQuery, activePartner]);
 
+  const selectedUserVoucher = useMemo(() => {
+    if (!selectedVoucher) return null;
+    // Tìm trong danh sách voucher đã sở hữu xem có cái nào trùng templateId không
+    return myVoucherList.find((v) => v.voucherTemplateId === selectedVoucher.id);
+  }, [selectedVoucher, myVoucherList]);
+
   const allPartners = useMemo(() => {
     const set = new Set<string>();
     vouchers.forEach((v) => set.add(v.partnerName));
@@ -88,7 +97,6 @@ export default function VoucherMarketScreen() {
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      {/* Custom Header */}
       <View className="flex-row items-center px-4 py-3">
         <TouchableOpacity
           onPress={() => router.back()}
@@ -112,12 +120,17 @@ export default function VoucherMarketScreen() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
           renderItem={({ item }) => (
             <View className="px-5">
-              <VoucherRowCard
-                item={item}
-                isCollected={collectedVoucherIds.has(item.id)}
-                isCollecting={redeemingId === item.id}
-                onCollect={() => handleCollect(item)}
-              />
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => setSelectedVoucher(item)} // Kích hoạt Modal
+              >
+                <VoucherRowCard
+                  item={item}
+                  isCollected={collectedVoucherIds.has(item.id)}
+                  isCollecting={redeemingId === item.id}
+                  onCollect={() => handleCollect(item)}
+                />
+              </TouchableOpacity>
             </View>
           )}
           ListEmptyComponent={
@@ -135,6 +148,14 @@ export default function VoucherMarketScreen() {
           }
         />
       )}
+
+      {/* Modal chi tiết voucher */}
+      <ModalVoucherDetail
+        visible={!!selectedVoucher}
+        onClose={() => setSelectedVoucher(null)}
+        voucher={selectedVoucher}
+        voucherCode={selectedUserVoucher?.voucherCode}
+      />
     </View>
   );
 }

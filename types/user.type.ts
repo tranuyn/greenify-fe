@@ -91,6 +91,12 @@ export interface SetPasswordRequest {
   confirmPassword: string;
 }
 
+export interface SetPasswordWhenForgotRequest {
+  verificationToken: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
 export interface LoginRequest {
   identifier: string; // email hoặc phone
   password: string;

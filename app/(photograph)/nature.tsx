@@ -18,11 +18,7 @@ export default function NatureScreen() {
     // Màu nền xanh cực nhạt theo ảnh
     <SafeAreaView className="flex-1 justify-between bg-neutral-900  pt-6">
       {/* --- CỤM 1: TOP BAR --- */}
-      <TopBar
-        streakCount={20}
-        hasCheckedInToday={true}
-        onGridPress={() => console.log('Mở grid')}
-      />
+      <TopBar hasCheckedInToday={true} />
 
       {/* 2. CỤM BỘ SƯU TẬP (Main Content) */}
       {/* Cụm này sẽ được bao bọc bởi một View có flex-1 để chiếm không gian ở giữa */}

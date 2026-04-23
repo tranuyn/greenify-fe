@@ -14,11 +14,16 @@ import { useTranslation } from 'react-i18next';
 
 import { Text } from '@/components/ui/Text';
 import { toLabel } from '@/constants/severityTierLabel';
-import { useReportTrashSpot, useVerifyTrashSpot } from '@/hooks/mutations/useTrashReports';
+import {
+  useClaimTrashSpot,
+  useReportTrashSpot,
+  useVerifyTrashSpot,
+} from '@/hooks/mutations/useTrashReports';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { TrashSpotListItem, TrashSpotReport } from '@/types/community.types';
 import { openDirections } from '@/utils/directions.util';
 import NoteModal from './NoteModal';
+import { useAuthRole } from '@/hooks/queries/useAuth';
 
 type Props = {
   station: TrashSpotListItem;
@@ -41,6 +46,7 @@ const TrashSpotBottomSheet = ({
 }: Props) => {
   const colors = useThemeColor();
   const { t } = useTranslation();
+  const roleData = useAuthRole();
   const { width: screenWidth } = useWindowDimensions();
   const snapPoints = useMemo(() => ['50%', '90%'], []);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -48,6 +54,7 @@ const TrashSpotBottomSheet = ({
   const [noteAction, setNoteAction] = useState<'verify' | 'report'>('verify');
   const verifyTrashSpotMutation = useVerifyTrashSpot(station.id);
   const reportTrashSpotMutation = useReportTrashSpot(station.id);
+  const claimTrashSpotMutation = useClaimTrashSpot(station.id);
   const sliderWidth = Math.max(screenWidth - 40, 1);
   const imageUrls = useMemo(() => detail?.imageUrls ?? [], [detail?.imageUrls]);
   const description = detail?.description ?? '';
@@ -131,6 +138,31 @@ const TrashSpotBottomSheet = ({
       );
     }
   };
+
+  const handleClaimTrashSpot = async () => {
+    try {
+      await claimTrashSpotMutation.mutateAsync();
+
+      Alert.alert(
+        t('common.success', 'Thành công'),
+        t('coexistence.trash_spot_sheet.claim_success', 'Nhận xử lý điểm rác thành công.')
+      );
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || t('common.error', 'Lỗi');
+
+      console.error('Error claiming trash spot:', error?.response || error);
+      Alert.alert(
+        t('common.error', 'Lỗi'),
+        errorMessage ||
+          t(
+            'coexistence.trash_spot_sheet.claim_error',
+            'Không thể nhận xử lý điểm rác. Vui lòng thử lại.'
+          )
+      );
+    }
+  };
+
   return (
     <BottomSheet snapPoints={snapPoints} onClose={onClose} enablePanDownToClose>
       <BottomSheetView className="flex-1 rounded-t-3xl bg-background px-5 pb-6 pt-3">
@@ -241,27 +273,38 @@ const TrashSpotBottomSheet = ({
         </Text>
         <Text className="mt-2 font-inter text-base leading-6 text-foreground">{description}</Text>
 
-        <View className="mt-5 flex-row gap-x-4">
+        {roleData?.isNgo ? (
           <TouchableOpacity
-            className="flex-1 items-center justify-center rounded-xl py-4"
-            style={{ backgroundColor: '#F7DCDD' }}
-            onPress={() => handleOpenNoteModal('report')}
-            disabled={reportTrashSpotMutation.isPending || verifyTrashSpotMutation.isPending}>
+            className="mt-5 items-center justify-center border border-primary p-4"
+            onPress={handleClaimTrashSpot}
+            disabled={claimTrashSpotMutation.isPending}>
             <Text className="font-inter-medium text-base text-foreground">
-              {t('coexistence.trash_spot_sheet.report_button')}
+              {t('coexistence.trash_spot_sheet.ngo_claim_trash_spot', 'Nhận xử lý điểm rác')}
             </Text>
           </TouchableOpacity>
+        ) : (
+          <View className="mt-5 flex-row gap-x-4">
+            <TouchableOpacity
+              className="flex-1 items-center justify-center rounded-xl py-4"
+              style={{ backgroundColor: '#F7DCDD' }}
+              onPress={() => handleOpenNoteModal('report')}
+              disabled={reportTrashSpotMutation.isPending || verifyTrashSpotMutation.isPending}>
+              <Text className="font-inter-medium text-base text-foreground">
+                {t('coexistence.trash_spot_sheet.report_button')}
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            className="flex-1 items-center justify-center rounded-xl py-4"
-            style={{ backgroundColor: colors.primary }}
-            onPress={() => handleOpenNoteModal('verify')}
-            disabled={verifyTrashSpotMutation.isPending || reportTrashSpotMutation.isPending}>
-            <Text className="font-inter-medium text-base text-on-primary">
-              {t('coexistence.trash_spot_sheet.verify_button')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              className="flex-1 items-center justify-center rounded-xl py-4"
+              style={{ backgroundColor: colors.primary }}
+              onPress={() => handleOpenNoteModal('verify')}
+              disabled={verifyTrashSpotMutation.isPending || reportTrashSpotMutation.isPending}>
+              <Text className="font-inter-medium text-base text-on-primary">
+                {t('coexistence.trash_spot_sheet.verify_button')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <TouchableOpacity
           onPress={handleOpenDirections}

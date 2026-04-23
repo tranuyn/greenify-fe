@@ -16,6 +16,7 @@ import { useReviewPost } from '@/hooks/mutations/usePosts';
 import { getTimeAgo } from '@/utils/date.util';
 import { REJECT_REASONS, type RejectReasonCode } from '@/constants/review.constant';
 import type { PostReviewDto, PostStatus, ReviewDecision } from '@/types/action.types';
+import { getPostStatusLabel, getStatusDisplay } from '@/utils/postUtils';
 
 type PostStatusConfig = {
   labelKey: string;
@@ -107,6 +108,7 @@ export default function PostDetailScreen() {
   const rejectSheetRef = useRef<BottomSheetModal>(null);
 
   const reviews: PostReviewDto[] = post?.reviews ?? [];
+
   const isLoadingReviews = isLoadingPost;
   const alreadyReviewed = reviews.some((r) => r.reviewerId === userId);
   const canReview = isCtv && !alreadyReviewed && post?.status === 'PENDING_REVIEW';
@@ -149,11 +151,12 @@ export default function PostDetailScreen() {
   }, []);
 
   const handleConfirmReject = useCallback(
-    (reasonCode: RejectReasonCode, note: string) => {
+    (reasonLabel: string, note: string) => {
+      // If note is provided (custom), use it, otherwise use label
+      const rejectReason = note?.trim() ? note : reasonLabel;
       const payload = {
         decision: 'REJECT' as ReviewDecision,
-        reject_reason_code: reasonCode,
-        reject_reason_note: reasonCode === 'OTHER' ? note.trim() : undefined,
+        rejectReason,
       };
 
       reviewPost(payload, {
@@ -193,6 +196,7 @@ export default function PostDetailScreen() {
   }
 
   const statusCfg = POST_STATUS_CONFIG[post.status as PostStatus];
+  const statusDisplay = post.status ? getStatusDisplay(post.status) : null;
 
   return (
     <View className="flex-1 bg-background">
@@ -286,6 +290,17 @@ export default function PostDetailScreen() {
             </Text>
           </View>
 
+          {post.status && statusDisplay && (
+            <View className="mt-3 flex-row items-center">
+              <Feather name={statusDisplay.icon as any} size={14} color={statusDisplay.color} />
+              <Text
+                className="ml-2 font-inter-medium text-sm"
+                style={{ color: statusDisplay.color }}>
+                {getPostStatusLabel({ t, status: post.status })}
+              </Text>
+            </View>
+          )}
+
           {/* Location nếu có */}
           {post.location && (
             <View className="mt-3 flex-row items-center">
@@ -297,7 +312,7 @@ export default function PostDetailScreen() {
             </View>
           )}
 
-          <View className="mt-1.5 flex-row items-center">
+          <View className="mt-3 flex-row items-center">
             <Feather name="calendar" size={14} color={colors.neutral400} />
             <Text className="text-foreground/50 ml-2 font-inter text-sm">
               {t('community.post_detail.action_date', {
@@ -339,7 +354,7 @@ export default function PostDetailScreen() {
                     <View className="flex-1">
                       <View className="flex-row items-center justify-between">
                         <Text className="font-inter-medium text-sm text-foreground">
-                          CTV #{review.reviewerId.slice(0, 6)}
+                          CTV: {review.reviewerDisplayName}
                         </Text>
                         <View className={`rounded-full px-2.5 py-0.5 ${decCfg.bgClass}`}>
                           <Text
@@ -415,7 +430,11 @@ export default function PostDetailScreen() {
         colors={colors}
         insets={insets}
         isReviewing={isReviewing}
-        onSubmit={handleConfirmReject}
+        onSubmit={(reasonCode, note) => {
+          const reasonObj = REJECT_REASONS.find((r) => r.code === reasonCode);
+          const label = reasonObj?.label || reasonCode;
+          handleConfirmReject(label, note);
+        }}
         renderBackdrop={renderBackdrop}
       />
     </View>

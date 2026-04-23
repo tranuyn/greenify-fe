@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { Event } from '@/types/community.types';
+import { getRegistrationButtonLabel } from '@/utils/eventUtils';
+import { fa } from 'zod/v4/locales';
 
 type Props = {
   event: Event;
@@ -22,6 +24,14 @@ export function MyEventCard({ event, onPress }: Props) {
   const colors = useThemeColor();
 
   if (!event) return null;
+  const full = (event.participantCount ?? 0) >= event.maxParticipants;
+
+  const ctaLabel = getRegistrationButtonLabel({
+    t,
+    registrationStatus: event?.registrationStatus,
+    isFull: full,
+    isProcessing: false,
+  });
 
   return (
     <TouchableOpacity
@@ -38,13 +48,18 @@ export function MyEventCard({ event, onPress }: Props) {
       {/* Content */}
       <View className="flex-1 px-3.5 py-3">
         {/* Title */}
+        <Text className={`mb-1 font-inter-semibold text-xs text-yellow-500`} numberOfLines={1}>
+          {ctaLabel}
+        </Text>
         <Text className="font-inter-bold text-sm text-foreground" numberOfLines={1}>
           {event.title}
         </Text>
 
         {/* NGO name */}
         {event.organizer?.name && (
-          <Text className="text-foreground/40 mt-0.5 font-inter text-[11px]">{event.organizer.name}</Text>
+          <Text className="text-foreground/40 mt-0.5 font-inter text-[11px]">
+            {event.organizer.name}
+          </Text>
         )}
 
         {/* Meta */}

@@ -117,7 +117,10 @@ export default function LoginScreen() {
         />
       </View>
 
-      <Pressable className="mt-3 self-end" hitSlop={6}>
+      <Pressable
+        className="mt-3 self-end"
+        hitSlop={6}
+        onPress={() => router.push('/(forgot)/send-otp')}>
         <Text className="font-inter-medium text-sm text-primary-700">
           {t('auth.login.forgot_password', 'Quên mật khẩu?')}
         </Text>

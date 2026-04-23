@@ -16,6 +16,21 @@ export const useEvents = (params?: EventQueryParams) => {
   });
 };
 
+export const useMyEvents = (params?: EventQueryParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.events.myList(params),
+    queryFn: () => eventService.getMyEvents(params),
+  });
+};
+
+export const useEventRegistrations = (eventId: string) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.events.eventRegistrations(eventId),
+    queryFn: () => eventService.getEventRegistrations(eventId),
+    enabled: !!eventId,
+  });
+};
+
 export const usePublishedEvents = (params?: PublicEventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.publicList(params),
@@ -51,6 +66,8 @@ export const useMyNgoEvents = (params?: MyNgoEventQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.myNgoList(params),
     queryFn: () => eventService.getMyNgoEvents(params),
+    gcTime: 0,
+    staleTime: 0,
   });
 };
 

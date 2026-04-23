@@ -5,6 +5,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import type { Event } from '@/types/community.types';
+import { getRegistrationButtonLabel } from '@/utils/eventUtils';
 
 type Props = {
   item: Event;
@@ -36,25 +37,22 @@ export function EventCard({
   const colors = useThemeColor();
   const full = (item.participantCount ?? 0) >= item.maxParticipants;
 
-  const ctaDisabled = isRegistered || full || isRegistering;
-  const ctaLabel = isRegistered
-    ? t('home.btn_registered', 'Đã đăng ký')
-    : full
-      ? t('home.btn_full', 'Hết chỗ')
-      : isRegistering
-        ? t('home.btn_processing', 'Đang xử lý...')
-        : t('home.btn_register', 'Đăng ký');
+  const hasStatus = !!item?.registrationStatus || isRegistered;
+  const ctaDisabled = hasStatus || isRegistering;
 
-  const ctaBg = isRegistered
-    ? 'bg-primary-100'
-    : full
-      ? 'bg-gray-100 dark:bg-gray-800'
-      : 'bg-primary';
+  const ctaLabel = getRegistrationButtonLabel({
+    t,
+    registrationStatus: item?.registrationStatus,
+    isFull: full,
+    isProcessing: isRegistering,
+  });
 
-  const ctaText = isRegistered ? 'text-primary-700' : full ? 'text-foreground/40' : 'text-white';
+  const ctaBg = !isRegistered ? 'bg-primary-100' : 'bg-gray-100 dark:bg-gray-800';
+
+  const ctaText = !isRegistered ? 'text-primary-700' : 'text-foreground';
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       activeOpacity={0.95}
       onPress={onPressCard}
       className="mr-4 w-[300px] overflow-hidden rounded-2xl bg-background shadow-sm shadow-black/70 dark:bg-card">
@@ -76,9 +74,7 @@ export function EventCard({
         )}
         {/* GP Badge */}
         <View className="absolute right-2.5 top-2.5 rounded-full bg-primary px-3 py-1">
-          <Text className="font-inter-bold text-xs text-white">
-            +{item.rewardPoints} GP
-          </Text>
+          <Text className="font-inter-bold text-xs text-white">+{item.rewardPoints} GP</Text>
         </View>
       </View>
 
@@ -91,7 +87,7 @@ export function EventCard({
         {/* Location */}
         <View className="mt-1.5 flex-row items-center">
           <Feather name="map-pin" size={12} color={colors.neutral400} />
-          <Text className="ml-1.5 line-clamp-1 font-inter text-xs text-foreground/50">
+          <Text className="text-foreground/50 ml-1.5 line-clamp-1 font-inter text-xs">
             {item.address.addressDetail}
           </Text>
         </View>
@@ -100,7 +96,7 @@ export function EventCard({
         <View className="mt-1.5 flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Feather name="clock" size={12} color={colors.neutral400} />
-            <Text className="ml-1.5 font-inter text-xs text-foreground/50">
+            <Text className="text-foreground/50 ml-1.5 font-inter text-xs">
               {t('home.event_time', {
                 date: formatShortDate(item.startTime),
                 time: formatTime(item.startTime),
@@ -109,12 +105,14 @@ export function EventCard({
           </View>
           <View className="flex-row items-center">
             <Feather name="users" size={12} color={colors.neutral400} />
-            <Text className="ml-1 font-inter text-xs text-foreground/50">
+            <Text className="text-foreground/50 ml-1 font-inter text-xs">
               {item.participantCount || 0}/{item.maxParticipants}
             </Text>
             {full && !isRegistered && (
               <View className="ml-2 rounded-full bg-rose-50 px-2 py-0.5">
-                <Text className="font-inter-medium text-[10px] text-rose-500">{t('home.btn_full')}</Text>
+                <Text className="font-inter-medium text-[10px] text-rose-500">
+                  {t('home.btn_full')}
+                </Text>
               </View>
             )}
           </View>
@@ -123,16 +121,13 @@ export function EventCard({
         {/* CTA Button */}
         <TouchableOpacity
           className={`mt-3 items-center justify-center rounded-xl py-2.5 active:opacity-80 ${ctaBg}`}
+          // disabled={ctaDisabled}
           disabled={ctaDisabled}
           onPress={(e) => {
             e.stopPropagation();
             onRegister?.();
-          }}
-        >
-          <Text
-            className={`font-inter-semibold text-sm ${ctaText}`}
-            numberOfLines={1}
-          >
+          }}>
+          <Text className={`font-inter-semibold text-sm ${ctaText}`} numberOfLines={1}>
             {ctaLabel}
           </Text>
         </TouchableOpacity>

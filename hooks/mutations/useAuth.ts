@@ -9,6 +9,7 @@ import {
   RegisterEmailRequest,
   VerifyOtpRequest,
   SetPasswordRequest,
+  SetPasswordWhenForgotRequest,
 } from 'types/user.type';
 import { QUERY_KEYS } from 'constants/queryKeys';
 
@@ -33,15 +34,33 @@ export const useRequestOtp = () => {
   });
 };
 
+export const useRequestOtpWhenForgot = () => {
+  return useMutation({
+    mutationFn: (payload: RegisterEmailRequest) => authService.requestOtpForgot(payload),
+  });
+};
+
 export const useVerifyOtp = () => {
   return useMutation({
     mutationFn: (payload: VerifyOtpRequest) => authService.verifyOtp(payload),
   });
 };
 
+export const useVerifyOtpWhenForgot = () => {
+  return useMutation({
+    mutationFn: (payload: VerifyOtpRequest) => authService.verifyOtpForgot(payload),
+  });
+};
+
 export const useSetPassword = () => {
   return useMutation({
     mutationFn: (payload: SetPasswordRequest) => authService.setPassword(payload),
+  });
+};
+
+export const useSetPasswordWhenForgot = () => {
+  return useMutation({
+    mutationFn: (payload: SetPasswordWhenForgotRequest) => authService.setPasswordOtp(payload),
   });
 };
 
