@@ -151,11 +151,12 @@ export default function PostDetailScreen() {
   }, []);
 
   const handleConfirmReject = useCallback(
-    (reasonCode: RejectReasonCode, note: string) => {
+    (reasonLabel: string, note: string) => {
+      // If note is provided (custom), use it, otherwise use label
+      const rejectReason = note?.trim() ? note : reasonLabel;
       const payload = {
         decision: 'REJECT' as ReviewDecision,
-        reject_reason_code: reasonCode,
-        reject_reason_note: reasonCode === 'OTHER' ? note.trim() : undefined,
+        rejectReason,
       };
 
       reviewPost(payload, {
@@ -429,7 +430,11 @@ export default function PostDetailScreen() {
         colors={colors}
         insets={insets}
         isReviewing={isReviewing}
-        onSubmit={handleConfirmReject}
+        onSubmit={(reasonCode, note) => {
+          const reasonObj = REJECT_REASONS.find((r) => r.code === reasonCode);
+          const label = reasonObj?.label || reasonCode;
+          handleConfirmReject(label, note);
+        }}
         renderBackdrop={renderBackdrop}
       />
     </View>
