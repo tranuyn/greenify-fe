@@ -65,6 +65,9 @@ export default function RootLayout() {
             <Stack.Screen name="leaderboard" />
             <Stack.Screen name="calendar" />
             <Stack.Screen name="faq" />
+            <Stack.Screen name="co2e" />
+            <Stack.Screen name="coexistence" />
+            <Stack.Screen name="uit_green" />
           </Stack>
         </BottomSheetModalProvider>
       </QueryClientProvider>

@@ -252,12 +252,26 @@ export default function CreateOrUpdateEventScreen() {
     return `${dateLabel} ${predictEndTime || ''}`.trim();
   }, [predictEndDate, predictEndTime]);
 
+  const onError = (errors: any) => {
+    console.log('Lỗi validate form:', errors);
+    const collectMessages = (errObj: any): string[] => {
+      if (!errObj) return [];
+      if (errObj.message) return [errObj.message];
+      return Object.values(errObj).flatMap((v: any) => collectMessages(v));
+    };
+    const messages = collectMessages(errors);
+    const firstMessage =
+      messages.length > 0 ? messages[0] : t('events.create_event.alerts.error_fallback');
+    Alert.alert(t('common.error', 'Lỗi'), firstMessage);
+  };
+
   const onSubmit = useCallback(
     async (data: CreateEventFormData) => {
       if (!coverImageFile && !isEditMode) {
         Alert.alert(t('common.error', 'Lỗi'), 'Vui lòng tải ảnh bìa sự kiện trước khi tạo.');
         return;
       }
+
       try {
         setIsUploadingMedia(true);
         let thumbnail = eventDetail?.thumbnail;
@@ -274,6 +288,7 @@ export default function CreateOrUpdateEventScreen() {
             'Upload ảnh bìa chưa trả về đủ bucketName/objectKey.'
           );
         }
+
         if (eventImages.length > 0) {
           // eventImages: SelectedImage[] (mới upload), images: EventImage[] (cũ từ BE)
           const newImages = eventImages.filter((img) => (img as SelectedImage).fileName);
@@ -811,8 +826,8 @@ export default function CreateOrUpdateEventScreen() {
               ? t('events.create_event.buttons.update', 'Cập nhật')
               : t('events.create_event.buttons.submit')
           }
-          isLoading={isCreating || isUpdating || isUploadingMedia || isLoadingEventDetail}
-          onPress={handleSubmit(onSubmit)}
+          //isLoading={isCreating || isUploadingMedia || isLoadingEventDetail}
+          onPress={() => handleSubmit(onSubmit, onError)()}
           className="flex-1 bg-primary"
         />
       </View>

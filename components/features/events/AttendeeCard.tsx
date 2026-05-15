@@ -6,31 +6,9 @@ import { Text } from '@/components/ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { IMAGES } from '@/constants/linkMedia';
 import { ImageSourcePropType } from 'react-native';
+import { REGISTRATION_STATUS, RegistrationStatus } from '@/types/community.types';
+import { getRegistrationBadge } from '@/utils/eventUtils';
 // Đảm bảo import đúng đường dẫn IMAGES của bạn
-
-// Khai báo enum trạng thái
-export const REGISTRATION_STATUS = {
-  REGISTERED: 'REGISTERED',
-  WAITLISTED: 'WAITLISTED',
-  CANCELLED: 'CANCELLED',
-  CHECKED_IN: 'CHECKED_IN',
-  CHECKED_OUT: 'CHECKED_OUT',
-  ATTENDED: 'ATTENDED',
-  NO_SHOW: 'NO_SHOW',
-} as const;
-
-export type RegistrationStatus = keyof typeof REGISTRATION_STATUS;
-
-// Cấu hình màu sắc cho từng badge trạng thái
-const STATUS_BADGE: Record<RegistrationStatus, { bg: string; text: string; i18nKey: string }> = {
-  REGISTERED: { bg: 'bg-blue-50', text: 'text-blue-600', i18nKey: 'registered' },
-  WAITLISTED: { bg: 'bg-amber-50', text: 'text-amber-600', i18nKey: 'waitlisted' },
-  CHECKED_IN: { bg: 'bg-emerald-50', text: 'text-emerald-600', i18nKey: 'checked_in' },
-  CHECKED_OUT: { bg: 'bg-indigo-50', text: 'text-indigo-600', i18nKey: 'checked_out' },
-  ATTENDED: { bg: 'bg-primary-50', text: 'text-primary-700', i18nKey: 'attended' },
-  CANCELLED: { bg: 'bg-gray-100', text: 'text-gray-500', i18nKey: 'cancelled' },
-  NO_SHOW: { bg: 'bg-rose-50', text: 'text-rose-600', i18nKey: 'no_show' },
-};
 
 type AttendeeCardProps = {
   item: any; // Thay bằng type EventRegistration thực tế của bạn
@@ -47,7 +25,7 @@ export function AttendeeCard({ item, onApprove, onReject }: AttendeeCardProps) {
 
   // Lấy ra trạng thái hiện tại
   const status = item.registrationStatus as RegistrationStatus;
-  const badge = STATUS_BADGE[status] || STATUS_BADGE.REGISTERED; // Fallback an toàn
+  const badge = getRegistrationBadge(status);
 
   // Xử lý chuỗi địa chỉ
   const locationParts = [profile?.ward, profile?.district, profile?.province].filter(
@@ -84,7 +62,7 @@ export function AttendeeCard({ item, onApprove, onReject }: AttendeeCardProps) {
             {/* Badge Trạng thái */}
             <View className={`ml-2 rounded-full px-2.5 py-0.5 ${badge.bg}`}>
               <Text className={`font-inter-medium text-[10px] ${badge.text}`}>
-                {t(`events.status.${badge.i18nKey}`, status)}
+                {t(`events.my_events.status.${badge.i18nKey}`, { defaultValue: status })}
               </Text>
             </View>
           </View>

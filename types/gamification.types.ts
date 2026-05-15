@@ -2,7 +2,9 @@
 // VOUCHER TYPES
 // Mapped from: voucher_templates, user_vouchers
 
+import { en } from 'zod/v4/locales';
 import { PageResponse, PaginationParams } from './common.types';
+import { UserProfile } from './user.type';
 
 // ============================================================
 export type VoucherTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DEPLETED';
@@ -186,9 +188,38 @@ export interface GardenArchive {
   voucherCode: string | null;
   user_voucher_id: string | null;
   archivedAt: string;
+  isPlanted?: boolean;
   // Joined
   seed?: Seed;
   plant_progress?: PlantProgress;
+}
+
+export enum GardenBuilding {
+  GARAGE_A = 'GARAGE_A',
+  GARAGE_B = 'GARAGE_B',
+  CAFETERIA_A = 'CAFETERIA_A',
+  CAFETERIA_B = 'CAFETERIA_B',
+  BUILDING_A = 'BUILDING_A',
+  BUILDING_B = 'BUILDING_B',
+  BUILDING_C = 'BUILDING_C',
+  BUILDING_E = 'BUILDING_E',
+}
+export interface GardenPlantation {
+  id: string;
+  seedId: string;
+  seedName: string;
+  seedStage4ImageUrl: string;
+  user: UserProfile;
+  slotId: string;
+  building: GardenBuilding;
+  createdAt: string;
+  wiltedAt: string | null;
+}
+
+export interface CreateGardenPlantationRequest {
+  archiveId: string;
+  slotId: string;
+  building: GardenBuilding;
 }
 
 // ============================================================

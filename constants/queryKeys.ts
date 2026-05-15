@@ -1,4 +1,4 @@
-import { LeaderboardScope } from 'types/gamification.types';
+import { GardenBuilding, LeaderboardScope } from 'types/gamification.types';
 
 /**
  * Query Key Factory — dùng factory pattern thay vì string constants.
@@ -48,6 +48,8 @@ export const QUERY_KEYS = {
     all: ['wallet'] as const,
     mine: () => ['wallet', 'me'] as const,
     ledger: (params?: object) => ['wallet', 'ledger', params] as const,
+    co2e: () => ['wallet', 'co2e'] as const,
+    co2eHistory: (params?: object) => ['wallet', 'co2e-history', params] as const,
   },
 
   // Gamification
@@ -58,6 +60,7 @@ export const QUERY_KEYS = {
     all: ['garden'] as const,
     active: () => ['garden', 'active'] as const,
     archives: () => ['garden', 'archives'] as const,
+    plantations: (building?: GardenBuilding) => ['garden', 'plantations', building] as const,
     seeds: () => ['garden', 'seeds'] as const,
     dailyLogs: (params?: object) => ['garden', 'daily-logs', params] as const,
   },

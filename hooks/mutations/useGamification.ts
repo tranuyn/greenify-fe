@@ -3,7 +3,10 @@ import { Alert } from 'react-native';
 import { QUERY_KEYS } from 'constants/queryKeys';
 import { queryClient } from 'lib/queryClient';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
-import { CreatePlantDailyLogRequest } from 'types/gamification.types';
+import {
+  CreatePlantDailyLogRequest,
+  CreateGardenPlantationRequest,
+} from 'types/gamification.types';
 
 const getErrorMessage = (error: any) => {
   return (
@@ -62,6 +65,19 @@ export const useCreatePlantDailyLog = () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garden.dailyLogs() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garden.active() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.streak.mine() });
+    },
+  });
+};
+
+export const useCreateGardenPlantation = () => {
+  return useMutation({
+    mutationFn: (payload: CreateGardenPlantationRequest) =>
+      gamificationService.createGardenPlantation(payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garden.archives() });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.garden.plantations(variables.building),
+      });
     },
   });
 };

@@ -59,4 +59,46 @@ export const IMAGES = {
   winner: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/winner.png?updatedAt=1775669299345',
   calendarImg:
     'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/calendar.png?updatedAt=1775669299335',
+  co2e_wallet:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/v%C3%AD%20CO2.png?updatedAt=1778603135483',
+  uit_green: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Icon/uit.png?updatedAt=1778644235116',
+  nha_an_b:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20%C4%83n%20B.png?updatedAt=1778644203725',
+  toa_e:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/E-text.png?updatedAt=1778691693106',
+  toa_b:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/B-text.png?updatedAt=1778691692597',
+  nha_xe_1:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20xe%201.png?updatedAt=1778644203595',
+  nha_xe_2:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20xe%202.png?updatedAt=1778644203580',
+  toa_a:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/A-text.png?updatedAt=1778691692613',
+  nha_an_a:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20%C3%A2n%20A.png?updatedAt=1778644203518',
+  toa_c:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/C-text.png?updatedAt=1778691693095',
+
+  b_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/B-grid.png?updatedAt=1778644204315',
+  nha_an_1_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20%C4%83n%201-grid.png?updatedAt=1778644203545',
+  nha_xe_1_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20xe%201-grid.png?updatedAt=1778644203558',
+  c_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/C-grid.png?updatedAt=1778644203592',
+  nha_an_2_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20%C4%83n%202-grid.png?updatedAt=1778644203559',
+  nha_xe_2_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/nh%C3%A0%20xe%202-grid.png?updatedAt=1778644203511',
+  e_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/E-grid.png?updatedAt=1778644203533',
+  a_grid:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/A-grid.png?updatedAt=1778644203066',
+
+  UIT_Background:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/Background/banner%20BG.png?updatedAt=1778818652489',
+  logo_greenify: 'https://ik.imagekit.io/ii5tr5cdi/Material/Image/logo.svg?updatedAt=1776654858453',
+  UIT20:
+    'https://ik.imagekit.io/ii5tr5cdi/Material/Image/UIT%20shape/UIT20-02.png?updatedAt=1778818415254',
 };

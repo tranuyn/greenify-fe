@@ -230,6 +230,34 @@ export interface PointHistoryEntry {
   expiredTransactionId: string;
 }
 
+export type Co2eType = 'AVOIDED' | 'ABSORBED';
+
+export interface Co2eSummary {
+  totalAvoidedKg: number;
+  totalAbsorbedKg: number;
+  totalCo2eKg: number;
+  totalGreenPost: number;
+  totalPlant: number;
+}
+
+export interface Co2eHistoryEntry {
+  post: GreenActionPostDetailDto;
+  materialCode: string;
+  materialLabel: string;
+  co2eType: Co2eType;
+  co2eKg: number;
+  confidenceScore: number;
+  creditedAt: string;
+}
+
+export interface Co2eAnalysisResult {
+  totalMetrics: {
+    totalCo2eKg: number;
+    totalAvoidedKg: number;
+    totalAbsorbedKg: number;
+  };
+}
+
 export interface PointRule {
   id: string;
   rule_key: string;

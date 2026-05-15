@@ -48,3 +48,18 @@ export const getRegistrationButtonLabel = ({
   // 4. Mặc định: Chưa đăng ký và sự kiện còn chỗ
   return t('events.detail.actions.register', 'Đăng ký');
 };
+
+export const getRegistrationBadge = (status?: RegistrationStatus | null) => {
+  const map: Record<RegistrationStatus, { bg: string; text: string; i18nKey: string }> = {
+    REGISTERED: { bg: 'bg-blue-50', text: 'text-blue-600', i18nKey: 'registered' },
+    WAITLISTED: { bg: 'bg-amber-50', text: 'text-amber-600', i18nKey: 'waitlisted' },
+    CHECKED_IN: { bg: 'bg-emerald-50', text: 'text-emerald-600', i18nKey: 'checked_in' },
+    CHECKED_OUT: { bg: 'bg-indigo-50', text: 'text-indigo-600', i18nKey: 'checked_out' },
+    ATTENDED: { bg: 'bg-primary-50', text: 'text-primary-700', i18nKey: 'attended' },
+    CANCELLED: { bg: 'bg-gray-100', text: 'text-gray-500', i18nKey: 'cancelled' },
+    NO_SHOW: { bg: 'bg-rose-50', text: 'text-rose-600', i18nKey: 'no_show' },
+  };
+
+  if (!status) return map.REGISTERED;
+  return map[status as RegistrationStatus] || map.REGISTERED;
+};

@@ -35,6 +35,7 @@ import {
   type UserVoucher,
   type VoucherTemplate,
 } from '@/types/gamification.types';
+import BannerUIT from '@/components/features/home/bannerUIT20';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -128,6 +129,8 @@ export default function HomeScreen() {
         avatarUrl={authData?.userProfile?.avatarUrl || authData?.ngoProfile?.avatar?.imageUrl}
         points={wallet?.availablePoints ?? 0}
       />
+
+      <BannerUIT />
 
       <Utilities isForHome={true} />
 

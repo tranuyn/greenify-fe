@@ -24,3 +24,26 @@ export const usePointLedger = (params?: PointLedgerQueryParams) => {
     queryFn: () => walletService.getMyPointHistory(params),
   });
 };
+
+export const useMyCo2e = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.wallet.co2e(),
+    queryFn: () => walletService.getMyCo2e(),
+  });
+};
+
+export const useMyCo2eHistory = (params?: PaginationParams) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.wallet.co2eHistory(params),
+    queryFn: () => walletService.getMyCo2eHistory(params),
+  });
+};
+
+export const useUITBannerCo2e = () => {
+  const query = useMyCo2e();
+
+  return {
+    ...query,
+    totalCo2eKg: query.data?.totalCo2eKg ?? 0,
+  };
+};

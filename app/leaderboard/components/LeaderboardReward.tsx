@@ -116,7 +116,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
           </View>
         </View>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           disabled={isClaiming}
           onPress={onClaim}
           className="mt-5 items-center rounded-full bg-[#359B63] py-3 disabled:opacity-50">
@@ -125,7 +125,7 @@ export default function RewardDetail({ data, onClaim, isClaiming }: RewardDetail
           ) : (
             <Text className="font-semibold text-white">{t('leaderboard.reward.claim_now')}</Text>
           )}
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );

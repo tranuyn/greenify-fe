@@ -3,9 +3,12 @@ import {
   Streak,
   PlantProgress,
   GardenArchive,
+  GardenBuilding,
+  GardenPlantation,
   PlantDailyLog,
   PlantDailyLogQueryParams,
   CreatePlantDailyLogRequest,
+  CreateGardenPlantationRequest,
   Seed,
   SeedRewardVoucher,
   VoucherTemplate,
@@ -71,6 +74,13 @@ export const gamificationService = {
     return data;
   },
 
+  async getGardenPlantations(building: GardenBuilding): Promise<GardenPlantation[]> {
+    const { data } = await apiClient.get<GardenPlantation[]>('/garden/plantation', {
+      params: { building },
+    });
+    return data;
+  },
+
   async getPlantDailyLogs(params?: PlantDailyLogQueryParams): Promise<PlantDailyLog[]> {
     // if (IS_MOCK_MODE) {
     //   await mockDelay(350);
@@ -96,6 +106,7 @@ export const gamificationService = {
     const { data } = await apiClient.get<PlantDailyLog[]>('/garden/plant/daily-logs', {
       params,
     });
+    console.log('Fetched Plant Daily Logs:', data);
     return data;
   },
 
@@ -119,6 +130,11 @@ export const gamificationService = {
     // }
 
     const { data } = await apiClient.post<PlantDailyLog>('/garden/daily-logs', payload);
+    return data;
+  },
+
+  async createGardenPlantation(payload: CreateGardenPlantationRequest): Promise<GardenPlantation> {
+    const { data } = await apiClient.post<GardenPlantation>('/garden/plantation', payload);
     return data;
   },
 

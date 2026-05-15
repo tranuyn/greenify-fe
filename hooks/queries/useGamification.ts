@@ -3,6 +3,7 @@ import { QUERY_KEYS } from 'constants/queryKeys';
 import { gamificationService, leaderboardService } from 'services/gamification.service';
 import {
   LeaderboardScope,
+  GardenBuilding,
   PlantDailyLogQueryParams,
   MyVouchersQueryParams,
   AvailableVouchersQueryParams,
@@ -24,10 +25,19 @@ export const useMyPlant = () => {
   });
 };
 
-export const useGardenArchives = () => {
+export const useGardenArchives = (enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.archives(),
     queryFn: () => gamificationService.getGardenArchives().then((r) => r.content),
+    enabled,
+  });
+};
+
+export const useGardenPlantations = (building?: GardenBuilding) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.garden.plantations(building),
+    queryFn: () => gamificationService.getGardenPlantations(building as GardenBuilding),
+    enabled: Boolean(building),
   });
 };
 

@@ -62,10 +62,10 @@ export default function EventDetailScreen() {
   // Lấy danh sách người đăng ký sự kiện (chỉ fetch nếu không phải tổ chức)
   const shouldFetchEventRegistrations = user?.ngoProfile?.id !== event?.organizer?.id;
   const { data: eventRegistrations, isLoading: isLoadingRegistrations } = useEventRegistrations(
-    shouldFetchEventRegistrations ? id : ''
+    id,
+    shouldFetchEventRegistrations
   );
   const myRegistrationEvent = registrationsResponse?.content?.find((e: Event) => e.id === id);
-
   // Always fetch registration code when modal is opened
   useEffect(() => {
     const fetchQr = async () => {
@@ -164,7 +164,7 @@ export default function EventDetailScreen() {
       });
 
     return (
-      <View className="flex-1 items-center justify-center bg-background px-6">
+      <View className="flex-1 items-center justify-center">
         <Feather name="alert-circle" size={28} color={colors.error} />
         <Text className="mt-3 text-center font-inter-semibold text-base text-foreground">
           {t('common.error', { defaultValue: 'Đã có lỗi xảy ra' })}

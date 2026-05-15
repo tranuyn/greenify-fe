@@ -23,11 +23,11 @@ export const useMyEvents = (params?: EventQueryParams) => {
   });
 };
 
-export const useEventRegistrations = (eventId: string) => {
+export const useEventRegistrations = (eventId: string, enabled = true) => {
   return useQuery({
     queryKey: QUERY_KEYS.events.eventRegistrations(eventId),
     queryFn: () => eventService.getEventRegistrations(eventId),
-    enabled: !!eventId,
+    enabled: !!eventId && enabled,
   });
 };
 

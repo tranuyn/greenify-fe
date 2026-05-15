@@ -30,6 +30,7 @@ import { useRegisterEvent } from '@/hooks/mutations/useEvents';
 import { useCurrentUser } from '@/hooks/queries/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor.hook';
 import { type Event } from '@/types/community.types';
+import { Alert } from 'react-native';
 
 export function UserEventsScreen() {
   const { t } = useTranslation();
@@ -89,7 +90,14 @@ export function UserEventsScreen() {
         { eventId },
         {
           onSuccess: () => setRegisteringId(null),
-          onError: () => setRegisteringId(null),
+          onError: (err: any) => {
+            setRegisteringId(null);
+            Alert.alert(
+              t('events.detail.alert.register_failed_title', 'Đăng ký thất bại'),
+              err?.response?.data?.message ||
+                t('events.detail.alert.register_failed_message', 'Không thể đăng ký sự kiện')
+            );
+          },
         }
       );
     },
@@ -170,9 +178,7 @@ export function UserEventsScreen() {
                   {t('events.list.pickDate', 'Chọn ngày')}
                 </Text>
                 <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                  <Text className="font-inter-semibold text-sm text-primary-700">
-                    {c('done')}
-                  </Text>
+                  <Text className="font-inter-semibold text-sm text-primary-700">{c('done')}</Text>
                 </TouchableOpacity>
               </View>
               <DateTimePicker
