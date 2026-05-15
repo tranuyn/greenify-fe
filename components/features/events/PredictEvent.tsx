@@ -63,6 +63,14 @@ export default function PredictEvent({
   useEffect(() => {
     if (!visible) return;
 
+    console.log('Predicting event with params:', {
+      province,
+      startTime,
+      endTime,
+      minParticipants,
+      expectedParticipants,
+      eventType,
+    });
     predictMutation.mutate({
       province,
       startTime,

@@ -4,6 +4,8 @@ import type {
   CreatePostRequest,
   PointWallet,
   PointHistoryEntry,
+  Co2eSummary,
+  Co2eHistoryEntry,
   PostReview,
   ReviewPostRequest,
   GreenActionPostDetailDto,
@@ -16,6 +18,7 @@ import type {
   PostStatus,
   CreateActionTypeRequest,
   UpdateActionTypeRequest,
+  Co2eAnalysisResult,
 } from 'types/action.types';
 import { mockDelay, mockSuccess } from './mock/config';
 import {
@@ -319,6 +322,7 @@ export const actionService = {
     //   return mockSuccess(post);
     // }
     const { data } = await apiClient.get<GreenActionPostDetailDto>(`/green-action/posts/${postId}`);
+    console.log('Fetched post detail:', data);
     return data;
   },
 
@@ -420,6 +424,26 @@ export const walletService = {
       '/green-action/points/me/history',
       { params }
     );
+    console.log('Fetched point history:', data);
+    return data;
+  },
+
+  async getMyCo2e(): Promise<Co2eSummary> {
+    const { data } = await apiClient.get<Co2eSummary>('/wallet/co2e');
+    return data;
+  },
+
+  async getMyCo2eHistory(params?: PaginationParams): Promise<PageResponse<Co2eHistoryEntry>> {
+    const { data } = await apiClient.get<PageResponse<Co2eHistoryEntry>>('/me/co2e-history', {
+      params,
+    });
+    return data;
+  },
+
+  async getTotalCo2eHistory(params?: PaginationParams): Promise<PageResponse<Co2eAnalysisResult>> {
+    const { data } = await apiClient.get<PageResponse<Co2eAnalysisResult>>('/analyst/admin/co2e', {
+      params,
+    });
     return data;
   },
 };

@@ -109,8 +109,8 @@ export default function WalletScreen() {
 
         {/* Khung Tìm kiếm & Lọc */}
         <View className="mt-6 px-4">
-          <Text className="mb-3 text-base font-bold text-foreground">
-            {t('point_history.history_title')}
+          <Text className="mb-3 tehistory_titlext-base font-bold text-foreground">
+            {t('point_history.')}
           </Text>
           <View className="mb-2 flex-row items-center gap-x-2">
             <View className="flex-1 flex-row items-center rounded-full border border-primary px-4 py-2.5">

@@ -195,6 +195,7 @@ export const eventService = {
   },
 
   async getEventRegistrations(eventId: string): Promise<EventRegistration[]> {
+    console.log('Fetching event registrations for eventId:', eventId);
     const { data } = await apiClient.get<EventRegistration[]>(`/events/${eventId}/registrations`);
     console.log('Fetched event registrations:', data);
     return data;

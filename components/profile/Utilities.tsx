@@ -14,6 +14,8 @@ const utils = [
     isForHome: false,
   },
   { name: 'Điểm rác', icon: IMAGES.coexistence, route: '/coexistence', isForHome: false },
+  { name: 'Ví CO2e', icon: IMAGES.co2e_wallet, route: '/co2e', isForHome: false },
+  { name: 'UIT xanh', icon: IMAGES.uit_green, route: '/uit_green', isForHome: false },
 ];
 
 type UtilitiesProps = {
@@ -33,7 +35,7 @@ export const Utilities = ({ isForHome = false }: UtilitiesProps) => {
         {visibleUtils.map((item, index) => (
           <TouchableOpacity
             key={index}
-            className="w-1/4 items-center"
+            className="mb-4 w-1/4 items-center"
             // 4. Kiểm tra xem item có route không thì mới push
             onPress={() => {
               if (item.route) {

@@ -208,7 +208,7 @@ export default function PostDetailScreen() {
           onPress={() => router.back()}
           className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-primary-50"
           hitSlop={8}>
-          <Feather name="chevron-left" size={20} color={colors.background} />
+          <Feather name="chevron-left" size={20} color={colors.primary} />
         </TouchableOpacity>
         <Text className="flex-1 font-inter-bold text-xl text-foreground">
           {t('community.post_detail.header_title', 'Chi tiết bài đăng')}

@@ -12,7 +12,6 @@ export default function NatureScreen() {
   const totalItems = 60;
   const { data: archives = [] } = useGardenArchives();
   const collectedItems = archives.slice(0, totalItems);
-  console.log('Fetched garden archives:', collectedItems);
 
   return (
     // Màu nền xanh cực nhạt theo ảnh
