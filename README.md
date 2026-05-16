@@ -3,7 +3,7 @@
 > Một ứng dụng di động thân thiện, hiện đại được phát triển trên nền tảng **[React Native](https://reactnative.dev/)**.
 
 Greenifile mang đến trải nghiệm mượt mà, giao diện tối ưu và hiệu năng cao cho cả hai hệ điều hành Android và iOS. Đây Là một nền tảng khuyến khích người dùng xây dựng lối sống xanh thông qua các hoạt động thiết thực như đăng hành động xanh, tham gia sự kiện môi trường, tích điểm, đổi quà và theo dõi hành trình phát triển của bản thân. Ứng dụng không chỉ ghi nhận đóng góp cá nhân mà còn tạo ra một cộng đồng cùng nhau lan tỏa các giá trị bền vững.
-
+- 🎥 **Video Demo Ứng Dụng:** [Nhấn vào đây để xem Demo trên Google Drive](https://drive.google.com/file/d/1OSmodCqGizREbHZX7hW5ei3-ueIxrMSv/view?usp=drive_link)
 ---
 
 ## ✨ Tính năng nổi bật
